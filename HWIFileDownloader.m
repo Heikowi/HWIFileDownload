@@ -138,14 +138,28 @@
 - (void)startDownloadWithDownloadIdentifier:(NSString *)aDownloadIdentifier
                               fromRemoteURL:(NSURL *)aRemoteURL
 {
-    [self startDownloadWithDownloadToken:aDownloadIdentifier fromRemoteURL:aRemoteURL usingResumeData:nil];
+    if (aDownloadIdentifier.length > 0 && aRemoteURL)
+    {
+        [self startDownloadWithDownloadToken:aDownloadIdentifier fromRemoteURL:aRemoteURL usingResumeData:nil];
+    }
+    else
+    {
+        NSLog(@"ERR: Missing arguments (%s, %d)", __FILE__, __LINE__);
+    }
 }
 
 
 - (void)startDownloadWithDownloadIdentifier:(NSString *)aDownloadIdentifier
                             usingResumeData:(NSData *)aResumeData
 {
-    [self startDownloadWithDownloadToken:aDownloadIdentifier fromRemoteURL:nil usingResumeData:aResumeData];
+    if (aDownloadIdentifier.length > 0 && aResumeData)
+    {
+        [self startDownloadWithDownloadToken:aDownloadIdentifier fromRemoteURL:nil usingResumeData:aResumeData];
+    }
+    else
+    {
+        NSLog(@"ERR: Missing arguments (%s, %d)", __FILE__, __LINE__);
+    }
 }
 
 
@@ -206,7 +220,17 @@
     }
     else
     {
-        [self.waitingDownloadsArray addObject:@{@"remoteURL" : aRemoteURL, @"downloadToken" : aDownloadToken}];
+        NSMutableDictionary *aWaitingDownloadDict = [NSMutableDictionary dictionary];
+        [aWaitingDownloadDict setObject:aDownloadToken forKey:@"downloadToken"];
+        if (aRemoteURL)
+        {
+            [aWaitingDownloadDict setObject:aRemoteURL forKey:@"remoteURL"];
+        }
+        if (aResumeData)
+        {
+            [aWaitingDownloadDict setObject:aResumeData forKey:@"resumeData"];
+        }
+        [self.waitingDownloadsArray addObject:aWaitingDownloadDict];
     }
 }
 
@@ -808,12 +832,13 @@
         if (self.waitingDownloadsArray.count > 0)
         {
             NSDictionary *aWaitingDownload = [self.waitingDownloadsArray objectAtIndex:0];
-            NSURL *aRemoteURL = aWaitingDownload[@"remoteURL"];
             NSString *aDownloadToken = aWaitingDownload[@"downloadToken"];
+            NSURL *aRemoteURL = aWaitingDownload[@"remoteURL"];
+            NSData *aResumeData = aWaitingDownload[@"resumeData"];
             [self.waitingDownloadsArray removeObjectAtIndex:0];
             [self startDownloadWithDownloadToken:aDownloadToken
                                    fromRemoteURL:aRemoteURL
-                                 usingResumeData:nil];
+                                 usingResumeData:aResumeData];
         }
     }
 }
