@@ -1,6 +1,5 @@
 /*
  * Project: HWIFileDownload (Demo App)
- * Version: 1.0
  
  * Created by Heiko Wichmann (20141004)
  * File: DownloadStore.h

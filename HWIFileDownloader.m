@@ -1,6 +1,5 @@
 /*
  * Project: HWIFileDownload
- * Version: 1.0
  
  * Created by Heiko Wichmann (20140928)
  * File: HWIFileDownloader.m
