@@ -10,7 +10,7 @@
  
  Copyright (c) 2014 Heiko Wichmann
  
- http://www.imagomat.de
+ https://github.com/Heikowi/HWIFileDownload
  
  This software is provided 'as-is', without any expressed or implied warranty.
  In no event will the authors be held liable for any damages
