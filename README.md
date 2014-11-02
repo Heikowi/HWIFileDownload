@@ -1,16 +1,16 @@
 # HWIFileDownload
 
-HWIFileDownload provides a clear interface for integrating file download on iOS. It is based on NSURLSession so it offers system background operation even when the app is not running. HWIFileDownload is backwards compatible down to iOS 6 (where NSURLConnection is used instead of NSURLSession).
+HWIFileDownload provides a clear interface for integrating file download on iOS. It is based on `NSURLSession` so it offers system background operation even when the app is not running. HWIFileDownload is backwards compatible down to iOS 6 (where `NSURLConnection` is used instead of `NSURLSession`).
 
 ## Features
 
-HWIFileDownload uses a download identifier for starting a download, retrieving progress information, and for completing the download. The download identifier is a string that must be different for each individual file download.
+HWIFileDownload uses a __download identifier__ for starting a download, retrieving progress information, and for completing the download. The __download identifier__ is a string that must be different for each individual file download.
 
-To start a download, the app client calls the method startDownloadWithDownloadIdentifier:fromRemoteURL: of the HWIFileDownloader.
+To start a download, the app client calls the method `startDownloadWithDownloadIdentifier:fromRemoteURL:` of the `HWIFileDownloader`.
 
-The app client should maintain a custom download store to manage the downloads and the persistent store. The app download store needs to implement the protocol HWIFileDownloadDelegate to be called on significant download events.
+The app client should maintain a custom __download store__ to manage the downloads and the persistent store. The app __download store__ needs to implement the protocol `HWIFileDownloadDelegate` to be called on significant download events.
 
-The delegate is called on download completion. Additional calls are used to control the visibility of the network activity indicator. Optionally the delegate can be called on download progress change for each download item. To control the name of the downloaded file, the delegate can implement the method localFileURLForIdentifier:remoteURL:.
+The delegate is called on download completion. Additional calls are used to control the visibility of the network activity indicator. Optionally the delegate can be called on download progress change for each download item. To control the name of the downloaded file, the delegate can implement the method `localFileURLForIdentifier:remoteURL:`.
 
 	@protocol HWIFileDownloadDelegate
 
@@ -31,7 +31,7 @@ The delegate is called on download completion. Additional calls are used to cont
 
 	@end
 	
-The app needs to hold an instance of the HWIFileDownloader that manages the download process. The HWIDownloader provides methods for querying and controlling individual download processes.
+The app needs to hold an instance of the `HWIFileDownloader` that manages the download process. The `HWIDownloader` provides methods for querying and controlling individual download processes.
 
 	- (void)startDownloadWithDownloadIdentifier:(NSString *)aDownloadIdentifier
               	                  fromRemoteURL:(NSURL *)aRemoteURL;
@@ -46,7 +46,7 @@ The app needs to hold an instance of the HWIFileDownloader that manages the down
 	- (HWIFileDownloadProgress *)downloadProgressForIdentifier:(NSString *)aDownloadIdentifier;
 	
 	
-HWIFileDownloadProgress exposes these properties:
+`HWIFileDownloadProgress` exposes these properties:
 
 	@property (nonatomic, assign, readonly) float downloadProgress;
 	@property (nonatomic, assign, readonly) int64_t expectedFileSize;
@@ -55,7 +55,11 @@ HWIFileDownloadProgress exposes these properties:
 
 ## Demo App
 
-The demo app shows a sample setup and integration of HWIFileDownload. The app download store is implemented with the custom class DownloadStore. The app delegate holds an instance of the DownloadStore and an instance of the HWIFileDownloader.
+The demo app shows a sample setup and integration of HWIFileDownload.
+
+The app __download store__ is implemented with the custom sample class `DownloadStore`.
+
+The app delegate of the demo app holds an instance of the `DownloadStore` and an instance of the `HWIFileDownloader`.
 
 ## Workflows and Scenarios
 
