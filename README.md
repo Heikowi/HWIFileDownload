@@ -112,5 +112,5 @@ The files need to be added to the app project.
 
 ### App Delegate
 
-See the sample code for advice on souce code integration with the app delegate.
+See the sample code for advice on source code integration with the app delegate.
 
