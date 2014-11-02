@@ -847,7 +847,7 @@
 + (NSDictionary *)remainingTimeForDownloadItem:(HWIFileDownloadItem *)aDownloadItem
 {
     // speed => downloaded bytes in 1 second
-    float aSmoothingFactor = 0.5;
+    float aSmoothingFactor = 0.5; // range 0.0 ... 1.0
     NSTimeInterval aDownloadDurationUntilNow = [[NSDate date] timeIntervalSinceDate:aDownloadItem.downloadStartDate];
     int64_t aDownloadedFileSize = aDownloadItem.receivedFileSizeInBytes - aDownloadItem.resumedFileSizeInBytes;
     float aLastSpeed = (aDownloadDurationUntilNow > 0.0) ? (aDownloadedFileSize / aDownloadDurationUntilNow) : 0.0;
