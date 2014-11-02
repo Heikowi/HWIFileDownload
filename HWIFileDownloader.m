@@ -104,6 +104,8 @@
                     aDownloadItem.downloadToken = aDownloadTask.taskDescription;
                     aDownloadItem.sessionDownloadTask = aDownloadTask;
                     aDownloadItem.downloadProgress = 0.0;
+                    aDownloadItem.averageSpeed = 0.0;
+                    aDownloadItem.resumedFileSizeInBytes = 0.0;
                     [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadTask.taskIdentifier)];
                     self.currentFileDownloadsCount++;
                     [self.fileDownloadDelegate incrementNetworkActivityIndicatorActivityCount];
@@ -187,6 +189,8 @@
         aDownloadItem.downloadProgress = 0.0;
         aDownloadItem.receivedFileSizeInBytes = 0;
         aDownloadItem.expectedFileSizeInBytes = 0;
+        aDownloadItem.averageSpeed = 0.0;
+        aDownloadItem.resumedFileSizeInBytes = 0.0;
         [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadID)];
         
         if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
@@ -417,6 +421,10 @@
         aProgressRatio = (float)aTotalBytesWrittenCount / (float)aTotalBytesExpectedToWriteCount;
     }
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadTask.taskIdentifier)];
+    if (aDownloadItem.downloadStartDate == nil)
+    {
+        aDownloadItem.downloadStartDate = [NSDate date];
+    }
     aDownloadItem.downloadProgress = aProgressRatio;
     aDownloadItem.receivedFileSizeInBytes = aTotalBytesWrittenCount;
     aDownloadItem.expectedFileSizeInBytes = aTotalBytesExpectedToWriteCount;
@@ -429,6 +437,11 @@
 
 - (void)URLSession:(NSURLSession *)aSession downloadTask:(NSURLSessionDownloadTask *)aDownloadTask didResumeAtOffset:(int64_t)aFileOffset expectedTotalBytes:(int64_t)aTotalBytesExpectedCount
 {
+    HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadTask.taskIdentifier)];
+    if (aDownloadItem)
+    {
+        aDownloadItem.resumedFileSizeInBytes = aFileOffset;
+    }
     NSLog(@"Download (id: %@) resumed (offset: %@ bytes, expected: %@ bytes", aDownloadTask.taskDescription, @(aFileOffset), @(aTotalBytesExpectedCount));
 }
 
@@ -574,10 +587,14 @@
     NSNumber *aFoundDownloadID = [self downloadIDForConnection:aConnection];
     if (aFoundDownloadID)
     {
+        HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:aFoundDownloadID];
+        if (aDownloadItem.downloadStartDate == nil)
+        {
+            aDownloadItem.downloadStartDate = [NSDate date];
+        }
         long long anExpectedContentLength = [aResponse expectedContentLength];
         if (anExpectedContentLength > 0)
         {
-            HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:aFoundDownloadID];
             aDownloadItem.expectedFileSizeInBytes = anExpectedContentLength;
         }
     }
@@ -598,6 +615,10 @@
         }
         
         HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:aFoundDownloadID];
+        if (aDownloadItem.downloadStartDate == nil)
+        {
+            aDownloadItem.downloadStartDate = [NSDate date];
+        }
         int64_t anUntilNowReceivedContentSize = aDownloadItem.receivedFileSizeInBytes;
         int64_t aCompleteReceivedContentSize = anUntilNowReceivedContentSize + [aData length];
         aDownloadItem.receivedFileSizeInBytes = aCompleteReceivedContentSize;
@@ -749,7 +770,12 @@
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadID)];
     if (aDownloadItem)
     {
-        aDownloadProgress = [[HWIFileDownloadProgress alloc] initWithDownloadProgress:aDownloadItem.downloadProgress expectedFileSize:aDownloadItem.expectedFileSizeInBytes receivedFileSize:aDownloadItem.receivedFileSizeInBytes];
+        NSDictionary *aRemainingTimeDict = [HWIFileDownloader remainingTimeForDownloadItem:aDownloadItem];
+        aDownloadItem.averageSpeed = [[aRemainingTimeDict objectForKey:@"averageSpeed"] doubleValue];
+        aDownloadProgress = [[HWIFileDownloadProgress alloc] initWithDownloadProgress:aDownloadItem.downloadProgress
+                                                                     expectedFileSize:aDownloadItem.expectedFileSizeInBytes
+                                                                     receivedFileSize:aDownloadItem.receivedFileSizeInBytes
+                                                               estimatedRemainingTime:[[aRemainingTimeDict objectForKey:@"remainingTime"] doubleValue]];
     }
     return aDownloadProgress;
 }
@@ -790,6 +816,23 @@
                                  usingResumeData:nil];
         }
     }
+}
+
+
++ (NSDictionary *)remainingTimeForDownloadItem:(HWIFileDownloadItem *)aDownloadItem
+{
+    // speed => downloaded bytes in 1 second
+    float aSmoothingFactor = 0.5;
+    NSTimeInterval aDownloadDurationUntilNow = [[NSDate date] timeIntervalSinceDate:aDownloadItem.downloadStartDate];
+    int64_t aDownloadedFileSize = aDownloadItem.receivedFileSizeInBytes - aDownloadItem.resumedFileSizeInBytes;
+    float aLastSpeed = (aDownloadDurationUntilNow > 0.0) ? (aDownloadedFileSize / aDownloadDurationUntilNow) : 0.0;
+    float aNewAverageSpeed = aSmoothingFactor * aLastSpeed + (1.0 - aSmoothingFactor) * aDownloadItem.averageSpeed;
+    NSTimeInterval aRemainingTime = 0.0;
+    if (aNewAverageSpeed > 0)
+    {
+        aRemainingTime = (aDownloadItem.expectedFileSizeInBytes - aDownloadItem.receivedFileSizeInBytes) / aNewAverageSpeed;
+    }
+    return @{@"averageSpeed" : @(aNewAverageSpeed), @"remainingTime" : @(aRemainingTime)};
 }
 
 

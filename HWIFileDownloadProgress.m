@@ -40,6 +40,7 @@
 @property (nonatomic, assign, readwrite) float downloadProgress;
 @property (nonatomic, assign, readwrite) int64_t expectedFileSize;
 @property (nonatomic, assign, readwrite) int64_t receivedFileSize;
+@property (nonatomic, assign, readwrite) NSTimeInterval estimatedRemainingTime;
 @end
 
 
@@ -48,7 +49,10 @@
 
 #pragma mark - Initialization
 
-- (instancetype)initWithDownloadProgress:(float)aDownloadProgress expectedFileSize:(int64_t)anExpectedFileSize receivedFileSize:(int64_t)aReceivedFileSize
+- (instancetype)initWithDownloadProgress:(float)aDownloadProgress
+                        expectedFileSize:(int64_t)anExpectedFileSize
+                        receivedFileSize:(int64_t)aReceivedFileSize
+                  estimatedRemainingTime:(NSTimeInterval)anEstimatedRemainingTime
 {
     self = [super init];
     if (self)
@@ -56,6 +60,7 @@
         self.downloadProgress = aDownloadProgress;
         self.expectedFileSize = anExpectedFileSize;
         self.receivedFileSize = aReceivedFileSize;
+        self.estimatedRemainingTime = anEstimatedRemainingTime;
     }
     return self;
 }
@@ -70,6 +75,7 @@
     [aDescriptionDict setObject:@(self.downloadProgress) forKey:@"downloadProgress"];
     [aDescriptionDict setObject:@(self.expectedFileSize) forKey:@"expectedFileSize"];
     [aDescriptionDict setObject:@(self.receivedFileSize) forKey:@"receivedFileSize"];
+    [aDescriptionDict setObject:@(self.estimatedRemainingTime) forKey:@"estimatedRemainingTime"];
     
     NSString *aDescriptionString = [NSString stringWithFormat:@"%@", aDescriptionDict];
     

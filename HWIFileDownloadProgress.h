@@ -46,10 +46,14 @@
  @param aDownloadProgress Download progress with a range of 0.0 to 1.0.
  @param anExpectedFileSize Expected file size in bytes.
  @param aReceivedFileSize Received file size in bytes.
+ @param anEstimatedRemainingTime Estimated remaining time in seconds.
  @return Download progress item.
  */
-- (instancetype)initWithDownloadProgress:(float)aDownloadProgress expectedFileSize:(int64_t)anExpectedFileSize receivedFileSize:(int64_t)aReceivedFileSize;
-- (instancetype)init __attribute__((unavailable("use initWithDownloadProgress:expectedFileSize:receivedFileSize:")));
+- (instancetype)initWithDownloadProgress:(float)aDownloadProgress
+                        expectedFileSize:(int64_t)anExpectedFileSize
+                        receivedFileSize:(int64_t)aReceivedFileSize
+                  estimatedRemainingTime:(NSTimeInterval)anEstimatedRemainingTime;
+- (instancetype)init __attribute__((unavailable("use initWithDownloadProgress:expectedFileSize:receivedFileSize:estimatedRemainingTime:")));
 
 /**
  Download progress with a range of 0.0 to 1.0.
@@ -63,5 +67,9 @@
  Received file size in bytes.
  */
 @property (nonatomic, assign, readonly) int64_t receivedFileSize;
+/**
+ Estimated remaining time in seconds.
+ */
+@property (nonatomic, assign, readonly) NSTimeInterval estimatedRemainingTime;
 
 @end

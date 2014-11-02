@@ -43,9 +43,12 @@
 @interface HWIFileDownloadItem : NSObject
 
 
+@property (nonatomic, strong) NSDate *downloadStartDate;
 @property (nonatomic, assign) float downloadProgress;
 @property (nonatomic, assign) int64_t receivedFileSizeInBytes;
 @property (nonatomic, assign) int64_t expectedFileSizeInBytes;
+@property (nonatomic, assign) int64_t resumedFileSizeInBytes;
+@property (nonatomic, assign) float averageSpeed;
 @property (nonatomic, strong) NSString *downloadToken;
 
 @property (nonatomic, strong) NSURLSessionDownloadTask *sessionDownloadTask;

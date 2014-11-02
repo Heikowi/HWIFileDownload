@@ -43,7 +43,8 @@
 
 
 @interface DownloadTableViewController ()
-@property (nonatomic, assign) NSInteger textLabelTag;
+@property (nonatomic, assign) NSInteger fileNameLabelTag;
+@property (nonatomic, assign) NSInteger remainingTimeLabelTag;
 @property (nonatomic, assign) NSInteger progressViewTag;
 @end
 
@@ -57,8 +58,9 @@
     self = [super initWithStyle:aTableViewStyle];
     if (self)
     {
-        self.textLabelTag = 1;
-        self.progressViewTag = 2;
+        self.fileNameLabelTag = 1;
+        self.remainingTimeLabelTag = 2;
+        self.progressViewTag = 3;
         
         UIRefreshControl *aRefreshControl = [[UIRefreshControl alloc] init];
         [aRefreshControl addTarget:self action:@selector(onRefreshTable) forControlEvents:UIControlEventValueChanged];
@@ -82,7 +84,7 @@
 {
     [super viewDidLoad];
     
-    self.tableView.rowHeight = 44.0;
+    self.tableView.rowHeight = 64.0;
     [self.tableView registerNib:[UINib nibWithNibName:@"DownloadTableViewCell" bundle:[NSBundle mainBundle]] forCellReuseIdentifier:@"DownloadTableViewCell"];
     self.title = @"Downloads";
     
@@ -118,19 +120,24 @@
         aURL = [NSURL URLWithString:aURLString];
     }
     
-    UILabel *aTextLabel = (UILabel *)[aCell viewWithTag:self.textLabelTag];
+    UILabel *aFileNameLabel = (UILabel *)[aCell viewWithTag:self.fileNameLabelTag];
+    UILabel *aRemainingTimeLabel = (UILabel *)[aCell viewWithTag:self.remainingTimeLabelTag];
     UIProgressView *aProgressView = (UIProgressView *)[aCell viewWithTag:self.progressViewTag];
     if ([aURL.scheme isEqualToString:@"http"])
     {
-        aTextLabel.text = aURL.absoluteString;
+        aFileNameLabel.text = aURL.absoluteString;
         HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
+        aRemainingTimeLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
         aProgressView.progress = aFileDownloadProgress.downloadProgress;
         [aProgressView setHidden:NO];
+        [aRemainingTimeLabel setHidden:NO];
     }
     else
     {
-        aTextLabel.text = [NSString stringWithFormat:@"%@", aURL.lastPathComponent];
+        aFileNameLabel.text = [NSString stringWithFormat:@"%@", aURL.lastPathComponent];
+        aRemainingTimeLabel.text = @"";
         [aProgressView setHidden:YES];
+        [aRemainingTimeLabel setHidden:YES];
     }
     return aCell;
 }
@@ -175,25 +182,30 @@
 
 - (void)onDownloadDidComplete:(NSNotification *)aNotification
 {
-    AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-    NSDictionary *aDownloadItemDict = [theAppDelegate.downloadStore.downloadItemsDict objectForKey:(NSString *)aNotification.object];
-    NSString *aLocalFileURLString = [aDownloadItemDict objectForKey:@"URL"];
-    NSURL *aLocalFileURL = nil;
-    if (aLocalFileURLString.length > 0)
-    {
-        aLocalFileURL = [NSURL URLWithString:aLocalFileURLString];
-    }
-    
     NSNumberFormatter *aNumberFormatter = [[NSNumberFormatter alloc] init];
     [aNumberFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
     NSNumber *aRowNumber = [aNumberFormatter numberFromString:(NSString *)aNotification.object];
     NSIndexPath *anIndexPath = [NSIndexPath indexPathForRow:([aRowNumber unsignedIntegerValue]- 1) inSection:0];
-    
     UITableViewCell *aTableViewCell = [self.tableView cellForRowAtIndexPath:anIndexPath];
-    UILabel *aTextLabel = (UILabel *)[aTableViewCell viewWithTag:self.textLabelTag];
-    UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
-    aTextLabel.text = aLocalFileURL.lastPathComponent;
-    [aProgressView setHidden:YES];
+    if (aTableViewCell)
+    {
+        AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+        NSDictionary *aDownloadItemDict = [theAppDelegate.downloadStore.downloadItemsDict objectForKey:(NSString *)aNotification.object];
+        NSString *aLocalFileURLString = [aDownloadItemDict objectForKey:@"URL"];
+        NSURL *aLocalFileURL = nil;
+        if (aLocalFileURLString.length > 0)
+        {
+            aLocalFileURL = [NSURL URLWithString:aLocalFileURLString];
+        }
+        
+        
+        UILabel *aFileNameLabel = (UILabel *)[aTableViewCell viewWithTag:self.fileNameLabelTag];
+        UILabel *aRemainingTimeLabel = (UILabel *)[aTableViewCell viewWithTag:self.remainingTimeLabelTag];
+        UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
+        aFileNameLabel.text = aLocalFileURL.lastPathComponent;
+        [aProgressView setHidden:YES];
+        [aRemainingTimeLabel setHidden:YES];
+    }
 }
 
 
@@ -204,11 +216,17 @@
     NSNumber *aRowNumber = [aNumberFormatter numberFromString:(NSString *)aNotification.object];
     NSIndexPath *anIndexPath = [NSIndexPath indexPathForRow:([aRowNumber unsignedIntegerValue]- 1) inSection:0];
     UITableViewCell *aTableViewCell = [self.tableView cellForRowAtIndexPath:anIndexPath];
-    UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
-    AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-    HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:(NSString *)aNotification.object];
-    aProgressView.progress = aFileDownloadProgress.downloadProgress;
-    [aProgressView setHidden:NO];
+    if (aTableViewCell)
+    {
+        UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
+        UILabel *aRemaingTimeLabel = (UILabel *)[aTableViewCell viewWithTag:self.remainingTimeLabelTag];
+        AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+        HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:(NSString *)aNotification.object];
+        aProgressView.progress = aFileDownloadProgress.downloadProgress;
+        aRemaingTimeLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
+        [aProgressView setHidden:NO];
+        [aRemaingTimeLabel setHidden:NO];
+    }
 }
 
 
@@ -218,6 +236,20 @@
     AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
     [theAppDelegate.downloadStore restartDownload];
     [self.tableView reloadData];
+}
+
+
+#pragma mark - Utilities
+
+
++ (NSString *)displayStringForRemainingTime:(NSTimeInterval)aRemainingTime
+{
+    NSNumberFormatter *aNumberFormatter = [[NSNumberFormatter alloc] init];
+    [aNumberFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
+    [aNumberFormatter setMinimumFractionDigits:1];
+    [aNumberFormatter setMaximumFractionDigits:1];
+    [aNumberFormatter setDecimalSeparator:@"."];
+    return [NSString stringWithFormat:@"Estimated remaining time: %@ seconds", [aNumberFormatter stringFromNumber:@(aRemainingTime)]];
 }
 
 

@@ -51,6 +51,7 @@ The app needs to hold an instance of the `HWIFileDownloader` that manages the do
 	@property (nonatomic, assign, readonly) float downloadProgress;
 	@property (nonatomic, assign, readonly) int64_t expectedFileSize;
 	@property (nonatomic, assign, readonly) int64_t receivedFileSize;
+	@property (nonatomic, assign, readonly) NSTimeInterval estimatedRemainingTime;
 	
 
 ## Demo App
