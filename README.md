@@ -4,7 +4,7 @@ HWIFileDownload provides a clear interface for integrating file download on iOS.
 
 ## Features
 
-HWIFileDownload uses a __download identifier__ for starting a download, retrieving progress information, and for completing the download. The __download identifier__ is a string that must be different for each individual file download.
+HWIFileDownload uses a __download identifier__ for starting a download, retrieving progress information, and for completing the download. The __download identifier__ is a string that must be unique for each individual file download.
 
 To start a download, the app client calls the method `startDownloadWithDownloadIdentifier:fromRemoteURL:` of the `HWIFileDownloader`.
 
