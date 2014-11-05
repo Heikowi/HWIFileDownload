@@ -42,6 +42,11 @@
 #import <UIKit/UIKit.h>
 
 
+@interface DownloadStore()
+@property (nonatomic, assign) NSUInteger networkActivityIndicatorCount;
+@end
+
+
 
 @implementation DownloadStore
 
@@ -51,6 +56,8 @@
     self = [super init];
     if (self)
     {
+        self.networkActivityIndicatorCount = 0;
+        
         // restore downloaded items
         self.downloadItemsDict = [[[NSUserDefaults standardUserDefaults] objectForKey:@"downloadItems"] mutableCopy];
         if (self.downloadItemsDict == nil)
@@ -192,12 +199,9 @@
 
 - (void)toggleNetworkActivityIndicatorVisible:(BOOL)visible
 {
-    static NSInteger activityCount = 0;
-    @synchronized (self) {
-        visible ? activityCount++ : activityCount--;
-        NSLog(@"NetworkActivityIndicatorCount: %@", @(activityCount));
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = (activityCount > 0);
-    }
+    visible ? self.networkActivityIndicatorCount++ : self.networkActivityIndicatorCount--;
+    NSLog(@"NetworkActivityIndicatorCount: %@", @(self.networkActivityIndicatorCount));
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = (self.networkActivityIndicatorCount > 0);
 }
 
 
