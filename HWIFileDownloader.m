@@ -93,7 +93,10 @@
             }
             else
             {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
                 aBackgroundConfigObject = [NSURLSessionConfiguration backgroundSessionConfiguration:aBackgroundDownloadSessionIdentifier];
+#pragma GCC diagnostic pop
             }
             self.backgroundSession = [NSURLSession sessionWithConfiguration:aBackgroundConfigObject delegate:self delegateQueue:[NSOperationQueue mainQueue]];
             
