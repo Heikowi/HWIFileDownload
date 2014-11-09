@@ -68,7 +68,7 @@ typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData *aResumeData);
  */
 - (instancetype)initWithDelegate:(NSObject<HWIFileDownloadDelegate>*)aDelegate maxConcurrentDownloads:(NSInteger)aMaxConcurrentFileDownloadsCount;
 - (instancetype)init __attribute__((unavailable("use initWithDelegate:maxConcurrentDownloads: or initWithDelegate:")));
-
++ (instancetype)new __attribute__((unavailable("use initWithDelegate:maxConcurrentDownloads: or initWithDelegate:")));
 
 
 // download

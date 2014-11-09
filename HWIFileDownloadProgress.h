@@ -54,6 +54,7 @@
                         receivedFileSize:(int64_t)aReceivedFileSize
                   estimatedRemainingTime:(NSTimeInterval)anEstimatedRemainingTime;
 - (instancetype)init __attribute__((unavailable("use initWithDownloadProgress:expectedFileSize:receivedFileSize:estimatedRemainingTime:")));
++ (instancetype)new __attribute__((unavailable("use initWithDownloadProgress:expectedFileSize:receivedFileSize:estimatedRemainingTime:")));
 
 /**
  Download progress with a range of 0.0 to 1.0.
