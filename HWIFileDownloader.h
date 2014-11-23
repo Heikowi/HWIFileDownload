@@ -107,6 +107,7 @@ typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData *aResumeData);
 /**
  Cancels the download of a download item.
  @param aDownloadIdentifier Download identifier of the download item.
+ @remarks Convenience method, calls cancelDownloadWithIdentifier:resumeDataBlock: with nil as resumeDataBlock.
  */
 - (void)cancelDownloadWithIdentifier:(NSString *)aDownloadIdentifier;
 
