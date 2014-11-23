@@ -172,7 +172,7 @@
 {
     NSUInteger aDownloadID = 0;
     
-    if ((self.maxConcurrentFileDownloadsCount == -1) || (self.currentFileDownloadsCount < self.maxConcurrentFileDownloadsCount))
+    if ((self.maxConcurrentFileDownloadsCount == -1) || ((NSInteger)self.currentFileDownloadsCount < self.maxConcurrentFileDownloadsCount))
     {
         self.currentFileDownloadsCount++;
         
@@ -830,7 +830,7 @@
 
 - (void)startNextWaitingDownload
 {
-    if ((self.maxConcurrentFileDownloadsCount == -1) || (self.currentFileDownloadsCount < self.maxConcurrentFileDownloadsCount))
+    if ((self.maxConcurrentFileDownloadsCount == -1) || ((NSInteger)self.currentFileDownloadsCount < self.maxConcurrentFileDownloadsCount))
     {
         if (self.waitingDownloadsArray.count > 0)
         {
