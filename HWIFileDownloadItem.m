@@ -50,7 +50,7 @@
     [aDescriptionDict setObject:@(self.downloadProgress) forKey:@"downloadProgress"];
     [aDescriptionDict setObject:@(self.receivedFileSizeInBytes) forKey:@"receivedFileSizeInBytes"];
     [aDescriptionDict setObject:@(self.expectedFileSizeInBytes) forKey:@"expectedFileSizeInBytes"];
-    [aDescriptionDict setObject:@(self.averageSpeed) forKey:@"averageSpeed"];
+    [aDescriptionDict setObject:@(self.bytesPerSecondSpeed) forKey:@"bytesPerSecondSpeed"];
     [aDescriptionDict setObject:self.downloadToken forKey:@"downloadToken"];
     
     NSString *aDescriptionString = [NSString stringWithFormat:@"%@", aDescriptionDict];

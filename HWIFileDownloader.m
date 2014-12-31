@@ -107,7 +107,7 @@
                     aDownloadItem.downloadToken = aDownloadTask.taskDescription;
                     aDownloadItem.sessionDownloadTask = aDownloadTask;
                     aDownloadItem.downloadProgress = 0.0;
-                    aDownloadItem.averageSpeed = 0.0;
+                    aDownloadItem.bytesPerSecondSpeed = 0.0;
                     aDownloadItem.resumedFileSizeInBytes = 0.0;
                     [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadTask.taskIdentifier)];
                     self.currentFileDownloadsCount++;
@@ -206,8 +206,8 @@
         aDownloadItem.downloadProgress = 0.0;
         aDownloadItem.receivedFileSizeInBytes = 0;
         aDownloadItem.expectedFileSizeInBytes = 0;
-        aDownloadItem.averageSpeed = 0.0;
-        aDownloadItem.resumedFileSizeInBytes = 0.0;
+        aDownloadItem.bytesPerSecondSpeed = 0;
+        aDownloadItem.resumedFileSizeInBytes = 0;
         [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadID)];
         
         if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
@@ -798,12 +798,45 @@
     if (aDownloadItem)
     {
         NSDictionary *aRemainingTimeDict = [HWIFileDownloader remainingTimeForDownloadItem:aDownloadItem];
-        aDownloadItem.averageSpeed = [[aRemainingTimeDict objectForKey:@"averageSpeed"] doubleValue];
         aDownloadProgress = [[HWIFileDownloadProgress alloc] initWithDownloadProgress:aDownloadItem.downloadProgress
                                                                      expectedFileSize:aDownloadItem.expectedFileSizeInBytes
                                                                      receivedFileSize:aDownloadItem.receivedFileSizeInBytes
-                                                               estimatedRemainingTime:[[aRemainingTimeDict objectForKey:@"remainingTime"] doubleValue]];
+                                                               estimatedRemainingTime:[[aRemainingTimeDict objectForKey:@"remainingTime"] doubleValue]
+                                                                  bytesPerSecondSpeed:[[aRemainingTimeDict objectForKey:@"bytesPerSecondSpeed"] unsignedIntegerValue]];
     }
+    return aDownloadProgress;
+}
+
+
+- (HWIFileDownloadProgress *)downloadProgress
+{
+    HWIFileDownloadProgress *aDownloadProgress = nil;
+    NSTimeInterval aRemainingTimeInterval = 0.0;
+    float aDownloadProgressFloat = 0.0;
+    int64_t anExpectedFileSize = 0;
+    int64_t aReceivedFileSize = 0;
+    NSUInteger aBytesPerSecondSpeed = 0;
+    NSArray *anActiveDownloadKeysArray = [self.activeDownloadsDictionary allKeys];
+    for (NSNumber *aDownloadID in anActiveDownloadKeysArray)
+    {
+        HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:aDownloadID];
+        NSDictionary *aRemainingTimeDict = [HWIFileDownloader remainingTimeForDownloadItem:aDownloadItem];
+        aRemainingTimeInterval += [[aRemainingTimeDict objectForKey:@"remainingTime"] doubleValue];
+        aBytesPerSecondSpeed += [[aRemainingTimeDict objectForKey:@"bytesPerSecondSpeed"] unsignedIntegerValue];
+        aDownloadProgressFloat += aDownloadItem.downloadProgress;
+        anExpectedFileSize += aDownloadItem.expectedFileSizeInBytes;
+        aReceivedFileSize += aDownloadItem.receivedFileSizeInBytes;
+    }
+    if (anActiveDownloadKeysArray.count > 0)
+    {
+        aDownloadProgressFloat /= anActiveDownloadKeysArray.count;
+        aBytesPerSecondSpeed /= anActiveDownloadKeysArray.count;
+    }
+    aDownloadProgress = [[HWIFileDownloadProgress alloc] initWithDownloadProgress:aDownloadProgressFloat
+                                                                 expectedFileSize:anExpectedFileSize
+                                                                 receivedFileSize:aReceivedFileSize
+                                                           estimatedRemainingTime:aRemainingTimeInterval
+                                                              bytesPerSecondSpeed:aBytesPerSecondSpeed];
     return aDownloadProgress;
 }
 
@@ -854,13 +887,14 @@
     NSTimeInterval aDownloadDurationUntilNow = [[NSDate date] timeIntervalSinceDate:aDownloadItem.downloadStartDate];
     int64_t aDownloadedFileSize = aDownloadItem.receivedFileSizeInBytes - aDownloadItem.resumedFileSizeInBytes;
     float aLastSpeed = (aDownloadDurationUntilNow > 0.0) ? (aDownloadedFileSize / aDownloadDurationUntilNow) : 0.0;
-    float aNewAverageSpeed = aSmoothingFactor * aLastSpeed + (1.0 - aSmoothingFactor) * aDownloadItem.averageSpeed;
+    float aNewAverageSpeed = aSmoothingFactor * aLastSpeed + (1.0 - aSmoothingFactor) * (float)aDownloadItem.bytesPerSecondSpeed;
     NSTimeInterval aRemainingTime = 0.0;
     if (aNewAverageSpeed > 0)
     {
         aRemainingTime = (aDownloadItem.expectedFileSizeInBytes - aDownloadItem.receivedFileSizeInBytes) / aNewAverageSpeed;
     }
-    return @{@"averageSpeed" : @(aNewAverageSpeed), @"remainingTime" : @(aRemainingTime)};
+    NSUInteger aBytesPerSecondsSpeed = (NSUInteger)aNewAverageSpeed;
+    return @{@"bytesPerSecondSpeed" : @(aBytesPerSecondsSpeed), @"remainingTime" : @(aRemainingTime)};
 }
 
 

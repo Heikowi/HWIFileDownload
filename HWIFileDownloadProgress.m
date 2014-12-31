@@ -41,6 +41,7 @@
 @property (nonatomic, assign, readwrite) int64_t expectedFileSize;
 @property (nonatomic, assign, readwrite) int64_t receivedFileSize;
 @property (nonatomic, assign, readwrite) NSTimeInterval estimatedRemainingTime;
+@property (nonatomic, assign, readwrite) NSUInteger bytesPerSecondSpeed;
 @end
 
 
@@ -53,6 +54,7 @@
                         expectedFileSize:(int64_t)anExpectedFileSize
                         receivedFileSize:(int64_t)aReceivedFileSize
                   estimatedRemainingTime:(NSTimeInterval)anEstimatedRemainingTime
+                     bytesPerSecondSpeed:(NSUInteger)aBytesPerSecondSpeed
 {
     self = [super init];
     if (self)
@@ -61,6 +63,7 @@
         self.expectedFileSize = anExpectedFileSize;
         self.receivedFileSize = aReceivedFileSize;
         self.estimatedRemainingTime = anEstimatedRemainingTime;
+        self.bytesPerSecondSpeed = aBytesPerSecondSpeed;
     }
     return self;
 }
@@ -76,6 +79,7 @@
     [aDescriptionDict setObject:@(self.expectedFileSize) forKey:@"expectedFileSize"];
     [aDescriptionDict setObject:@(self.receivedFileSize) forKey:@"receivedFileSize"];
     [aDescriptionDict setObject:@(self.estimatedRemainingTime) forKey:@"estimatedRemainingTime"];
+    [aDescriptionDict setObject:@(self.bytesPerSecondSpeed) forKey:@"bytesPerSecondSpeed"];
     
     NSString *aDescriptionString = [NSString stringWithFormat:@"%@", aDescriptionDict];
     

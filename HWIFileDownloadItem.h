@@ -48,7 +48,7 @@
 @property (nonatomic, assign) int64_t receivedFileSizeInBytes;
 @property (nonatomic, assign) int64_t expectedFileSizeInBytes;
 @property (nonatomic, assign) int64_t resumedFileSizeInBytes;
-@property (nonatomic, assign) float averageSpeed;
+@property (nonatomic, assign) NSUInteger bytesPerSecondSpeed;
 @property (nonatomic, strong) NSString *downloadToken;
 
 @property (nonatomic, strong) NSURLSessionDownloadTask *sessionDownloadTask;
