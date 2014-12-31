@@ -99,18 +99,18 @@
 #pragma mark - UITableViewDataSource
 
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+- (NSInteger)tableView:(UITableView *)aTableView numberOfRowsInSection:(NSInteger)aSection
 {
     AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
     return [theAppDelegate.downloadStore.downloadItemsDict count];
 }
 
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+- (UITableViewCell *)tableView:(UITableView *)aTableView cellForRowAtIndexPath:(NSIndexPath *)anIndexPath
 {
-    UITableViewCell *aCell = [tableView dequeueReusableCellWithIdentifier:@"DownloadTableViewCell" forIndexPath:indexPath];
+    UITableViewCell *aCell = [aTableView dequeueReusableCellWithIdentifier:@"DownloadTableViewCell" forIndexPath:anIndexPath];
 
-    NSString *aDownloadIdentifier = [NSString stringWithFormat:@"%@", @(indexPath.row + 1)];
+    NSString *aDownloadIdentifier = [NSString stringWithFormat:@"%@", @(anIndexPath.row + 1)];
     AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
     NSDictionary *aDownloadItemDict = [[theAppDelegate downloadStore].downloadItemsDict objectForKey:aDownloadIdentifier];
     NSString *aURLString = [aDownloadItemDict objectForKey:@"URL"];
@@ -174,6 +174,7 @@
             }];
         }
     }
+    [self.tableView reloadData];
 }
 
 
