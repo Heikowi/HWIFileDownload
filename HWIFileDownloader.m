@@ -808,39 +808,6 @@
 }
 
 
-- (HWIFileDownloadProgress *)downloadProgress
-{
-    HWIFileDownloadProgress *aDownloadProgress = nil;
-    NSTimeInterval aRemainingTimeInterval = 0.0;
-    float aDownloadProgressFloat = 0.0;
-    int64_t anExpectedFileSize = 0;
-    int64_t aReceivedFileSize = 0;
-    NSUInteger aBytesPerSecondSpeed = 0;
-    NSArray *anActiveDownloadKeysArray = [self.activeDownloadsDictionary allKeys];
-    for (NSNumber *aDownloadID in anActiveDownloadKeysArray)
-    {
-        HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:aDownloadID];
-        NSDictionary *aRemainingTimeDict = [HWIFileDownloader remainingTimeForDownloadItem:aDownloadItem];
-        aRemainingTimeInterval += [[aRemainingTimeDict objectForKey:@"remainingTime"] doubleValue];
-        aBytesPerSecondSpeed += [[aRemainingTimeDict objectForKey:@"bytesPerSecondSpeed"] unsignedIntegerValue];
-        aDownloadProgressFloat += aDownloadItem.downloadProgress;
-        anExpectedFileSize += aDownloadItem.expectedFileSizeInBytes;
-        aReceivedFileSize += aDownloadItem.receivedFileSizeInBytes;
-    }
-    if (anActiveDownloadKeysArray.count > 0)
-    {
-        aDownloadProgressFloat /= anActiveDownloadKeysArray.count;
-        aBytesPerSecondSpeed /= anActiveDownloadKeysArray.count;
-    }
-    aDownloadProgress = [[HWIFileDownloadProgress alloc] initWithDownloadProgress:aDownloadProgressFloat
-                                                                 expectedFileSize:anExpectedFileSize
-                                                                 receivedFileSize:aReceivedFileSize
-                                                           estimatedRemainingTime:aRemainingTimeInterval
-                                                              bytesPerSecondSpeed:aBytesPerSecondSpeed];
-    return aDownloadProgress;
-}
-
-
 #pragma mark - Utilities
 
 

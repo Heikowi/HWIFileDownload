@@ -137,11 +137,4 @@ typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData *aResumeData);
 - (HWIFileDownloadProgress *)downloadProgressForIdentifier:(NSString *)aDownloadIdentifier;
 
 
-/**
- Returns download progress information for all currently running downloads.
- @return Download progress information.
- */
-- (HWIFileDownloadProgress *)downloadProgress;
-
-
 @end
