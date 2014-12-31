@@ -107,8 +107,8 @@
                     aDownloadItem.downloadToken = aDownloadTask.taskDescription;
                     aDownloadItem.sessionDownloadTask = aDownloadTask;
                     aDownloadItem.downloadProgress = 0.0;
-                    aDownloadItem.bytesPerSecondSpeed = 0.0;
-                    aDownloadItem.resumedFileSizeInBytes = 0.0;
+                    aDownloadItem.bytesPerSecondSpeed = 0;
+                    aDownloadItem.resumedFileSizeInBytes = 0;
                     [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadTask.taskIdentifier)];
                     self.currentFileDownloadsCount++;
                     [self.fileDownloadDelegate incrementNetworkActivityIndicatorActivityCount];
@@ -563,8 +563,8 @@
                                                                                 error:anError
                                                                            resumeData:nil];
                         [strongSelf.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
-                        self.currentFileDownloadsCount--;
-                        [self startNextWaitingDownload];
+                        strongSelf.currentFileDownloadsCount--;
+                        [strongSelf startNextWaitingDownload];
                     });
                 }
                 else
@@ -591,8 +591,8 @@
                             [strongSelf handleSuccessfulDownloadToLocalFileURL:aLocalFileURL downloadID:[aFoundDownloadID unsignedIntegerValue] downloadToken:aDownloadItem.downloadToken];
                         }
                         [strongSelf.activeDownloadsDictionary removeObjectForKey:aFoundDownloadID];
-                        self.currentFileDownloadsCount--;
-                        [self startNextWaitingDownload];
+                        strongSelf.currentFileDownloadsCount--;
+                        [strongSelf startNextWaitingDownload];
                     });
                 }
             }
