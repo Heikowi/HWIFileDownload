@@ -355,8 +355,8 @@
     NSInteger aDownloadID = [self downloadIDForDownloadToken:aDownloadIdentifier];
     if (aDownloadID > -1)
     {
-        NSArray *aDownloadIDsArray = [self.activeDownloadsDictionary allKeys];
-        if ([aDownloadIDsArray containsObject:@(aDownloadID)])
+        HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadID)];
+        if (aDownloadItem && (aDownloadItem.isCancelled == NO))
         {
             isDownloading = YES;
         }
