@@ -870,6 +870,7 @@
             aRemainingTime = (aDownloadItem.expectedFileSizeInBytes - aDownloadItem.receivedFileSizeInBytes) / aNewAverageSpeed;
         }
         aBytesPerSecondsSpeed = (NSUInteger)aNewAverageSpeed;
+        aDownloadItem.bytesPerSecondSpeed = aBytesPerSecondsSpeed;
     }
     return @{@"bytesPerSecondSpeed" : @(aBytesPerSecondsSpeed), @"remainingTime" : @(aRemainingTime)};
 }
