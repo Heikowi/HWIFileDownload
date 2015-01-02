@@ -106,8 +106,6 @@
                     HWIFileDownloadItem *aDownloadItem = [[HWIFileDownloadItem alloc] init];
                     aDownloadItem.downloadToken = aDownloadTask.taskDescription;
                     aDownloadItem.sessionDownloadTask = aDownloadTask;
-                    aDownloadItem.downloadProgress = 0.0;
-                    aDownloadItem.bytesPerSecondSpeed = 0;
                     aDownloadItem.resumedFileSizeInBytes = 0;
                     aDownloadItem.isCancelled = NO;
                     [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadTask.taskIdentifier)];
@@ -204,10 +202,8 @@
             aDownloadItem.downloadToken = aDownloadToken;
             aDownloadItem.urlConnection = aURLConnection;
         }
-        aDownloadItem.downloadProgress = 0.0;
         aDownloadItem.receivedFileSizeInBytes = 0;
         aDownloadItem.expectedFileSizeInBytes = 0;
-        aDownloadItem.bytesPerSecondSpeed = 0;
         aDownloadItem.resumedFileSizeInBytes = 0;
         aDownloadItem.isCancelled = NO;
         [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadID)];
@@ -455,7 +451,6 @@
     {
         aDownloadItem.downloadStartDate = [NSDate date];
     }
-    aDownloadItem.downloadProgress = aProgressRatio;
     aDownloadItem.receivedFileSizeInBytes = aTotalBytesWrittenCount;
     aDownloadItem.expectedFileSizeInBytes = aTotalBytesExpectedToWriteCount;
     if ([self.fileDownloadDelegate respondsToSelector:@selector(downloadProgressChangedForIdentifier:)])
@@ -653,13 +648,6 @@
         int64_t aCompleteReceivedContentSize = anUntilNowReceivedContentSize + [aData length];
         aDownloadItem.receivedFileSizeInBytes = aCompleteReceivedContentSize;
         
-        int64_t anExpectedContentSize = aDownloadItem.expectedFileSizeInBytes;
-        float aProgressRatio = 0.0;
-        if (anExpectedContentSize > 0)
-        {
-            aProgressRatio = (float)aCompleteReceivedContentSize / (float)anExpectedContentSize;
-        }
-        aDownloadItem.downloadProgress = aProgressRatio;
         if ([self.fileDownloadDelegate respondsToSelector:@selector(downloadProgressChangedForIdentifier:)])
         {
             [self.fileDownloadDelegate downloadProgressChangedForIdentifier:aDownloadItem.downloadToken];
@@ -802,8 +790,13 @@
     {
         if (aDownloadItem.isCancelled == NO)
         {
+            float aDownloadProgressFloat = 0.0;
+            if (aDownloadItem.expectedFileSizeInBytes > 0)
+            {
+                aDownloadProgressFloat = (float)aDownloadItem.receivedFileSizeInBytes / (float)aDownloadItem.expectedFileSizeInBytes;
+            }
             NSDictionary *aRemainingTimeDict = [HWIFileDownloader remainingTimeForDownloadItem:aDownloadItem];
-            aDownloadProgress = [[HWIFileDownloadProgress alloc] initWithDownloadProgress:aDownloadItem.downloadProgress
+            aDownloadProgress = [[HWIFileDownloadProgress alloc] initWithDownloadProgress:aDownloadProgressFloat
                                                                          expectedFileSize:aDownloadItem.expectedFileSizeInBytes
                                                                          receivedFileSize:aDownloadItem.receivedFileSizeInBytes
                                                                    estimatedRemainingTime:[[aRemainingTimeDict objectForKey:@"remainingTime"] doubleValue]

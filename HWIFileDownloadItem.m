@@ -47,7 +47,6 @@
 - (NSString *)description
 {
     NSMutableDictionary *aDescriptionDict = [NSMutableDictionary dictionary];
-    [aDescriptionDict setObject:@(self.downloadProgress) forKey:@"downloadProgress"];
     [aDescriptionDict setObject:@(self.receivedFileSizeInBytes) forKey:@"receivedFileSizeInBytes"];
     [aDescriptionDict setObject:@(self.expectedFileSizeInBytes) forKey:@"expectedFileSizeInBytes"];
     [aDescriptionDict setObject:@(self.bytesPerSecondSpeed) forKey:@"bytesPerSecondSpeed"];
