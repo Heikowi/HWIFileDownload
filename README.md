@@ -4,13 +4,13 @@ HWIFileDownload simplifies file download integration on iOS. It is based on `NSU
 
 ## Features
 
-HWIFileDownload uses a __download identifier__ for starting a download, retrieving progress information, and for completing the download. The __download identifier__ is a string that must be unique for each individual file download.
+HWIFileDownload uses a __download identifier__ for starting a download, retrieving progress information, and for handling download completion. The __download identifier__ is a string that must be unique for each individual file download.
 
 To start a download, the app client calls the method `startDownloadWithDownloadIdentifier:fromRemoteURL:` of the `HWIFileDownloader`.
 
 The app client should maintain a custom __download store__ to manage the downloads and the persistent store. The app __download store__ needs to implement the protocol `HWIFileDownloadDelegate` to be called on significant download events.
 
-The delegate is called on download completion. Additional calls are used to control the visibility of the network activity indicator. Optionally the delegate can be called on download progress change for each download item. To control the name of the downloaded file, the delegate can implement the method `localFileURLForIdentifier:remoteURL:`.
+The delegate is called on download completion. Additional calls are used to control the visibility of the network activity indicator. Optionally the delegate can be called on download progress change for each download item. To control the local name of the downloaded file, the delegate can implement the method `localFileURLForIdentifier:remoteURL:`.
 
 	@protocol HWIFileDownloadDelegate
 
