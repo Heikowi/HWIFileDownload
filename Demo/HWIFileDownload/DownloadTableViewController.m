@@ -46,6 +46,7 @@
 @property (nonatomic, assign) NSInteger fileNameLabelTag;
 @property (nonatomic, assign) NSInteger remainingTimeLabelTag;
 @property (nonatomic, assign) NSInteger progressViewTag;
+@property (nonatomic, strong) NSDate *lastProgressChangedUpdate;
 @end
 
 
@@ -199,7 +200,6 @@
             aLocalFileURL = [NSURL URLWithString:aLocalFileURLString];
         }
         
-        
         UILabel *aFileNameLabel = (UILabel *)[aTableViewCell viewWithTag:self.fileNameLabelTag];
         UILabel *aRemainingTimeLabel = (UILabel *)[aTableViewCell viewWithTag:self.remainingTimeLabelTag];
         UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
@@ -212,21 +212,36 @@
 
 - (void)onProgressChanged:(NSNotification *)aNotification
 {
-    NSNumberFormatter *aNumberFormatter = [[NSNumberFormatter alloc] init];
-    [aNumberFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
-    NSNumber *aRowNumber = [aNumberFormatter numberFromString:(NSString *)aNotification.object];
-    NSIndexPath *anIndexPath = [NSIndexPath indexPathForRow:([aRowNumber unsignedIntegerValue]- 1) inSection:0];
-    UITableViewCell *aTableViewCell = [self.tableView cellForRowAtIndexPath:anIndexPath];
-    if (aTableViewCell)
+    NSTimeInterval aLastProgressChangedUpdateDelta = 0.0;
+    if (self.lastProgressChangedUpdate)
     {
-        UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
-        UILabel *aRemaingTimeLabel = (UILabel *)[aTableViewCell viewWithTag:self.remainingTimeLabelTag];
+        aLastProgressChangedUpdateDelta = [[NSDate date] timeIntervalSinceDate:self.lastProgressChangedUpdate];
+    }
+    // refresh progress display about four times per second
+    if ((aLastProgressChangedUpdateDelta == 0.0) || (aLastProgressChangedUpdateDelta > 0.25))
+    {
         AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-        HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:(NSString *)aNotification.object];
-        aProgressView.progress = aFileDownloadProgress.downloadProgress;
-        aRemaingTimeLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
-        [aProgressView setHidden:NO];
-        [aRemaingTimeLabel setHidden:NO];
+        NSArray *aVisibleIndexPathsArray = [self.tableView indexPathsForVisibleRows];
+        for (NSIndexPath *anIndexPath in aVisibleIndexPathsArray)
+        {
+            NSString *aDownloadIdentifier = [NSString stringWithFormat:@"%@", @(anIndexPath.row + 1)];
+            BOOL isDownloading = [theAppDelegate.fileDownloader isDownloadingIdentifier:aDownloadIdentifier];
+            if (isDownloading)
+            {
+                UITableViewCell *aTableViewCell = [self.tableView cellForRowAtIndexPath:anIndexPath];
+                if (aTableViewCell)
+                {
+                    UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
+                    UILabel *aRemaingTimeLabel = (UILabel *)[aTableViewCell viewWithTag:self.remainingTimeLabelTag];
+                    HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
+                    aProgressView.progress = aFileDownloadProgress.downloadProgress;
+                    aRemaingTimeLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
+                    [aProgressView setHidden:NO];
+                    [aRemaingTimeLabel setHidden:NO];
+                }
+            }
+        }
+        self.lastProgressChangedUpdate = [NSDate date];
     }
 }
 

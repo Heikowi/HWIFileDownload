@@ -848,24 +848,31 @@
 
 + (NSDictionary *)remainingTimeForDownloadItem:(HWIFileDownloadItem *)aDownloadItem
 {
-    NSTimeInterval aRemainingTime = 0.0;
+    NSTimeInterval aRemainingTimeInterval = 0.0;
     NSUInteger aBytesPerSecondsSpeed = 0;
     if (aDownloadItem.isCancelled == NO)
     {
-        // speed => downloaded bytes in 1 second
-        float aSmoothingFactor = 0.5; // range 0.0 ... 1.0
+        float aSmoothingFactor = 0.8; // range 0.0 ... 1.0 (determines the weight of the current speed calculation in relation to the stored past speed value)
         NSTimeInterval aDownloadDurationUntilNow = [[NSDate date] timeIntervalSinceDate:aDownloadItem.downloadStartDate];
         int64_t aDownloadedFileSize = aDownloadItem.receivedFileSizeInBytes - aDownloadItem.resumedFileSizeInBytes;
-        float aLastSpeed = (aDownloadDurationUntilNow > 0.0) ? (aDownloadedFileSize / aDownloadDurationUntilNow) : 0.0;
-        float aNewAverageSpeed = aSmoothingFactor * aLastSpeed + (1.0 - aSmoothingFactor) * (float)aDownloadItem.bytesPerSecondSpeed;
-        if (aNewAverageSpeed > 0)
+        float aCurrentBytesPerSecondSpeed = (aDownloadDurationUntilNow > 0.0) ? (aDownloadedFileSize / aDownloadDurationUntilNow) : 0.0;
+        float aNewWeightedBytesPerSecondSpeed = 0.0;
+        if (aDownloadItem.bytesPerSecondSpeed > 0.0)
         {
-            aRemainingTime = (aDownloadItem.expectedFileSizeInBytes - aDownloadItem.receivedFileSizeInBytes) / aNewAverageSpeed;
+            aNewWeightedBytesPerSecondSpeed = (aSmoothingFactor * aCurrentBytesPerSecondSpeed) + ((1.0 - aSmoothingFactor) * (float)aDownloadItem.bytesPerSecondSpeed);
         }
-        aBytesPerSecondsSpeed = (NSUInteger)aNewAverageSpeed;
+        else
+        {
+            aNewWeightedBytesPerSecondSpeed = aCurrentBytesPerSecondSpeed;
+        }
+        if (aNewWeightedBytesPerSecondSpeed > 0.0)
+        {
+            aRemainingTimeInterval = (aDownloadItem.expectedFileSizeInBytes - aDownloadItem.receivedFileSizeInBytes) / aNewWeightedBytesPerSecondSpeed;
+        }
+        aBytesPerSecondsSpeed = (NSUInteger)aNewWeightedBytesPerSecondSpeed;
         aDownloadItem.bytesPerSecondSpeed = aBytesPerSecondsSpeed;
     }
-    return @{@"bytesPerSecondSpeed" : @(aBytesPerSecondsSpeed), @"remainingTime" : @(aRemainingTime)};
+    return @{@"bytesPerSecondSpeed" : @(aBytesPerSecondsSpeed), @"remainingTime" : @(aRemainingTimeInterval)};
 }
 
 
