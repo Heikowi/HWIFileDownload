@@ -5,7 +5,7 @@
     "type": "zlib",
     "file": "LICENCE.md"
   },
-  "summary": "HWIFileDownload simplifies file download integration on iOS.",
+  "summary": "Simplified file download integration based on NSURLSession.",
   "homepage": "https://github.com/Heikowi/HWIFileDownload",
   "authors": "Heiko Wichmann",
   "social_media_url": "https://twitter.com/heikowi",
