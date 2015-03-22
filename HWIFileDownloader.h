@@ -137,4 +137,13 @@ typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData *aResumeData);
 - (HWIFileDownloadProgress *)downloadProgressForIdentifier:(NSString *)aDownloadIdentifier;
 
 
+// download directory
+
+/**
+ Returns the default download directory.
+ @return The default download directory.
+ */
++ (NSURL *)fileDownloadDirectoryURL;
+
+
 @end
