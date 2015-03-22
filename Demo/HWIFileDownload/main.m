@@ -3,7 +3,7 @@
 //  HWIFileDownload
 //
 //  Created by Heiko Wichmann on 03.10.14.
-//  Copyright (c) 2014 Heiko Wichmann. All rights reserved.
+//  Copyright (c) 2014-2015 Heiko Wichmann. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
