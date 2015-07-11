@@ -273,9 +273,9 @@
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadID)];
     if (aDownloadItem)
     {
+        aDownloadItem.isCancelled = YES;
         if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
         {
-            aDownloadItem.isCancelled = YES;
             NSURLSessionDownloadTask *aDownloadTask = aDownloadItem.sessionDownloadTask;
             if (aDownloadTask)
             {

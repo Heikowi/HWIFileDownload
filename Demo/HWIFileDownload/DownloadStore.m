@@ -129,6 +129,8 @@
     {
         NSLog(@"ERR: %@ (%s)", anError, __PRETTY_FUNCTION__);
     }
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"downloadDidComplete" object:aDownloadIdentifier userInfo:nil];
 }
 
 

@@ -191,21 +191,35 @@
     UITableViewCell *aTableViewCell = [self.tableView cellForRowAtIndexPath:anIndexPath];
     if (aTableViewCell)
     {
+        NSString *aDownloadIdentifier = [NSString stringWithFormat:@"%@", @(anIndexPath.row + 1)];
         AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
         NSDictionary *aDownloadItemDict = [theAppDelegate.downloadStore.downloadItemsDict objectForKey:(NSString *)aNotification.object];
-        NSString *aLocalFileURLString = [aDownloadItemDict objectForKey:@"URL"];
-        NSURL *aLocalFileURL = nil;
-        if (aLocalFileURLString.length > 0)
+        NSString *aURLString = [aDownloadItemDict objectForKey:@"URL"];
+        NSURL *aURL = nil;
+        if (aURLString.length > 0)
         {
-            aLocalFileURL = [NSURL URLWithString:aLocalFileURLString];
+            aURL = [NSURL URLWithString:aURLString];
         }
         
         UILabel *aFileNameLabel = (UILabel *)[aTableViewCell viewWithTag:self.fileNameLabelTag];
         UILabel *aRemainingTimeLabel = (UILabel *)[aTableViewCell viewWithTag:self.remainingTimeLabelTag];
         UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
-        aFileNameLabel.text = aLocalFileURL.lastPathComponent;
-        [aProgressView setHidden:YES];
-        [aRemainingTimeLabel setHidden:YES];
+        if ([aURL.scheme isEqualToString:@"http"])
+        {
+            aFileNameLabel.text = aURL.absoluteString;
+            HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
+            aRemainingTimeLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
+            aProgressView.progress = aFileDownloadProgress.downloadProgress;
+            [aProgressView setHidden:NO];
+            [aRemainingTimeLabel setHidden:NO];
+        }
+        else
+        {
+            aFileNameLabel.text = [NSString stringWithFormat:@"%@", aURL.lastPathComponent];
+            aRemainingTimeLabel.text = @"";
+            [aProgressView setHidden:YES];
+            [aRemainingTimeLabel setHidden:YES];
+        }
     }
 }
 
