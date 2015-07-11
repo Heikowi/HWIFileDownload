@@ -42,11 +42,10 @@
 
 @property (nonatomic, strong) NSURLSession *backgroundSession;
 @property (nonatomic, strong) NSMutableDictionary *activeDownloadsDictionary;
+@property (nonatomic, strong) NSMutableArray *waitingDownloadsArray;
 @property (nonatomic, weak) NSObject<HWIFileDownloadDelegate>* fileDownloadDelegate;
 @property (nonatomic, copy) HWIBackgroundSessionCompletionHandlerBlock backgroundSessionCompletionHandlerBlock;
 @property (nonatomic, assign) NSInteger maxConcurrentFileDownloadsCount;
-@property (nonatomic, assign) NSUInteger currentFileDownloadsCount;
-@property (nonatomic, strong) NSMutableArray *waitingDownloadsArray;
 
 @property (nonatomic, assign) NSUInteger highestDownloadID;
 @property (nonatomic, strong) dispatch_queue_t downloadFileSerialWriterDispatchQueue;
@@ -78,7 +77,6 @@
         }
     
         self.fileDownloadDelegate = aDelegate;
-        self.currentFileDownloadsCount = 0;
         self.activeDownloadsDictionary = [NSMutableDictionary dictionary];
         self.waitingDownloadsArray = [NSMutableArray array];
         self.highestDownloadID = 0;
@@ -109,7 +107,6 @@
                     aDownloadItem.resumedFileSizeInBytes = 0;
                     aDownloadItem.isCancelled = NO;
                     [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadTask.taskIdentifier)];
-                    self.currentFileDownloadsCount++;
                     [self.fileDownloadDelegate incrementNetworkActivityIndicatorActivityCount];
                 }
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"restartDownload" object:nil];
@@ -171,9 +168,8 @@
 {
     NSUInteger aDownloadID = 0;
     
-    if ((self.maxConcurrentFileDownloadsCount == -1) || ((NSInteger)self.currentFileDownloadsCount < self.maxConcurrentFileDownloadsCount))
+    if ((self.maxConcurrentFileDownloadsCount == -1) || ((NSInteger)self.activeDownloadsDictionary.count < self.maxConcurrentFileDownloadsCount))
     {
-        self.currentFileDownloadsCount++;
         
         NSURLSessionDownloadTask *aDownloadTask = nil;
         NSURLConnection *aURLConnection = nil;
@@ -303,7 +299,6 @@
             [aDownloadConnection cancel];
             // no delegate method is called
             
-            self.currentFileDownloadsCount--;
             HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadID)];
             NSURL *aTempFileURL = [self tempLocalFileURLForDownloadFromURL:aDownloadItem.urlConnection.originalRequest.URL];
             dispatch_async(self.downloadFileSerialWriterDispatchQueue, ^{
@@ -434,7 +429,6 @@
     {
         [self handleSuccessfulDownloadToLocalFileURL:aLocalFileURL downloadID:aDownloadTask.taskIdentifier downloadToken:aDownloadTask.taskDescription];
     }
-    self.currentFileDownloadsCount--;
     [self startNextWaitingDownload];
 }
 
@@ -504,7 +498,8 @@
 
 - (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)aSession
 {
-    if (self.backgroundSessionCompletionHandlerBlock) {
+    if (self.backgroundSessionCompletionHandlerBlock)
+    {
         void (^completionHandler)() = self.backgroundSessionCompletionHandlerBlock;
         self.backgroundSessionCompletionHandlerBlock = nil;
         completionHandler();
@@ -561,7 +556,6 @@
                                                                                 error:anError
                                                                            resumeData:nil];
                         [strongSelf.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
-                        strongSelf.currentFileDownloadsCount--;
                         [strongSelf startNextWaitingDownload];
                     });
                 }
@@ -589,7 +583,6 @@
                             [strongSelf handleSuccessfulDownloadToLocalFileURL:aLocalFileURL downloadID:[aFoundDownloadID unsignedIntegerValue] downloadToken:aDownloadItem.downloadToken];
                         }
                         [strongSelf.activeDownloadsDictionary removeObjectForKey:aFoundDownloadID];
-                        strongSelf.currentFileDownloadsCount--;
                         [strongSelf startNextWaitingDownload];
                     });
                 }
@@ -601,7 +594,6 @@
     {
         NSLog(@"ERR: No download id found (%s, %d)", __FILE__, __LINE__);
         [self.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
-        self.currentFileDownloadsCount--;
         [self startNextWaitingDownload];
     }
 }
@@ -708,7 +700,6 @@
         [self.activeDownloadsDictionary removeObjectForKey:aFoundDownloadID];
         [self.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
     }
-    self.currentFileDownloadsCount--;
     [self startNextWaitingDownload];
 }
 
@@ -829,7 +820,7 @@
 
 - (void)startNextWaitingDownload
 {
-    if ((self.maxConcurrentFileDownloadsCount == -1) || ((NSInteger)self.currentFileDownloadsCount < self.maxConcurrentFileDownloadsCount))
+    if ((self.maxConcurrentFileDownloadsCount == -1) || ((NSInteger)self.activeDownloadsDictionary.count < self.maxConcurrentFileDownloadsCount))
     {
         if (self.waitingDownloadsArray.count > 0)
         {
@@ -885,7 +876,6 @@
     [aDescriptionDict setObject:self.activeDownloadsDictionary forKey:@"activeDownloadsDictionary"];
     [aDescriptionDict setObject:self.waitingDownloadsArray forKey:@"waitingDownloadsArray"];
     [aDescriptionDict setObject:@(self.maxConcurrentFileDownloadsCount) forKey:@"maxConcurrentFileDownloadsCount"];
-    [aDescriptionDict setObject:@(self.currentFileDownloadsCount) forKey:@"currentFileDownloadsCount"];
     [aDescriptionDict setObject:@(self.highestDownloadID) forKey:@"highestDownloadID"];
     
     NSString *aDescriptionString = [NSString stringWithFormat:@"%@", aDescriptionDict];
