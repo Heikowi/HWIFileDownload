@@ -203,6 +203,7 @@
         aDownloadItem.resumedFileSizeInBytes = 0;
         aDownloadItem.isCancelled = NO;
         [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadID)];
+        [self.fileDownloadDelegate incrementNetworkActivityIndicatorActivityCount];
         
         if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
         {
@@ -212,8 +213,6 @@
         {
             [aURLConnection start];
         }
-        
-        [self.fileDownloadDelegate incrementNetworkActivityIndicatorActivityCount];
     }
     else
     {
@@ -272,62 +271,79 @@
 - (void)cancelDownloadWithDownloadID:(NSUInteger)aDownloadID resumeDataBlock:(HWIFileDownloaderCancelResumeDataBlock)aResumeDataBlock
 {
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadID)];
-    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+    if (aDownloadItem)
     {
-        NSURLSessionDownloadTask *aDownloadTask = aDownloadItem.sessionDownloadTask;
-        if (aDownloadTask)
+        if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
         {
-            if (aResumeDataBlock)
+            aDownloadItem.isCancelled = YES;
+            NSURLSessionDownloadTask *aDownloadTask = aDownloadItem.sessionDownloadTask;
+            if (aDownloadTask)
             {
-                [aDownloadTask cancelByProducingResumeData:^(NSData *aResumeData) {
-                    aResumeDataBlock(aResumeData);
-                }];
+                if (aResumeDataBlock)
+                {
+                    [aDownloadTask cancelByProducingResumeData:^(NSData *aResumeData) {
+                        aResumeDataBlock(aResumeData);
+                    }];
+                }
+                else
+                {
+                    [aDownloadTask cancel];
+                }
+                // NSURLSessionTaskDelegate method is called
+                // URLSession:task:didCompleteWithError:
+            }
+        }
+        else
+        {
+            NSURLConnection *aDownloadConnection = aDownloadItem.urlConnection;
+            if (aDownloadConnection)
+            {
+                [aDownloadConnection cancel];
+                // delegate method is not necessarily called
+                
+                NSURL *aTempFileURL = [self tempLocalFileURLForDownloadFromURL:aDownloadItem.urlConnection.originalRequest.URL];
+                __weak HWIFileDownloader *weakSelf = self;
+                dispatch_async(self.downloadFileSerialWriterDispatchQueue, ^{
+                    HWIFileDownloader *strongSelf = weakSelf;
+                    if (aResumeDataBlock)
+                    {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            aResumeDataBlock(nil);
+                        });
+                    }
+                    NSError *aRemoveError = nil;
+                    [[NSFileManager defaultManager] removeItemAtURL:aTempFileURL error:&aRemoveError];
+                    if (aRemoveError)
+                    {
+                        NSLog(@"ERR: Unable to remove file at %@: %@ (%s, %d)", aTempFileURL, aRemoveError, __FILE__, __LINE__);
+                    }
+                    __weak HWIFileDownloader *anotherWeakSelf = strongSelf;
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        HWIFileDownloader *anotherStrongSelf = anotherWeakSelf;
+                        HWIFileDownloadItem *aFoundDownloadItem = [strongSelf.activeDownloadsDictionary objectForKey:@(aDownloadID)];
+                        if (aFoundDownloadItem)
+                        {
+                            NSError *aCancelError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+                            [anotherStrongSelf.fileDownloadDelegate downloadFailedWithIdentifier:aFoundDownloadItem.downloadToken
+                                                                                    error:aCancelError
+                                                                               resumeData:nil];
+                            [anotherStrongSelf.activeDownloadsDictionary removeObjectForKey:@(aDownloadID)];
+                            [anotherStrongSelf.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
+                        }
+                    });
+                });
             }
             else
             {
-                [aDownloadTask cancel];
+                NSError *aCancelError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+                [self.fileDownloadDelegate downloadFailedWithIdentifier:aDownloadItem.downloadToken
+                                                                  error:aCancelError
+                                                             resumeData:nil];
+                [self.activeDownloadsDictionary removeObjectForKey:@(aDownloadID)];
+                [self.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
             }
-            // NSURLSessionTaskDelegate method is called
-            // URLSession:task:didCompleteWithError:
         }
     }
-    else
-    {
-        NSURLConnection *aDownloadConnection = aDownloadItem.urlConnection;
-        if (aDownloadConnection)
-        {
-            [aDownloadConnection cancel];
-            // no delegate method is called
-            
-            HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadID)];
-            NSURL *aTempFileURL = [self tempLocalFileURLForDownloadFromURL:aDownloadItem.urlConnection.originalRequest.URL];
-            dispatch_async(self.downloadFileSerialWriterDispatchQueue, ^{
-                if (aResumeDataBlock)
-                {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        aResumeDataBlock(nil);
-                    });
-                }
-                NSError *aRemoveError = nil;
-                [[NSFileManager defaultManager] removeItemAtURL:aTempFileURL error:&aRemoveError];
-                if (aRemoveError)
-                {
-                    NSLog(@"ERR: Unable to remove file at %@: %@ (%s, %d)", aTempFileURL, aRemoveError, __FILE__, __LINE__);
-                }
-                __weak HWIFileDownloader* weakSelf = self;
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    HWIFileDownloader *strongSelf = weakSelf;
-                    NSError *aCancelError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
-                    [strongSelf.fileDownloadDelegate downloadFailedWithIdentifier:aDownloadItem.downloadToken
-                                                                            error:aCancelError
-                                                                       resumeData:nil];
-                    [strongSelf.activeDownloadsDictionary removeObjectForKey:@(aDownloadID)];
-                    [strongSelf.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
-                });
-            });
-        }
-    }
-    aDownloadItem.isCancelled = YES;
 }
 
 
@@ -422,8 +438,12 @@
         [self.fileDownloadDelegate downloadFailedWithIdentifier:aDownloadTask.taskDescription
                                                           error:anError
                                                      resumeData:nil];
-        [self.activeDownloadsDictionary removeObjectForKey:@(aDownloadTask.taskIdentifier)];
-        [self.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
+        HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadTask.taskIdentifier)];
+        if (aDownloadItem)
+        {
+            [self.activeDownloadsDictionary removeObjectForKey:@(aDownloadTask.taskIdentifier)];
+            [self.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
+        }
     }
     else
     {
@@ -441,15 +461,18 @@
         aProgressRatio = (float)aTotalBytesWrittenCount / (float)aTotalBytesExpectedToWriteCount;
     }
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadTask.taskIdentifier)];
-    if (aDownloadItem.downloadStartDate == nil)
+    if (aDownloadItem)
     {
-        aDownloadItem.downloadStartDate = [NSDate date];
-    }
-    aDownloadItem.receivedFileSizeInBytes = aTotalBytesWrittenCount;
-    aDownloadItem.expectedFileSizeInBytes = aTotalBytesExpectedToWriteCount;
-    if ([self.fileDownloadDelegate respondsToSelector:@selector(downloadProgressChangedForIdentifier:)])
-    {
-        [self.fileDownloadDelegate downloadProgressChangedForIdentifier:aDownloadTask.taskDescription];
+        if (aDownloadItem.downloadStartDate == nil)
+        {
+            aDownloadItem.downloadStartDate = [NSDate date];
+        }
+        aDownloadItem.receivedFileSizeInBytes = aTotalBytesWrittenCount;
+        aDownloadItem.expectedFileSizeInBytes = aTotalBytesExpectedToWriteCount;
+        if ([self.fileDownloadDelegate respondsToSelector:@selector(downloadProgressChangedForIdentifier:)])
+        {
+            [self.fileDownloadDelegate downloadProgressChangedForIdentifier:aDownloadTask.taskDescription];
+        }
     }
 }
 
@@ -457,10 +480,7 @@
 - (void)URLSession:(NSURLSession *)aSession downloadTask:(NSURLSessionDownloadTask *)aDownloadTask didResumeAtOffset:(int64_t)aFileOffset expectedTotalBytes:(int64_t)aTotalBytesExpectedCount
 {
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadTask.taskIdentifier)];
-    if (aDownloadItem)
-    {
-        aDownloadItem.resumedFileSizeInBytes = aFileOffset;
-    }
+    aDownloadItem.resumedFileSizeInBytes = aFileOffset;
     NSLog(@"Download (id: %@) resumed (offset: %@ bytes, expected: %@ bytes", aDownloadTask.taskDescription, @(aFileOffset), @(aTotalBytesExpectedCount));
 }
 
@@ -468,28 +488,32 @@
 #pragma mark - NSURLSessionTaskDelegate
 
 
-- (void)URLSession:(NSURLSession *)aSession task:(NSURLSessionTask *)aTask didCompleteWithError:(NSError *)anError
+- (void)URLSession:(NSURLSession *)aSession task:(NSURLSessionTask *)aDownloadTask didCompleteWithError:(NSError *)anError
 {
-    if (anError)
+    HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadTask.taskIdentifier)];
+    if (aDownloadItem)
     {
-        if (([anError.domain isEqualToString:NSURLErrorDomain]) && (anError.code == NSURLErrorCancelled))
+        if (anError)
         {
-            NSLog(@"Task cancelled: %@", aTask.taskDescription);
+            if (([anError.domain isEqualToString:NSURLErrorDomain]) && (anError.code == NSURLErrorCancelled))
+            {
+                NSLog(@"Task cancelled: %@", aDownloadTask.taskDescription);
+            }
+            else
+            {
+                NSLog(@"Task didCompleteWithError: %@ (%@), %s", anError, anError.userInfo, __PRETTY_FUNCTION__);
+            }
+            NSData *aSessionDownloadTaskResumeData = [anError.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
+            //NSString *aFailingURLStringErrorKeyString = [anError.userInfo objectForKey:NSURLErrorFailingURLStringErrorKey];
+            //NSNumber *aBackgroundTaskCancelledReasonKeyNumber = [anError.userInfo objectForKey:NSURLErrorBackgroundTaskCancelledReasonKey];
+            
+            [self.fileDownloadDelegate downloadFailedWithIdentifier:aDownloadTask.taskDescription
+                                                              error:anError
+                                                         resumeData:aSessionDownloadTaskResumeData];
         }
-        else
-        {
-            NSLog(@"Task didCompleteWithError: %@ (%@), %s", anError, anError.userInfo, __PRETTY_FUNCTION__);
-        }
-        NSData *aSessionDownloadTaskResumeData = [anError.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
-        //NSString *aFailingURLStringErrorKeyString = [anError.userInfo objectForKey:NSURLErrorFailingURLStringErrorKey];
-        //NSNumber *aBackgroundTaskCancelledReasonKeyNumber = [anError.userInfo objectForKey:NSURLErrorBackgroundTaskCancelledReasonKey];
-        
-        [self.fileDownloadDelegate downloadFailedWithIdentifier:aTask.taskDescription
-                                                          error:anError
-                                                     resumeData:aSessionDownloadTaskResumeData];
+        [self.activeDownloadsDictionary removeObjectForKey:@(aDownloadTask.taskIdentifier)];
         [self.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
     }
-    [self.activeDownloadsDictionary removeObjectForKey:@(aTask.taskIdentifier)];
 }
 
 
@@ -518,77 +542,86 @@
     {
         HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:aFoundDownloadID];
         
-        NSURL *aLocalFileURL = nil;
-        if ([self.fileDownloadDelegate respondsToSelector:@selector(localFileURLForIdentifier:remoteURL:)])
+        if (aDownloadItem)
         {
-            aLocalFileURL = [self.fileDownloadDelegate localFileURLForIdentifier:aDownloadItem.downloadToken remoteURL:aConnection.originalRequest.URL];
-            if (aLocalFileURL == nil)
+            NSURL *aLocalFileURL = nil;
+            if ([self.fileDownloadDelegate respondsToSelector:@selector(localFileURLForIdentifier:remoteURL:)])
             {
-                NSLog(@"ERR: No local file url (%s, %d)", __FILE__, __LINE__);
-            }
-        }
-        else
-        {
-            aLocalFileURL = [HWIFileDownloader localFileURLForRemoteURL:aConnection.originalRequest.URL];
-        }
-        NSURL *aTempFileURL = [self tempLocalFileURLForDownloadFromURL:aConnection.originalRequest.URL];
-        
-        __weak HWIFileDownloader *weakSelf = self;
-        dispatch_async(self.downloadFileSerialWriterDispatchQueue, ^{
-            
-            HWIFileDownloader *strongSelf = weakSelf;
-            
-            if (aTempFileURL)
-            {
-                NSFileHandle *aFileHandle = [NSFileHandle fileHandleForWritingAtPath:aTempFileURL.path];
-                if (!aFileHandle)
+                aLocalFileURL = [self.fileDownloadDelegate localFileURLForIdentifier:aDownloadItem.downloadToken remoteURL:aConnection.originalRequest.URL];
+                if (aLocalFileURL == nil)
                 {
-                    NSLog(@"ERR: No file handle (%s, %d)", __FILE__, __LINE__);
+                    NSLog(@"ERR: No local file url (%s, %d)", __FILE__, __LINE__);
+                }
+            }
+            else
+            {
+                aLocalFileURL = [HWIFileDownloader localFileURLForRemoteURL:aConnection.originalRequest.URL];
+            }
+            NSURL *aTempFileURL = [self tempLocalFileURLForDownloadFromURL:aConnection.originalRequest.URL];
+            
+            __weak HWIFileDownloader *weakSelf = self;
+            dispatch_async(self.downloadFileSerialWriterDispatchQueue, ^{
+                
+                HWIFileDownloader *strongSelf = weakSelf;
+                
+                if (aTempFileURL)
+                {
+                    NSFileHandle *aFileHandle = [NSFileHandle fileHandleForWritingAtPath:aTempFileURL.path];
+                    if (!aFileHandle)
+                    {
+                        NSLog(@"ERR: No file handle (%s, %d)", __FILE__, __LINE__);
+                    }
+                    
+                    NSError *anError = nil;
+                    BOOL aMoveSuccessFlag = [[NSFileManager defaultManager] moveItemAtURL:aTempFileURL toURL:aLocalFileURL error:&anError];
+                    if (aMoveSuccessFlag == NO)
+                    {
+                        NSLog(@"ERR: Unable to move file from %@ to %@ (%@) (%s)", aTempFileURL, aLocalFileURL, anError, __PRETTY_FUNCTION__);
+                        __weak HWIFileDownloader *anotherWeakSelf = strongSelf;
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            HWIFileDownloader *anotherStrongSelf = anotherWeakSelf;
+                            HWIFileDownloadItem *aFoundDownloadItem = [anotherStrongSelf.activeDownloadsDictionary objectForKey:aFoundDownloadID];
+                            if (aFoundDownloadItem)
+                            {
+                                [anotherStrongSelf.fileDownloadDelegate downloadFailedWithIdentifier:aFoundDownloadItem.downloadToken
+                                                                                               error:anError
+                                                                                          resumeData:nil];
+                                [anotherStrongSelf.activeDownloadsDictionary removeObjectForKey:aFoundDownloadID];
+                                [anotherStrongSelf.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
+                                [anotherStrongSelf startNextWaitingDownload];
+                            }
+                        });
+                    }
+                    else
+                    {
+                        __weak HWIFileDownloader *anotherWeakSelf = strongSelf;
+                        
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            
+                            HWIFileDownloader *anotherStrongSelf = anotherWeakSelf;
+                            
+                            HWIFileDownloadItem *aDownloadItem = [anotherStrongSelf.activeDownloadsDictionary objectForKey:aFoundDownloadID];
+                            if (aDownloadItem == nil)
+                            {
+                                // download has been cancelled meanwhile
+                                NSError *anError = nil;
+                                BOOL aRemoveSuccessFlag = [[NSFileManager defaultManager] removeItemAtURL:aLocalFileURL error:&anError];
+                                if (aRemoveSuccessFlag == NO)
+                                {
+                                    NSLog(@"ERR: Unable to remove file at %@ (%@) (%s)", aLocalFileURL, anError, __PRETTY_FUNCTION__);
+                                }
+                            }
+                            else
+                            {
+                                [anotherStrongSelf handleSuccessfulDownloadToLocalFileURL:aLocalFileURL downloadID:[aFoundDownloadID unsignedIntegerValue] downloadToken:aDownloadItem.downloadToken];
+                                [anotherStrongSelf startNextWaitingDownload];
+                            }
+                        });
+                    }
                 }
                 
-                NSError *anError = nil;
-                BOOL aMoveSuccessFlag = [[NSFileManager defaultManager] moveItemAtURL:aTempFileURL toURL:aLocalFileURL error:&anError];
-                if (aMoveSuccessFlag == NO)
-                {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        NSLog(@"ERR: Unable to move file from %@ to %@ (%@) (%s)", aTempFileURL, aLocalFileURL, anError, __PRETTY_FUNCTION__);
-                        [strongSelf.fileDownloadDelegate downloadFailedWithIdentifier:aDownloadItem.downloadToken
-                                                                                error:anError
-                                                                           resumeData:nil];
-                        [strongSelf.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
-                        [strongSelf startNextWaitingDownload];
-                    });
-                }
-                else
-                {
-                    __weak HWIFileDownloader *weakSelf = strongSelf;
-                    
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        
-                        HWIFileDownloader *strongSelf = weakSelf;
-                        
-                        HWIFileDownloadItem *aDownloadItem = [strongSelf.activeDownloadsDictionary objectForKey:aFoundDownloadID];
-                        if (aDownloadItem == nil)
-                        {
-                            // download has been cancelled meanwhile
-                            NSError *anError = nil;
-                            BOOL aRemoveSuccessFlag = [[NSFileManager defaultManager] removeItemAtURL:aLocalFileURL error:&anError];
-                            if (aRemoveSuccessFlag == NO)
-                            {
-                                NSLog(@"ERR: Unable to remove file at %@ (%@) (%s)", aLocalFileURL, anError, __PRETTY_FUNCTION__);
-                            }
-                        }
-                        else
-                        {
-                            [strongSelf handleSuccessfulDownloadToLocalFileURL:aLocalFileURL downloadID:[aFoundDownloadID unsignedIntegerValue] downloadToken:aDownloadItem.downloadToken];
-                        }
-                        [strongSelf.activeDownloadsDictionary removeObjectForKey:aFoundDownloadID];
-                        [strongSelf startNextWaitingDownload];
-                    });
-                }
-            }
-            
-        });
+            });
+        }
     }
     else
     {
@@ -605,14 +638,17 @@
     if (aFoundDownloadID)
     {
         HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:aFoundDownloadID];
-        if (aDownloadItem.downloadStartDate == nil)
+        if (aDownloadItem)
         {
-            aDownloadItem.downloadStartDate = [NSDate date];
-        }
-        long long anExpectedContentLength = [aResponse expectedContentLength];
-        if (anExpectedContentLength > 0)
-        {
-            aDownloadItem.expectedFileSizeInBytes = anExpectedContentLength;
+            if (aDownloadItem.downloadStartDate == nil)
+            {
+                aDownloadItem.downloadStartDate = [NSDate date];
+            }
+            long long anExpectedContentLength = [aResponse expectedContentLength];
+            if (anExpectedContentLength > 0)
+            {
+                aDownloadItem.expectedFileSizeInBytes = anExpectedContentLength;
+            }
         }
     }
 }
@@ -632,36 +668,38 @@
         }
         
         HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:aFoundDownloadID];
-        if (aDownloadItem.downloadStartDate == nil)
+        if (aDownloadItem)
         {
-            aDownloadItem.downloadStartDate = [NSDate date];
-        }
-        int64_t anUntilNowReceivedContentSize = aDownloadItem.receivedFileSizeInBytes;
-        int64_t aCompleteReceivedContentSize = anUntilNowReceivedContentSize + [aData length];
-        aDownloadItem.receivedFileSizeInBytes = aCompleteReceivedContentSize;
-        
-        if ([self.fileDownloadDelegate respondsToSelector:@selector(downloadProgressChangedForIdentifier:)])
-        {
-            [self.fileDownloadDelegate downloadProgressChangedForIdentifier:aDownloadItem.downloadToken];
-        }
-        
-        dispatch_async(self.downloadFileSerialWriterDispatchQueue, ^{
-            if (aTempFileURL)
+            if (aDownloadItem.downloadStartDate == nil)
             {
-                NSFileHandle *aFileHandle = [NSFileHandle fileHandleForWritingAtPath:aTempFileURL.path];
-                if (!aFileHandle)
-                {
-                    NSLog(@"ERR: No file handle (%s, %d)", __FILE__, __LINE__);
-                }
-                else
-                {
-                    [aFileHandle seekToEndOfFile];
-                    [aFileHandle writeData:aData];
-                    [aFileHandle closeFile];
-                }
+                aDownloadItem.downloadStartDate = [NSDate date];
             }
-        });
-        
+            int64_t anUntilNowReceivedContentSize = aDownloadItem.receivedFileSizeInBytes;
+            int64_t aCompleteReceivedContentSize = anUntilNowReceivedContentSize + [aData length];
+            aDownloadItem.receivedFileSizeInBytes = aCompleteReceivedContentSize;
+            
+            if ([self.fileDownloadDelegate respondsToSelector:@selector(downloadProgressChangedForIdentifier:)])
+            {
+                [self.fileDownloadDelegate downloadProgressChangedForIdentifier:aDownloadItem.downloadToken];
+            }
+            
+            dispatch_async(self.downloadFileSerialWriterDispatchQueue, ^{
+                if (aTempFileURL)
+                {
+                    NSFileHandle *aFileHandle = [NSFileHandle fileHandleForWritingAtPath:aTempFileURL.path];
+                    if (!aFileHandle)
+                    {
+                        NSLog(@"ERR: No file handle (%s, %d)", __FILE__, __LINE__);
+                    }
+                    else
+                    {
+                        [aFileHandle seekToEndOfFile];
+                        [aFileHandle writeData:aData];
+                        [aFileHandle closeFile];
+                    }
+                }
+            });
+        }
     }
 }
 
@@ -690,17 +728,20 @@
 {
     NSLog(@"ERR: NSURLConnection failed with error: %@ (%s, %d)", anError, __FILE__, __LINE__);
     
-    NSNumber *aFoundDownloadID = [self downloadIDForConnection:aConnection];
-    if (aFoundDownloadID)
+    NSNumber *aDownloadID = [self downloadIDForConnection:aConnection];
+    if (aDownloadID)
     {
-        HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:aFoundDownloadID];
-        [self.fileDownloadDelegate downloadFailedWithIdentifier:aDownloadItem.downloadToken
-                                                          error:anError
-                                                     resumeData:nil];
-        [self.activeDownloadsDictionary removeObjectForKey:aFoundDownloadID];
-        [self.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
+        HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:aDownloadID];
+        if (aDownloadItem)
+        {
+            [self.fileDownloadDelegate downloadFailedWithIdentifier:aDownloadItem.downloadToken
+                                                              error:anError
+                                                         resumeData:nil];
+            [self.activeDownloadsDictionary removeObjectForKey:aDownloadID];
+            [self.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
+            [self startNextWaitingDownload];
+        }
     }
-    [self startNextWaitingDownload];
 }
 
 
@@ -749,12 +790,15 @@
 
 - (void)handleSuccessfulDownloadToLocalFileURL:(NSURL *)aLocalFileURL downloadID:(NSUInteger)aDownloadID downloadToken:(NSString *)aDownloadToken
 {
-    [self.fileDownloadDelegate downloadDidCompleteWithIdentifier:aDownloadToken
-                                                    localFileURL:aLocalFileURL];
-    
-    [self.activeDownloadsDictionary removeObjectForKey:@(aDownloadID)];
-    
-    [self.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
+    HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadID)];
+    if (aDownloadItem)
+    {
+        [self.fileDownloadDelegate downloadDidCompleteWithIdentifier:aDownloadToken
+                                                        localFileURL:aLocalFileURL];
+        
+        [self.activeDownloadsDictionary removeObjectForKey:@(aDownloadID)];
+        [self.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
+    }
 }
 
 
