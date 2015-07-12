@@ -52,6 +52,7 @@
     [aDescriptionDict setObject:@(self.bytesPerSecondSpeed) forKey:@"bytesPerSecondSpeed"];
     [aDescriptionDict setObject:self.downloadToken forKey:@"downloadToken"];
     [aDescriptionDict setObject:@(self.isCancelled) forKey:@"isCancelled"];
+    [aDescriptionDict setObject:@(self.isInvalid) forKey:@"isInvalid"];
     
     NSString *aDescriptionString = [NSString stringWithFormat:@"%@", aDescriptionDict];
     

@@ -98,7 +98,7 @@
  @param aDownloadIdentifier Download identifier of the download item.
  @param aLocalFileURL Local file URL of the downloaded item.
  @return True if downloaded data in local file passed validation test.
- @discussion NSURLSession might finish a download successfully with only some random data.
+ @discussion The download might finish successfully with an error string as downloaded data. With this method you can check whether the downloaded data is of the expected content type.
  */
 - (BOOL)downloadIsValidForDownloadIdentifier:(NSString *)aDownloadIdentifier atLocalFileURL:(NSURL *)aLocalFileURL;
 

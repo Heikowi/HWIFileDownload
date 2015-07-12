@@ -50,6 +50,7 @@
 @property (nonatomic, assign) NSUInteger bytesPerSecondSpeed;
 @property (nonatomic, strong) NSString *downloadToken;
 @property (nonatomic, assign) BOOL isCancelled;
+@property (nonatomic, assign) BOOL isInvalid;
 
 @property (nonatomic, strong) NSURLSessionDownloadTask *sessionDownloadTask;
 
