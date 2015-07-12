@@ -100,7 +100,7 @@
     NSLog(@"Download completed (id: %@)", aDownloadIdentifier);
     
     // store download item
-    NSDictionary *aDownloadItemDict = @{@"URL" : aLocalFileURL.absoluteString};
+    NSDictionary *aDownloadItemDict = @{@"URL" : aLocalFileURL.absoluteString, @"didFail" : @(NO)};
     [self.downloadItemsDict setObject:aDownloadItemDict forKey:aDownloadIdentifier];
     [[NSUserDefaults standardUserDefaults] setObject:self.downloadItemsDict forKey:@"downloadItems"];
     [[NSUserDefaults standardUserDefaults] synchronize];
@@ -117,6 +117,7 @@
     {
         NSMutableDictionary *aDownloadItemDict = [[self.downloadItemsDict objectForKey:aDownloadIdentifier] mutableCopy];
         [aDownloadItemDict setObject:aResumeData forKey:@"ResumeData"];
+        [aDownloadItemDict setObject:@(YES) forKey:@"didFail"];
         [self.downloadItemsDict setObject:aDownloadItemDict forKey:aDownloadIdentifier];
         [[NSUserDefaults standardUserDefaults] setObject:self.downloadItemsDict forKey:@"downloadItems"];
         [[NSUserDefaults standardUserDefaults] synchronize];
@@ -171,6 +172,12 @@
             NSURL *aURL = [NSURL URLWithString:aURLString];
             if ([aURL.scheme isEqualToString:@"http"])
             {
+                NSMutableDictionary *aDownloadItemDict = [[self.downloadItemsDict objectForKey:aDownloadIdentifierString] mutableCopy];
+                [aDownloadItemDict setObject:@(NO) forKey:@"didFail"];
+                [self.downloadItemsDict setObject:aDownloadItemDict forKey:aDownloadIdentifierString];
+                [[NSUserDefaults standardUserDefaults] setObject:self.downloadItemsDict forKey:@"downloadItems"];
+                [[NSUserDefaults standardUserDefaults] synchronize];
+                
                 AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
                 BOOL isDownloading = [theAppDelegate.fileDownloader isDownloadingIdentifier:aDownloadIdentifierString];
                 if (isDownloading == NO)

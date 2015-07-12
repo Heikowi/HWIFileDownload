@@ -447,7 +447,36 @@
         }
         else
         {
-            [self handleSuccessfulDownloadToLocalFileURL:aLocalFileURL downloadID:aDownloadTask.taskIdentifier downloadToken:aDownloadTask.taskDescription];
+            NSError *anError = nil;
+            NSDictionary *aFileAttributesDictionary = [[NSFileManager defaultManager] attributesOfItemAtPath:aLocalFileURL.path error:&anError];
+            if (anError)
+            {
+                NSLog(@"ERR: Error on getting file size for item at %@: %@ (%s)", aLocalFileURL, anError, __PRETTY_FUNCTION__);
+                [self.fileDownloadDelegate downloadFailedWithIdentifier:aDownloadTask.taskDescription
+                                                                  error:anError
+                                                             resumeData:nil];
+                [self.activeDownloadsDictionary removeObjectForKey:@(aDownloadTask.taskIdentifier)];
+                [self.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
+                [self startNextWaitingDownload];
+            }
+            else
+            {
+                unsigned long long aFileSize = [aFileAttributesDictionary fileSize];
+                if (aFileSize == 0)
+                {
+                    NSLog(@"ERR: Zero file size for item at %@: %@ (%s)", aLocalFileURL, anError, __PRETTY_FUNCTION__);
+                    [self.fileDownloadDelegate downloadFailedWithIdentifier:aDownloadTask.taskDescription
+                                                                      error:anError
+                                                                 resumeData:nil];
+                    [self.activeDownloadsDictionary removeObjectForKey:@(aDownloadTask.taskIdentifier)];
+                    [self.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
+                    [self startNextWaitingDownload];
+                }
+                else
+                {
+                    [self handleSuccessfulDownloadToLocalFileURL:aLocalFileURL downloadID:aDownloadTask.taskIdentifier downloadToken:aDownloadTask.taskDescription];
+                }
+            }
         }
     }
 }
@@ -493,26 +522,25 @@
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadTask.taskIdentifier)];
     if (aDownloadItem)
     {
-        if (anError)
+        if (([anError.domain isEqualToString:NSURLErrorDomain]) && (anError.code == NSURLErrorCancelled))
         {
-            if (([anError.domain isEqualToString:NSURLErrorDomain]) && (anError.code == NSURLErrorCancelled))
-            {
-                NSLog(@"Task cancelled: %@", aDownloadTask.taskDescription);
-            }
-            else
-            {
-                NSLog(@"Task didCompleteWithError: %@ (%@), %s", anError, anError.userInfo, __PRETTY_FUNCTION__);
-            }
-            NSData *aSessionDownloadTaskResumeData = [anError.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
-            //NSString *aFailingURLStringErrorKeyString = [anError.userInfo objectForKey:NSURLErrorFailingURLStringErrorKey];
-            //NSNumber *aBackgroundTaskCancelledReasonKeyNumber = [anError.userInfo objectForKey:NSURLErrorBackgroundTaskCancelledReasonKey];
-            
-            [self.fileDownloadDelegate downloadFailedWithIdentifier:aDownloadTask.taskDescription
-                                                              error:anError
-                                                         resumeData:aSessionDownloadTaskResumeData];
+            NSLog(@"Task cancelled: %@", aDownloadTask.taskDescription);
         }
+        else
+        {
+            NSLog(@"Task didCompleteWithError: %@ (%@), %s", anError, anError.userInfo, __PRETTY_FUNCTION__);
+        }
+        
+        NSData *aSessionDownloadTaskResumeData = [anError.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
+        //NSString *aFailingURLStringErrorKeyString = [anError.userInfo objectForKey:NSURLErrorFailingURLStringErrorKey];
+        //NSNumber *aBackgroundTaskCancelledReasonKeyNumber = [anError.userInfo objectForKey:NSURLErrorBackgroundTaskCancelledReasonKey];
+        
+        [self.fileDownloadDelegate downloadFailedWithIdentifier:aDownloadTask.taskDescription
+                                                          error:anError
+                                                     resumeData:aSessionDownloadTaskResumeData];
         [self.activeDownloadsDictionary removeObjectForKey:@(aDownloadTask.taskIdentifier)];
         [self.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
+        [self startNextWaitingDownload];
     }
 }
 
@@ -600,7 +628,7 @@
                             
                             HWIFileDownloader *anotherStrongSelf = anotherWeakSelf;
                             
-                            HWIFileDownloadItem *aDownloadItem = [anotherStrongSelf.activeDownloadsDictionary objectForKey:aDownloadID];
+                            HWIFileDownloadItem *aFoundDownloadItem = [anotherStrongSelf.activeDownloadsDictionary objectForKey:aDownloadID];
                             if (aDownloadItem == nil)
                             {
                                 // download has been cancelled meanwhile
@@ -613,7 +641,37 @@
                             }
                             else
                             {
-                                [anotherStrongSelf handleSuccessfulDownloadToLocalFileURL:aLocalFileURL downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aDownloadItem.downloadToken];
+                                
+                                NSError *anError = nil;
+                                NSDictionary *aFileAttributesDictionary = [[NSFileManager defaultManager] attributesOfItemAtPath:aLocalFileURL.path error:&anError];
+                                if (anError)
+                                {
+                                    NSLog(@"ERR: Error on getting file size for item at %@: %@ (%s)", aLocalFileURL, anError, __PRETTY_FUNCTION__);
+                                    [anotherStrongSelf.fileDownloadDelegate downloadFailedWithIdentifier:aFoundDownloadItem.downloadToken
+                                                                                      error:anError
+                                                                                 resumeData:nil];
+                                    [anotherStrongSelf.activeDownloadsDictionary removeObjectForKey:aFoundDownloadItem.downloadToken];
+                                    [anotherStrongSelf.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
+                                    [anotherStrongSelf startNextWaitingDownload];
+                                }
+                                else
+                                {
+                                    unsigned long long aFileSize = [aFileAttributesDictionary fileSize];
+                                    if (aFileSize == 0)
+                                    {
+                                        NSLog(@"ERR: Zero file size for item at %@: %@ (%s)", aLocalFileURL, anError, __PRETTY_FUNCTION__);
+                                        [anotherStrongSelf.fileDownloadDelegate downloadFailedWithIdentifier:aFoundDownloadItem.downloadToken
+                                                                                          error:anError
+                                                                                     resumeData:nil];
+                                        [anotherStrongSelf.activeDownloadsDictionary removeObjectForKey:aFoundDownloadItem.downloadToken];
+                                        [anotherStrongSelf.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
+                                        [anotherStrongSelf startNextWaitingDownload];
+                                    }
+                                    else
+                                    {
+                                        [anotherStrongSelf handleSuccessfulDownloadToLocalFileURL:aLocalFileURL downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aDownloadItem.downloadToken];
+                                    }
+                                }
                             }
                         });
                     }

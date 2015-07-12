@@ -109,7 +109,7 @@
 
 - (UITableViewCell *)tableView:(UITableView *)aTableView cellForRowAtIndexPath:(NSIndexPath *)anIndexPath
 {
-    UITableViewCell *aCell = [aTableView dequeueReusableCellWithIdentifier:@"DownloadTableViewCell" forIndexPath:anIndexPath];
+    UITableViewCell *aTableViewCell = [aTableView dequeueReusableCellWithIdentifier:@"DownloadTableViewCell" forIndexPath:anIndexPath];
 
     NSString *aDownloadIdentifier = [NSString stringWithFormat:@"%@", @(anIndexPath.row + 1)];
     AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
@@ -121,17 +121,25 @@
         aURL = [NSURL URLWithString:aURLString];
     }
     
-    UILabel *aFileNameLabel = (UILabel *)[aCell viewWithTag:self.fileNameLabelTag];
-    UILabel *aRemainingTimeLabel = (UILabel *)[aCell viewWithTag:self.remainingTimeLabelTag];
-    UIProgressView *aProgressView = (UIProgressView *)[aCell viewWithTag:self.progressViewTag];
+    UILabel *aFileNameLabel = (UILabel *)[aTableViewCell viewWithTag:self.fileNameLabelTag];
+    UILabel *aRemainingTimeLabel = (UILabel *)[aTableViewCell viewWithTag:self.remainingTimeLabelTag];
+    UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
     if ([aURL.scheme isEqualToString:@"http"])
     {
         aFileNameLabel.text = aURL.absoluteString;
         HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
         aRemainingTimeLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
-        aProgressView.progress = aFileDownloadProgress.downloadProgress;
         [aProgressView setHidden:NO];
         [aRemainingTimeLabel setHidden:NO];
+        BOOL didFail = [[aDownloadItemDict objectForKey:@"didFail"] boolValue];
+        if (didFail == NO)
+        {
+            aProgressView.progress = aFileDownloadProgress.downloadProgress;
+        }
+        else
+        {
+            aProgressView.progress = 0.0;
+        }
     }
     else
     {
@@ -140,7 +148,7 @@
         [aProgressView setHidden:YES];
         [aRemainingTimeLabel setHidden:YES];
     }
-    return aCell;
+    return aTableViewCell;
 }
 
 
@@ -193,7 +201,7 @@
     {
         NSString *aDownloadIdentifier = [NSString stringWithFormat:@"%@", @(anIndexPath.row + 1)];
         AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-        NSDictionary *aDownloadItemDict = [theAppDelegate.downloadStore.downloadItemsDict objectForKey:(NSString *)aNotification.object];
+        NSDictionary *aDownloadItemDict = [[theAppDelegate downloadStore].downloadItemsDict objectForKey:aDownloadIdentifier];
         NSString *aURLString = [aDownloadItemDict objectForKey:@"URL"];
         NSURL *aURL = nil;
         if (aURLString.length > 0)
@@ -209,9 +217,17 @@
             aFileNameLabel.text = aURL.absoluteString;
             HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
             aRemainingTimeLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
-            aProgressView.progress = aFileDownloadProgress.downloadProgress;
             [aProgressView setHidden:NO];
             [aRemainingTimeLabel setHidden:NO];
+            BOOL didFail = [[aDownloadItemDict objectForKey:@"didFail"] boolValue];
+            if (didFail == NO)
+            {
+                aProgressView.progress = aFileDownloadProgress.downloadProgress;
+            }
+            else
+            {
+                aProgressView.progress = 0.0;
+            }
         }
         else
         {
