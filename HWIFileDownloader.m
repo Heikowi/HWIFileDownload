@@ -96,18 +96,14 @@
                 aBackgroundConfigObject = [NSURLSessionConfiguration backgroundSessionConfiguration:aBackgroundDownloadSessionIdentifier];
 #pragma GCC diagnostic pop
             }
-            NSTimeInterval aRequestTimeoutInterval = [HWIFileDownloader requestTimeoutInterval];
             if ([self.fileDownloadDelegate respondsToSelector:@selector(requestTimeoutInterval)])
             {
-                aRequestTimeoutInterval = [self.fileDownloadDelegate requestTimeoutInterval];
+                aBackgroundConfigObject.timeoutIntervalForRequest = [self.fileDownloadDelegate requestTimeoutInterval];
             }
-            aBackgroundConfigObject.timeoutIntervalForRequest = aRequestTimeoutInterval;
-            NSTimeInterval aResourceTimeoutInterval = [HWIFileDownloader resourceTimeoutInterval];
             if ([self.fileDownloadDelegate respondsToSelector:@selector(resourceTimeoutInterval)])
             {
-                aResourceTimeoutInterval = [self.fileDownloadDelegate resourceTimeoutInterval];
+                aBackgroundConfigObject.timeoutIntervalForResource = [self.fileDownloadDelegate resourceTimeoutInterval];
             }
-            aBackgroundConfigObject.timeoutIntervalForResource = aResourceTimeoutInterval;
             self.backgroundSession = [NSURLSession sessionWithConfiguration:aBackgroundConfigObject delegate:self delegateQueue:[NSOperationQueue mainQueue]];
             
             [self.backgroundSession getTasksWithCompletionHandler:^(NSArray *aDataTasksArray, NSArray *anUploadTasksArray, NSArray *aDownloadTasksArray) {
@@ -206,7 +202,7 @@
         else
         {
             aDownloadID = self.highestDownloadID++;
-            NSTimeInterval aRequestTimeoutInterval = [HWIFileDownloader requestTimeoutInterval];
+            NSTimeInterval aRequestTimeoutInterval = 60.0; // iOS default value
             if ([self.fileDownloadDelegate respondsToSelector:@selector(requestTimeoutInterval)])
             {
                 aRequestTimeoutInterval = [self.fileDownloadDelegate requestTimeoutInterval];
@@ -848,18 +844,6 @@
     }
     aFileDownloadDirectoryURL = [NSURL fileURLWithPath:aFileDownloadDirectory];
     return aFileDownloadDirectoryURL;
-}
-
-
-+ (NSTimeInterval)requestTimeoutInterval
-{
-    return 30.0;
-}
-
-
-+ (NSTimeInterval)resourceTimeoutInterval
-{
-    return 240.0;
 }
 
 
