@@ -153,6 +153,42 @@
 }
 
 
+- (BOOL)downloadIsValidForDownloadIdentifier:(NSString *)aDownloadIdentifier atLocalFileURL:(NSURL *)aLocalFileURL
+{
+    BOOL anIsValidFlag = YES;
+    
+    // just checking for file size
+    // you might want to check by converting into final data format (like UIImage or NSString with specific expected encoding)
+    
+    NSError *anError = nil;
+    NSDictionary *aFileAttributesDictionary = [[NSFileManager defaultManager] attributesOfItemAtPath:aLocalFileURL.path error:&anError];
+    if (anError)
+    {
+        NSLog(@"ERR: Error on getting file size for item at %@: %@ (%s)", aLocalFileURL, anError, __PRETTY_FUNCTION__);
+        anIsValidFlag = NO;
+    }
+    else
+    {
+        unsigned long long aFileSize = [aFileAttributesDictionary fileSize];
+        if (aFileSize == 0)
+        {
+            anIsValidFlag = NO;
+        }
+        else
+        {
+            if (aFileSize < 40000)
+            {
+                anIsValidFlag = NO;
+            }
+        }
+    }
+    return anIsValidFlag;
+}
+
+
+#pragma mark - restart download
+
+
 - (void)restartDownload
 {
     NSArray *aDownloadIdentifiersArray = [self.downloadItemsDict allKeys];
@@ -203,7 +239,7 @@
 }
 
 
-#pragma mark - networkActivityIndicatorVisible
+#pragma mark - network activity indicator
 
 
 - (void)toggleNetworkActivityIndicatorVisible:(BOOL)visible

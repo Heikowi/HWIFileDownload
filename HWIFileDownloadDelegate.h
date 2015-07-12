@@ -92,4 +92,14 @@
  */
 - (NSURL *)localFileURLForIdentifier:(NSString *)aDownloadIdentifier remoteURL:(NSURL *)aRemoteURL;
 
+
+/**
+ Optionally called to validate downloaded data.
+ @param aDownloadIdentifier Download identifier of the download item.
+ @param aLocalFileURL Local file URL of the downloaded item.
+ @return True if downloaded data in local file passed validation test.
+ @discussion NSURLSession might finish a download successfully with only some random data.
+ */
+- (BOOL)downloadIsValidForDownloadIdentifier:(NSString *)aDownloadIdentifier atLocalFileURL:(NSURL *)aLocalFileURL;
+
 @end
