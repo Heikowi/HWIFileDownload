@@ -96,6 +96,18 @@
                 aBackgroundConfigObject = [NSURLSessionConfiguration backgroundSessionConfiguration:aBackgroundDownloadSessionIdentifier];
 #pragma GCC diagnostic pop
             }
+            NSTimeInterval aRequestTimeoutInterval = [HWIFileDownloader requestTimeoutInterval];
+            if ([self.fileDownloadDelegate respondsToSelector:@selector(requestTimeoutInterval)])
+            {
+                aRequestTimeoutInterval = [self.fileDownloadDelegate requestTimeoutInterval];
+            }
+            aBackgroundConfigObject.timeoutIntervalForRequest = aRequestTimeoutInterval;
+            NSTimeInterval aResourceTimeoutInterval = [HWIFileDownloader resourceTimeoutInterval];
+            if ([self.fileDownloadDelegate respondsToSelector:@selector(resourceTimeoutInterval)])
+            {
+                aResourceTimeoutInterval = [self.fileDownloadDelegate resourceTimeoutInterval];
+            }
+            aBackgroundConfigObject.timeoutIntervalForResource = aResourceTimeoutInterval;
             self.backgroundSession = [NSURLSession sessionWithConfiguration:aBackgroundConfigObject delegate:self delegateQueue:[NSOperationQueue mainQueue]];
             
             [self.backgroundSession getTasksWithCompletionHandler:^(NSArray *aDataTasksArray, NSArray *anUploadTasksArray, NSArray *aDownloadTasksArray) {
@@ -194,7 +206,12 @@
         else
         {
             aDownloadID = self.highestDownloadID++;
-            NSURLRequest *aURLRequest = [NSURLRequest requestWithURL:aRemoteURL];
+            NSTimeInterval aRequestTimeoutInterval = [HWIFileDownloader requestTimeoutInterval];
+            if ([self.fileDownloadDelegate respondsToSelector:@selector(requestTimeoutInterval)])
+            {
+                aRequestTimeoutInterval = [self.fileDownloadDelegate requestTimeoutInterval];
+            }
+            NSURLRequest *aURLRequest = [[NSURLRequest alloc] initWithURL:aRemoteURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:aRequestTimeoutInterval];
             aURLConnection = [[NSURLConnection alloc] initWithRequest:aURLRequest delegate:self startImmediately:NO];
             aDownloadItem.downloadToken = aDownloadToken;
             aDownloadItem.urlConnection = aURLConnection;
@@ -831,6 +848,18 @@
     }
     aFileDownloadDirectoryURL = [NSURL fileURLWithPath:aFileDownloadDirectory];
     return aFileDownloadDirectoryURL;
+}
+
+
++ (NSTimeInterval)requestTimeoutInterval
+{
+    return 30.0;
+}
+
+
++ (NSTimeInterval)resourceTimeoutInterval
+{
+    return 240.0;
 }
 
 

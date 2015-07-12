@@ -102,4 +102,21 @@
  */
 - (BOOL)downloadIsValidForDownloadIdentifier:(NSString *)aDownloadIdentifier atLocalFileURL:(NSURL *)aLocalFileURL;
 
+
+/**
+ Optionally set timeout interval for a request with this return value.
+ @return The timeout to use for the a request.
+ @discussion The timeout fires if no data is transmitted for the given timeout value.
+ */
+- (NSTimeInterval)requestTimeoutInterval;
+
+
+/**
+ Optionally set timeout interval for downloading an individual item with this return value.
+ @return The timeout to use for a download item.
+ @discussion The timeout fires if a download item does not complete download during the time interval (only applies to NSURLSession).
+ */
+- (NSTimeInterval)resourceTimeoutInterval;
+
+
 @end
