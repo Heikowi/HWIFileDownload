@@ -28,6 +28,9 @@ The delegate is called on download completion. Additional calls are used to cont
 
 	- (void)downloadProgressChangedForIdentifier:(NSString *)aDownloadIdentifier;
 	- (NSURL *)localFileURLForIdentifier:(NSString *)aDownloadIdentifier remoteURL:(NSURL *)aRemoteURL;
+	- (BOOL)downloadIsValidForDownloadIdentifier:(NSString *)aDownloadIdentifier atLocalFileURL:(NSURL *)aLocalFileURL;
+	- (NSTimeInterval)requestTimeoutInterval;
+	- (NSTimeInterval)resourceTimeoutInterval;
 
 	@end
 	
