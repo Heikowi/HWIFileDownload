@@ -113,7 +113,7 @@ HWIFileDownload consists of these files:
 * HWIFileDownloadProgress.h
 * HWIFileDownloadProgress.m
 
-The files need to be added to the app project.
+All files need to be added to the app project.
 
 ### App Delegate
 
