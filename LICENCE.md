@@ -1,8 +1,6 @@
 HWIFileDownload
 
-Version 1.0, October 26, 2014
-
-Copyright (C) 2014 Heiko Wichmann
+Copyright (C) 2014-2015 Heiko Wichmann
 
 This software is provided 'as-is', without any express or implied
 warranty.  In no event will the authors be held liable for any damages
