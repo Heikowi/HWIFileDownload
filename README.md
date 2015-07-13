@@ -62,7 +62,7 @@ The app needs to hold an instance of the `HWIFileDownloader` that manages the do
 
 The demo app shows a sample setup and integration of HWIFileDownload.
 
-The app __download store__ is implemented with the custom sample class `DownloadStore`.
+The app __download store__ is implemented with the custom class `DownloadStore`.
 
 The app delegate of the demo app holds an instance of the `DownloadStore` and an instance of the `HWIFileDownloader`.
 
