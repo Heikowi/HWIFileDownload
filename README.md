@@ -70,15 +70,15 @@ The app delegate of the demo app holds an instance of the `DownloadStore` and an
 
 ### Start and Restart
 
-On app start, a list of all downloads is collected. All items are downloaded that are not downloaded yet.
+On app start a list of all downloads is collected. All items are downloaded that are not downloaded yet.
 
 ### Cancel
 
-On "Cancel", all running downloads are cancelled. On iOS 7 (and later) incompletely downloaded data is passed asynchronously as resume data.
+On "Cancel" all running downloads are cancelled. On iOS 7 (and later) incompletely downloaded data is passed asynchronously as resume data.
 
 ### Crash
 
-On "Crash", the app crashes. On iOS 7 (and later) started downloads continue in the background even though the app is not running anymore. On iOS 6 download does not continue.
+On "Crash" the app crashes. On iOS 7 (and later) started downloads continue in the background even though the app is not running anymore. On iOS 6 download does not continue.
 
 ### Force Quit
 
