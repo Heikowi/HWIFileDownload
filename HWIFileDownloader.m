@@ -192,7 +192,7 @@
             }
             aDownloadID = aDownloadTask.taskIdentifier;
             aDownloadTask.taskDescription = aDownloadToken;
-            aDownloadItem = [[HWIFileDownloadItem alloc] initWithDownloadToken:aDownloadTask.taskDescription
+            aDownloadItem = [[HWIFileDownloadItem alloc] initWithDownloadToken:aDownloadToken
                                                            sessionDownloadTask:aDownloadTask
                                                                  urlConnection:nil];
         }
