@@ -170,7 +170,7 @@
     BOOL anIsValidFlag = YES;
     
     // just checking for file size
-    // you might want to check by converting into final data format (like UIImage or NSString with specific expected encoding)
+    // you might want to check by converting into expected data format (like UIImage) or by scanning for expected content
     
     NSError *anError = nil;
     NSDictionary *aFileAttributesDictionary = [[NSFileManager defaultManager] attributesOfItemAtPath:aLocalFileURL.path error:&anError];
