@@ -42,18 +42,26 @@
  */
 @interface HWIFileDownloadItem : NSObject
 
+- (instancetype)initWithDownloadToken:(NSString *)aDownloadToken
+                  sessionDownloadTask:(NSURLSessionDownloadTask *)aSessionDownloadTask
+                        urlConnection:(NSURLConnection *)aURLConnection;
+
 
 @property (nonatomic, strong) NSDate *downloadStartDate;
 @property (nonatomic, assign) int64_t receivedFileSizeInBytes;
 @property (nonatomic, assign) int64_t expectedFileSizeInBytes;
 @property (nonatomic, assign) int64_t resumedFileSizeInBytes;
 @property (nonatomic, assign) NSUInteger bytesPerSecondSpeed;
-@property (nonatomic, strong) NSString *downloadToken;
+@property (nonatomic, strong, readonly) NSString *downloadToken;
 @property (nonatomic, assign) BOOL isCancelled;
 @property (nonatomic, assign) BOOL isInvalid;
 
-@property (nonatomic, strong) NSURLSessionDownloadTask *sessionDownloadTask;
+@property (nonatomic, strong, readonly) NSURLSessionDownloadTask *sessionDownloadTask;
 
-@property (nonatomic, strong) NSURLConnection *urlConnection;
+@property (nonatomic, strong, readonly) NSURLConnection *urlConnection;
+
+
+- (instancetype)init __attribute__((unavailable("use initWithDownloadToken:sessionDownloadTask:urlConnection:")));
++ (instancetype)new __attribute__((unavailable("use initWithDownloadToken:sessionDownloadTask:urlConnection:")));
 
 @end

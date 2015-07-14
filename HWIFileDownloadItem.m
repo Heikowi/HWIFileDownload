@@ -37,8 +37,38 @@
 #import "HWIFileDownloadItem.h"
 
 
+@interface HWIFileDownloadItem()
+@property (nonatomic, strong, readwrite) NSString *downloadToken;
+@property (nonatomic, strong, readwrite) NSURLSessionDownloadTask *sessionDownloadTask;
+@property (nonatomic, strong, readwrite) NSURLConnection *urlConnection;
+@end
+
 
 @implementation HWIFileDownloadItem
+
+
+#pragma mark - Initialization
+
+
+- (instancetype)initWithDownloadToken:(NSString *)aDownloadToken
+                  sessionDownloadTask:(NSURLSessionDownloadTask *)aSessionDownloadTask
+                        urlConnection:(NSURLConnection *)aURLConnection
+{
+    self = [super init];
+    if (self)
+    {
+        self.downloadToken = aDownloadToken;
+        self.sessionDownloadTask = aSessionDownloadTask;
+        self.urlConnection = aURLConnection;
+        self.receivedFileSizeInBytes = 0;
+        self.expectedFileSizeInBytes = 0;
+        self.bytesPerSecondSpeed = 0;
+        self.resumedFileSizeInBytes = 0;
+        self.isCancelled = NO;
+        self.isInvalid = NO;
+    }
+    return self;
+}
 
 
 #pragma mark - Description
@@ -53,6 +83,14 @@
     [aDescriptionDict setObject:self.downloadToken forKey:@"downloadToken"];
     [aDescriptionDict setObject:@(self.isCancelled) forKey:@"isCancelled"];
     [aDescriptionDict setObject:@(self.isInvalid) forKey:@"isInvalid"];
+    if (self.sessionDownloadTask)
+    {
+        [aDescriptionDict setObject:@(YES) forKey:@"hasSessionDownloadTask"];
+    }
+    if (self.urlConnection)
+    {
+        [aDescriptionDict setObject:@(YES) forKey:@"hasUrlConnection"];
+    }
     
     NSString *aDescriptionString = [NSString stringWithFormat:@"%@", aDescriptionDict];
     

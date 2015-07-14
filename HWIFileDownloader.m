@@ -109,12 +109,9 @@
             [self.backgroundSession getTasksWithCompletionHandler:^(NSArray *aDataTasksArray, NSArray *anUploadTasksArray, NSArray *aDownloadTasksArray) {
                 for (NSURLSessionDownloadTask *aDownloadTask in aDownloadTasksArray)
                 {
-                    HWIFileDownloadItem *aDownloadItem = [[HWIFileDownloadItem alloc] init];
-                    aDownloadItem.downloadToken = aDownloadTask.taskDescription;
-                    aDownloadItem.sessionDownloadTask = aDownloadTask;
-                    aDownloadItem.resumedFileSizeInBytes = 0;
-                    aDownloadItem.isCancelled = NO;
-                    aDownloadItem.isInvalid = NO;
+                    HWIFileDownloadItem *aDownloadItem = [[HWIFileDownloadItem alloc] initWithDownloadToken:aDownloadTask.taskDescription
+                                                                                        sessionDownloadTask:aDownloadTask
+                                                                                              urlConnection:nil];
                     [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadTask.taskIdentifier)];
                     [self.fileDownloadDelegate incrementNetworkActivityIndicatorActivityCount];
                 }
@@ -179,11 +176,10 @@
     
     if ((self.maxConcurrentFileDownloadsCount == -1) || ((NSInteger)self.activeDownloadsDictionary.count < self.maxConcurrentFileDownloadsCount))
     {
-        
         NSURLSessionDownloadTask *aDownloadTask = nil;
         NSURLConnection *aURLConnection = nil;
         
-        HWIFileDownloadItem *aDownloadItem = [[HWIFileDownloadItem alloc] init];
+        HWIFileDownloadItem *aDownloadItem = nil;
         if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
         {
             if (aResumeData)
@@ -196,8 +192,9 @@
             }
             aDownloadID = aDownloadTask.taskIdentifier;
             aDownloadTask.taskDescription = aDownloadToken;
-            aDownloadItem.downloadToken = aDownloadTask.taskDescription;
-            aDownloadItem.sessionDownloadTask = aDownloadTask;
+            aDownloadItem = [[HWIFileDownloadItem alloc] initWithDownloadToken:aDownloadTask.taskDescription
+                                                           sessionDownloadTask:aDownloadTask
+                                                                 urlConnection:nil];
         }
         else
         {
@@ -209,14 +206,10 @@
             }
             NSURLRequest *aURLRequest = [[NSURLRequest alloc] initWithURL:aRemoteURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:aRequestTimeoutInterval];
             aURLConnection = [[NSURLConnection alloc] initWithRequest:aURLRequest delegate:self startImmediately:NO];
-            aDownloadItem.downloadToken = aDownloadToken;
-            aDownloadItem.urlConnection = aURLConnection;
+            aDownloadItem = [[HWIFileDownloadItem alloc] initWithDownloadToken:aDownloadToken
+                                                           sessionDownloadTask:nil
+                                                                 urlConnection:aURLConnection];
         }
-        aDownloadItem.receivedFileSizeInBytes = 0;
-        aDownloadItem.expectedFileSizeInBytes = 0;
-        aDownloadItem.resumedFileSizeInBytes = 0;
-        aDownloadItem.isCancelled = NO;
-        aDownloadItem.isInvalid = NO;
         [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadID)];
         [self.fileDownloadDelegate incrementNetworkActivityIndicatorActivityCount];
         
