@@ -90,7 +90,8 @@
  @return The local file URL where the downloaded data should be persistently stored in the file system.
  @discussion Although the download identifier is enough to identify a singular download item, the remote URL is passed here too for convenience as it might convey useful information for determining a local file URL.
  */
-- (NSURL *)localFileURLForIdentifier:(NSString *)aDownloadIdentifier remoteURL:(NSURL *)aRemoteURL;
+- (NSURL *)localFileURLForIdentifier:(NSString *)aDownloadIdentifier
+                           remoteURL:(NSURL *)aRemoteURL;
 
 
 /**
@@ -100,7 +101,8 @@
  @return True if downloaded data in local file passed validation test.
  @discussion The download might finish successfully with an error string as downloaded data. This method can be used to check whether the downloaded data is the expected content and data type.
  */
-- (BOOL)downloadIsValidForDownloadIdentifier:(NSString *)aDownloadIdentifier atLocalFileURL:(NSURL *)aLocalFileURL;
+- (BOOL)downloadIsValidForDownloadIdentifier:(NSString *)aDownloadIdentifier
+                              atLocalFileURL:(NSURL *)aLocalFileURL;
 
 
 /**

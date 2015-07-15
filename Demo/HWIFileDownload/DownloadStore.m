@@ -165,7 +165,8 @@
 }
 
 
-- (BOOL)downloadIsValidForDownloadIdentifier:(NSString *)aDownloadIdentifier atLocalFileURL:(NSURL *)aLocalFileURL
+- (BOOL)downloadIsValidForDownloadIdentifier:(NSString *)aDownloadIdentifier
+                              atLocalFileURL:(NSURL *)aLocalFileURL
 {
     BOOL anIsValidFlag = YES;
     
