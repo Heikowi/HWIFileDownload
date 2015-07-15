@@ -97,6 +97,15 @@ When running in the background, all running downloads continue on iOS 7 (and lat
 
 When loosing network connection, all running downloads pause after timeout. On iOS 7 (and later) the downloads resume when network becomes available again. On iOS 6 downloads are stopped after timeout; they start again with the next app start.
 
+## Timeout
+
+There are two timeouts available: __request timeout__ and __resource timeout__.
+
+The __request timeout__ fires "if no data is transmitted for the given timeout value, and is reset whenever data is transmitted". iOS's system default value is 60 seconds.
+
+The __resource timeout__ (available with `NSURLSession`) fires "if a resource is not able to be retrieved within a given timeout". The resource timeout is not reset, the timeout interval is a hard value and it fires even if data is currently received. iOS's system default value is 604800 seconds (7 days).
+
+If the host of the network request is not reachable, `NSURLSession` only terminates when the resource timeout fires. `NSURLConnection` checks for host availability right after request start and fails immediately with an error if the host is not reachable (NSURLErrorDomain Code=-1003 "A server with the specified hostname could not be found.").
 
 ## Integration
 
