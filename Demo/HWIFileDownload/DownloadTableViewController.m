@@ -110,9 +110,10 @@
 - (UITableViewCell *)tableView:(UITableView *)aTableView cellForRowAtIndexPath:(NSIndexPath *)anIndexPath
 {
     UITableViewCell *aTableViewCell = [aTableView dequeueReusableCellWithIdentifier:@"DownloadTableViewCell" forIndexPath:anIndexPath];
-
-    NSString *aDownloadIdentifier = [NSString stringWithFormat:@"%@", @(anIndexPath.row + 1)];
+    
     AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+    
+    NSString *aDownloadIdentifier = [[theAppDelegate downloadStore].sortedDownloadIdentifiers objectAtIndex:anIndexPath.row];
     NSDictionary *aDownloadItemDict = [[theAppDelegate downloadStore].downloadItemsDict objectForKey:aDownloadIdentifier];
     NSString *aURLString = [aDownloadItemDict objectForKey:@"URL"];
     NSURL *aURL = nil;
@@ -192,49 +193,62 @@
 
 - (void)onDownloadDidComplete:(NSNotification *)aNotification
 {
-    NSNumberFormatter *aNumberFormatter = [[NSNumberFormatter alloc] init];
-    [aNumberFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
-    NSNumber *aRowNumber = [aNumberFormatter numberFromString:(NSString *)aNotification.object];
-    NSIndexPath *anIndexPath = [NSIndexPath indexPathForRow:([aRowNumber unsignedIntegerValue]- 1) inSection:0];
-    UITableViewCell *aTableViewCell = [self.tableView cellForRowAtIndexPath:anIndexPath];
-    if (aTableViewCell)
+    NSString *aDownloadedIdentifier = (NSString *)aNotification.object;
+    
+    AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+    NSInteger aFoundRowIndex = -1;
+    NSUInteger aCurrIndex = 0;
+    for (NSString *anIdentifier in [theAppDelegate downloadStore].sortedDownloadIdentifiers)
     {
-        NSString *aDownloadIdentifier = [NSString stringWithFormat:@"%@", @(anIndexPath.row + 1)];
-        AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-        NSDictionary *aDownloadItemDict = [[theAppDelegate downloadStore].downloadItemsDict objectForKey:aDownloadIdentifier];
-        NSString *aURLString = [aDownloadItemDict objectForKey:@"URL"];
-        NSURL *aURL = nil;
-        if (aURLString.length > 0)
+        if ([anIdentifier isEqualToString:aDownloadedIdentifier])
         {
-            aURL = [NSURL URLWithString:aURLString];
+            aFoundRowIndex = aCurrIndex;
+            break;
         }
-        
-        UILabel *aFileNameLabel = (UILabel *)[aTableViewCell viewWithTag:self.fileNameLabelTag];
-        UILabel *aRemainingTimeLabel = (UILabel *)[aTableViewCell viewWithTag:self.remainingTimeLabelTag];
-        UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
-        if ([aURL.scheme isEqualToString:@"http"])
+        aCurrIndex++;
+    }
+    
+    if (aFoundRowIndex > -1)
+    {
+        NSIndexPath *anIndexPath = [NSIndexPath indexPathForRow:aFoundRowIndex inSection:0];
+        UITableViewCell *aTableViewCell = [self.tableView cellForRowAtIndexPath:anIndexPath];
+        if (aTableViewCell)
         {
-            aFileNameLabel.text = aURL.absoluteString;
-            HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
-            aRemainingTimeLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
-            [aProgressView setHidden:NO];
-            [aRemainingTimeLabel setHidden:NO];
-            BOOL didFail = [[aDownloadItemDict objectForKey:@"didFail"] boolValue];
-            if (didFail == NO)
+            NSDictionary *aDownloadItemDict = [[theAppDelegate downloadStore].downloadItemsDict objectForKey:aDownloadedIdentifier];
+            NSString *aURLString = [aDownloadItemDict objectForKey:@"URL"];
+            NSURL *aURL = nil;
+            if (aURLString.length > 0)
             {
-                aProgressView.progress = aFileDownloadProgress.downloadProgress;
+                aURL = [NSURL URLWithString:aURLString];
+            }
+            
+            UILabel *aFileNameLabel = (UILabel *)[aTableViewCell viewWithTag:self.fileNameLabelTag];
+            UILabel *aRemainingTimeLabel = (UILabel *)[aTableViewCell viewWithTag:self.remainingTimeLabelTag];
+            UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
+            if ([aURL.scheme isEqualToString:@"http"])
+            {
+                aFileNameLabel.text = aURL.absoluteString;
+                HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadedIdentifier];
+                aRemainingTimeLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
+                [aProgressView setHidden:NO];
+                [aRemainingTimeLabel setHidden:NO];
+                BOOL didFail = [[aDownloadItemDict objectForKey:@"didFail"] boolValue];
+                if (didFail == NO)
+                {
+                    aProgressView.progress = aFileDownloadProgress.downloadProgress;
+                }
+                else
+                {
+                    aProgressView.progress = 0.0;
+                }
             }
             else
             {
-                aProgressView.progress = 0.0;
+                aFileNameLabel.text = [NSString stringWithFormat:@"%@", aURL.lastPathComponent];
+                aRemainingTimeLabel.text = @"";
+                [aProgressView setHidden:YES];
+                [aRemainingTimeLabel setHidden:YES];
             }
-        }
-        else
-        {
-            aFileNameLabel.text = [NSString stringWithFormat:@"%@", aURL.lastPathComponent];
-            aRemainingTimeLabel.text = @"";
-            [aProgressView setHidden:YES];
-            [aRemainingTimeLabel setHidden:YES];
         }
     }
 }
@@ -254,7 +268,7 @@
         NSArray *aVisibleIndexPathsArray = [self.tableView indexPathsForVisibleRows];
         for (NSIndexPath *anIndexPath in aVisibleIndexPathsArray)
         {
-            NSString *aDownloadIdentifier = [NSString stringWithFormat:@"%@", @(anIndexPath.row + 1)];
+            NSString *aDownloadIdentifier = [[theAppDelegate downloadStore].sortedDownloadIdentifiers objectAtIndex:anIndexPath.row];
             BOOL isDownloading = [theAppDelegate.fileDownloader isDownloadingIdentifier:aDownloadIdentifier];
             if (isDownloading)
             {

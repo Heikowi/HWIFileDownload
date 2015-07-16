@@ -44,6 +44,8 @@
 
 @interface DownloadStore()
 @property (nonatomic, assign) NSUInteger networkActivityIndicatorCount;
+@property (nonatomic, strong, readwrite) NSMutableDictionary *downloadItemsDict;
+@property (nonatomic, strong, readwrite) NSArray *sortedDownloadIdentifiers;
 @end
 
 
@@ -77,6 +79,14 @@
                 [self.downloadItemsDict setObject:aDownloadItemDict forKey:aDownloadIdentifier];
             }
         };
+        NSArray *aDownloadIdentifiersArray = [self.downloadItemsDict allKeys];
+        NSSortDescriptor *aDownloadIdentifiersSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:nil
+                                                                                             ascending:YES
+                                                                                            comparator:^(id obj1, id obj2)
+                                                                {
+                                                                    return [obj1 compare:obj2 options:NSNumericSearch];
+                                                                }];
+        self.sortedDownloadIdentifiers = [aDownloadIdentifiersArray sortedArrayUsingDescriptors:@[aDownloadIdentifiersSortDescriptor]];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(restartDownload) name:@"restartDownload" object:nil];
         
@@ -198,15 +208,7 @@
 
 - (void)restartDownload
 {
-    NSArray *aDownloadIdentifiersArray = [self.downloadItemsDict allKeys];
-    NSSortDescriptor *aDownloadIdentifiersSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:nil
-                                                                                         ascending:YES
-                                                                                        comparator:^(id obj1, id obj2)
-                                                            {
-                                                                return [obj1 compare:obj2 options:NSNumericSearch];
-                                                            }];
-    aDownloadIdentifiersArray = [aDownloadIdentifiersArray sortedArrayUsingDescriptors:@[aDownloadIdentifiersSortDescriptor]];
-    for (NSString *aDownloadIdentifierString in aDownloadIdentifiersArray)
+    for (NSString *aDownloadIdentifierString in self.sortedDownloadIdentifiers)
     {
         NSDictionary *aDownloadItemDict = [self.downloadItemsDict objectForKey:aDownloadIdentifierString];
         NSString *aURLString = [aDownloadItemDict objectForKey:@"URL"];

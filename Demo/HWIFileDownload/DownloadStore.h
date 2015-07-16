@@ -41,7 +41,11 @@
 
 @interface DownloadStore : NSObject<HWIFileDownloadDelegate>
 
-@property (nonatomic, strong) NSMutableDictionary *downloadItemsDict;
+
+@property (nonatomic, strong, readonly) NSMutableDictionary *downloadItemsDict;
+
+@property (nonatomic, strong, readonly) NSArray *sortedDownloadIdentifiers;
+
 
 - (void)restartDownload;
 
