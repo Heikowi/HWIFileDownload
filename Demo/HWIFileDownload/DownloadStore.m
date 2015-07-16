@@ -147,12 +147,6 @@
 }
 
 
-- (NSTimeInterval)resourceTimeoutInterval
-{
-    return 240.0;
-}
-
-
 - (void)incrementNetworkActivityIndicatorActivityCount
 {
     [self toggleNetworkActivityIndicatorVisible:YES];
