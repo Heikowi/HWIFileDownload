@@ -88,7 +88,7 @@ After the app has been killed by the user, downloads do not continue in the back
 
 ### Refresh
 
-By pulling down the table view, the contents are refreshed. All items with no completed download are downloaded again.
+By pulling down the table view, the contents are refreshed. All items with incomplete data resume download.
 
 
 ### Background
