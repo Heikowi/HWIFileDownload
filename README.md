@@ -97,7 +97,7 @@ When running in the background, all running downloads continue on iOS 7 (and lat
 
 ### Network Interruption
 
-When loosing network connection, all running downloads pause after timeout. On iOS 7 (and later) the downloads resume when network becomes available again. On iOS 6 downloads are stopped after timeout; they start again with the next app start.
+When loosing network connection, all running downloads pause after request timeout. On iOS 7 (and later) the downloads resume when network becomes available again. On iOS 6 downloads are stopped after request timeout; they start again with the next app start.
 
 ## Timeout
 
