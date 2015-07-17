@@ -105,9 +105,9 @@ There are two timeouts available: __request timeout__ and __resource timeout__.
 
 The __request timeout__ fires "if no data is transmitted for the given timeout value, and is reset whenever data is transmitted". iOS's system default value is 60 seconds.
 
-The __resource timeout__ (available with `NSURLSession`) fires "if a resource is not able to be retrieved within a given timeout". The resource timeout is not reset, the timeout interval is a hard value and it fires even if data is currently received. iOS's system default value is 604800 seconds (7 days).
+The __resource timeout__ (available with `NSURLSession`) fires "if a resource is not able to be retrieved within a given timeout". The resource timeout fires even if data is currently received. It is reset with the first download task resuming on a background session with no download tasks running. iOS's system default value is 604800 seconds (7 days).
 
-If the host of the network request is not reachable, `NSURLSession` only terminates when the resource timeout fires. `NSURLConnection` checks for host availability right after request start and fails immediately with an error if the host is not reachable (NSURLErrorDomain Code=-1003 "A server with the specified hostname could not be found.").
+If the host of the network request is not reachable, `NSURLConnection` checks for host availability right after request start and fails immediately with an error if the host is not reachable (NSURLErrorDomain Code=-1003 "A server with the specified hostname could not be found."). `NSURLSession` only terminates when the resource timeout fires.
 
 ## Integration
 
