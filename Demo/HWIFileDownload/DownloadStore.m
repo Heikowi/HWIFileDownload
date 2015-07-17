@@ -45,7 +45,7 @@
 @interface DownloadStore()
 @property (nonatomic, assign) NSUInteger networkActivityIndicatorCount;
 @property (nonatomic, strong, readwrite) NSMutableDictionary *downloadItemsDict;
-@property (nonatomic, strong, readwrite) NSArray *sortedDownloadIdentifiers;
+@property (nonatomic, strong, readwrite) NSArray *sortedDownloadIdentifiersArray;
 @end
 
 
@@ -86,7 +86,7 @@
                                                                 {
                                                                     return [obj1 compare:obj2 options:NSNumericSearch];
                                                                 }];
-        self.sortedDownloadIdentifiers = [aDownloadIdentifiersArray sortedArrayUsingDescriptors:@[aDownloadIdentifiersSortDescriptor]];
+        self.sortedDownloadIdentifiersArray = [aDownloadIdentifiersArray sortedArrayUsingDescriptors:@[aDownloadIdentifiersSortDescriptor]];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(restartDownload) name:@"restartDownload" object:nil];
         
@@ -208,7 +208,7 @@
 
 - (void)restartDownload
 {
-    for (NSString *aDownloadIdentifierString in self.sortedDownloadIdentifiers)
+    for (NSString *aDownloadIdentifierString in self.sortedDownloadIdentifiersArray)
     {
         NSDictionary *aDownloadItemDict = [self.downloadItemsDict objectForKey:aDownloadIdentifierString];
         NSString *aURLString = [aDownloadItemDict objectForKey:@"URL"];

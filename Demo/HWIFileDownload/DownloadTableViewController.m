@@ -68,7 +68,7 @@
         self.refreshControl = aRefreshControl;
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDownloadDidComplete:) name:@"downloadDidComplete" object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onProgressChanged:) name:@"downloadProgressChanged" object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onProgressDidChange:) name:@"downloadProgressChanged" object:nil];
     }
     return self;
 }
@@ -103,7 +103,7 @@
 - (NSInteger)tableView:(UITableView *)aTableView numberOfRowsInSection:(NSInteger)aSection
 {
     AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-    return [theAppDelegate.downloadStore.downloadItemsDict count];
+    return [theAppDelegate downloadStore].sortedDownloadIdentifiersArray.count;
 }
 
 
@@ -112,15 +112,10 @@
     UITableViewCell *aTableViewCell = [aTableView dequeueReusableCellWithIdentifier:@"DownloadTableViewCell" forIndexPath:anIndexPath];
     
     AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-    
-    NSString *aDownloadIdentifier = [[theAppDelegate downloadStore].sortedDownloadIdentifiers objectAtIndex:anIndexPath.row];
+    NSString *aDownloadIdentifier = [[theAppDelegate downloadStore].sortedDownloadIdentifiersArray objectAtIndex:anIndexPath.row];
     NSDictionary *aDownloadItemDict = [[theAppDelegate downloadStore].downloadItemsDict objectForKey:aDownloadIdentifier];
     NSString *aURLString = [aDownloadItemDict objectForKey:@"URL"];
-    NSURL *aURL = nil;
-    if (aURLString.length > 0)
-    {
-        aURL = [NSURL URLWithString:aURLString];
-    }
+    NSURL *aURL = [NSURL URLWithString:aURLString];
     
     UILabel *aFileNameLabel = (UILabel *)[aTableViewCell viewWithTag:self.fileNameLabelTag];
     UILabel *aRemainingTimeLabel = (UILabel *)[aTableViewCell viewWithTag:self.remainingTimeLabelTag];
@@ -198,7 +193,7 @@
     AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
     NSInteger aFoundRowIndex = -1;
     NSUInteger aCurrIndex = 0;
-    for (NSString *anIdentifier in [theAppDelegate downloadStore].sortedDownloadIdentifiers)
+    for (NSString *anIdentifier in [theAppDelegate downloadStore].sortedDownloadIdentifiersArray)
     {
         if ([anIdentifier isEqualToString:aDownloadedIdentifier])
         {
@@ -216,11 +211,7 @@
         {
             NSDictionary *aDownloadItemDict = [[theAppDelegate downloadStore].downloadItemsDict objectForKey:aDownloadedIdentifier];
             NSString *aURLString = [aDownloadItemDict objectForKey:@"URL"];
-            NSURL *aURL = nil;
-            if (aURLString.length > 0)
-            {
-                aURL = [NSURL URLWithString:aURLString];
-            }
+            NSURL *aURL = [NSURL URLWithString:aURLString];
             
             UILabel *aFileNameLabel = (UILabel *)[aTableViewCell viewWithTag:self.fileNameLabelTag];
             UILabel *aRemainingTimeLabel = (UILabel *)[aTableViewCell viewWithTag:self.remainingTimeLabelTag];
@@ -254,7 +245,7 @@
 }
 
 
-- (void)onProgressChanged:(NSNotification *)aNotification
+- (void)onProgressDidChange:(NSNotification *)aNotification
 {
     NSTimeInterval aLastProgressChangedUpdateDelta = 0.0;
     if (self.lastProgressChangedUpdate)
@@ -268,7 +259,7 @@
         NSArray *aVisibleIndexPathsArray = [self.tableView indexPathsForVisibleRows];
         for (NSIndexPath *anIndexPath in aVisibleIndexPathsArray)
         {
-            NSString *aDownloadIdentifier = [[theAppDelegate downloadStore].sortedDownloadIdentifiers objectAtIndex:anIndexPath.row];
+            NSString *aDownloadIdentifier = [[theAppDelegate downloadStore].sortedDownloadIdentifiersArray objectAtIndex:anIndexPath.row];
             BOOL isDownloading = [theAppDelegate.fileDownloader isDownloadingIdentifier:aDownloadIdentifier];
             if (isDownloading)
             {

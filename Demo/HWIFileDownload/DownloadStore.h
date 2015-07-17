@@ -44,7 +44,7 @@
 
 @property (nonatomic, strong, readonly) NSMutableDictionary *downloadItemsDict;
 
-@property (nonatomic, strong, readonly) NSArray *sortedDownloadIdentifiers;
+@property (nonatomic, strong, readonly) NSArray *sortedDownloadIdentifiersArray;
 
 
 - (void)restartDownload;
