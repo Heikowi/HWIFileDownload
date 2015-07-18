@@ -123,7 +123,7 @@
             self.downloadFileSerialWriterDispatchQueue = dispatch_queue_create([[NSString stringWithFormat:@"%@.downloadFileWriter", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"]] UTF8String], DISPATCH_QUEUE_SERIAL);
             
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                // restartDownload after init is completed
+                // restartDownload after init is complete
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"restartDownload" object:nil];
             });
         }
@@ -250,7 +250,7 @@
 
 - (void)cancelDownloadWithIdentifier:(NSString *)aDownloadIdentifier resumeDataBlock:(HWIFileDownloaderCancelResumeDataBlock)aResumeDataBlock
 {
-    NSInteger aDownloadID = [self downloadIDForDownloadToken:aDownloadIdentifier];
+    NSInteger aDownloadID = [self downloadIDForActiveDownloadToken:aDownloadIdentifier];
     if (aDownloadID > -1)
     {
         [self cancelDownloadWithDownloadID:aDownloadID resumeDataBlock:aResumeDataBlock];
@@ -361,7 +361,7 @@
 - (BOOL)isDownloadingIdentifier:(NSString *)aDownloadIdentifier
 {
     BOOL isDownloading = NO;
-    NSInteger aDownloadID = [self downloadIDForDownloadToken:aDownloadIdentifier];
+    NSInteger aDownloadID = [self downloadIDForActiveDownloadToken:aDownloadIdentifier];
     if (aDownloadID > -1)
     {
         HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadID)];
@@ -870,7 +870,7 @@
 - (HWIFileDownloadProgress *)downloadProgressForIdentifier:(NSString *)aDownloadIdentifier
 {
     HWIFileDownloadProgress *aDownloadProgress = nil;
-    NSInteger aDownloadID = [self downloadIDForDownloadToken:aDownloadIdentifier];
+    NSInteger aDownloadID = [self downloadIDForActiveDownloadToken:aDownloadIdentifier];
     if (aDownloadID > -1)
     {
         aDownloadProgress = [self downloadProgressForDownloadID:aDownloadID];
@@ -907,7 +907,7 @@
 #pragma mark - Utilities
 
 
-- (NSInteger)downloadIDForDownloadToken:(NSString *)aDownloadToken
+- (NSInteger)downloadIDForActiveDownloadToken:(NSString *)aDownloadToken
 {
     NSInteger aFoundDownloadID = -1;
     NSArray *aDownloadKeysArray = [self.activeDownloadsDictionary allKeys];
