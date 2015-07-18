@@ -1,7 +1,6 @@
 /*
  * Project: HWIFileDownload
  
- * Created by Heiko Wichmann (20141001)
  * File: HWIBackgroundSessionCompletionHandlerBlock.h
  *
  */

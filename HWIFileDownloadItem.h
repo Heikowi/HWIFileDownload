@@ -1,7 +1,6 @@
 /*
  * Project: HWIFileDownload
  
- * Created by Heiko Wichmann (20140924)
  * File: HWIFileDownloadItem.h
  *
  */
