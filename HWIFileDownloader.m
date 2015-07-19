@@ -348,12 +348,6 @@
 }
 
 
-- (void)setBackgroundSessionCompletionHandlerBlock:(HWIBackgroundSessionCompletionHandlerBlock)aBackgroundSessionCompletionHandlerBlock
-{
-    _backgroundSessionCompletionHandlerBlock = aBackgroundSessionCompletionHandlerBlock;
-}
-
-
 #pragma mark - Download Status
 
 
@@ -409,6 +403,15 @@
     NSString *aFilePathName = [anOfflineDownloadDirectory stringByAppendingPathComponent:[aRemoteURL lastPathComponent]];
     NSURL *aLocalFileURL = [NSURL fileURLWithPath:aFilePathName];
     return aLocalFileURL;
+}
+
+
+#pragma mark - BackgroundSessionCompletionHandler
+
+
+- (void)setBackgroundSessionCompletionHandlerBlock:(HWIBackgroundSessionCompletionHandlerBlock)aBackgroundSessionCompletionHandlerBlock
+{
+    _backgroundSessionCompletionHandlerBlock = aBackgroundSessionCompletionHandlerBlock;
 }
 
 
@@ -839,7 +842,7 @@
 }
 
 
-#pragma mark - Successful Download Handler
+#pragma mark - Download Completion Handler
 
 
 - (void)handleSuccessfulDownloadToLocalFileURL:(NSURL *)aLocalFileURL downloadID:(NSUInteger)aDownloadID downloadToken:(NSString *)aDownloadToken

@@ -52,6 +52,9 @@ typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData *aResumeData);
 @interface HWIFileDownloader : NSObject
 
 
+#pragma mark - Initialization
+
+
 /**
  Secondary initializer.
  @param aDelegate Delegate for salient download events.
@@ -70,7 +73,8 @@ typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData *aResumeData);
 + (instancetype)new __attribute__((unavailable("use initWithDelegate:maxConcurrentDownloads: or initWithDelegate:")));
 
 
-// download
+#pragma mark - Download
+
 
 /**
  Starts a download.
@@ -118,6 +122,9 @@ typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData *aResumeData);
 - (void)cancelDownloadWithIdentifier:(NSString *)aDownloadIdentifier resumeDataBlock:(HWIFileDownloaderCancelResumeDataBlock)aResumeDataBlock;
 
 
+#pragma mark - BackgroundSessionCompletionHandler
+
+
 /**
  Sets the completion handler for background session.
  @param aBackgroundSessionCompletionHandlerBlock Completion handler block.
@@ -125,7 +132,7 @@ typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData *aResumeData);
 - (void)setBackgroundSessionCompletionHandlerBlock:(HWIBackgroundSessionCompletionHandlerBlock)aBackgroundSessionCompletionHandlerBlock;
 
 
-// progress
+#pragma mark - Progress
 
 
 /**
@@ -136,7 +143,7 @@ typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData *aResumeData);
 - (HWIFileDownloadProgress *)downloadProgressForIdentifier:(NSString *)aDownloadIdentifier;
 
 
-// download directory
+#pragma mark - Download Directory
 
 /**
  Returns the default download directory.
