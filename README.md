@@ -15,11 +15,11 @@ The delegate is called on download completion. Additional calls are used to cont
 	@protocol HWIFileDownloadDelegate
 
 	- (void)downloadDidCompleteWithIdentifier:(nonnull NSString *)aDownloadIdentifier
-                             localFileURL:(nonnull NSURL *)aLocalFileURL;
+                                 localFileURL:(nonnull NSURL *)aLocalFileURL;
 
 	- (void)downloadFailedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
-                               error:(nonnull NSError *)anError
-                          resumeData:(nullable NSData *)aResumeData;
+                                   error:(nonnull NSError *)anError
+                              resumeData:(nullable NSData *)aResumeData;
 
 	- (void)incrementNetworkActivityIndicatorActivityCount;
 	- (void)decrementNetworkActivityIndicatorActivityCount;
@@ -28,9 +28,9 @@ The delegate is called on download completion. Additional calls are used to cont
 
 	- (void)downloadProgressChangedForIdentifier:(nonnull NSString *)aDownloadIdentifier;
 	- (nullable NSURL *)localFileURLForIdentifier:(nonnull NSString *)aDownloadIdentifier
-                                    remoteURL:(nonnull NSURL *)aRemoteURL;
+                                        remoteURL:(nonnull NSURL *)aRemoteURL;
 	- (BOOL)downloadIsValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                              atLocalFileURL:(nonnull NSURL *)aLocalFileURL;
+                                  atLocalFileURL:(nonnull NSURL *)aLocalFileURL;
 	- (NSTimeInterval)requestTimeoutInterval;
 	- (NSTimeInterval)resourceTimeoutInterval;
 
@@ -39,10 +39,10 @@ The delegate is called on download completion. Additional calls are used to cont
 The app needs to hold an instance of the `HWIFileDownloader` that manages the download process. The `HWIDownloader` provides methods for querying and controlling individual download processes.
 
 	- (void)startDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                              fromRemoteURL:(nonnull NSURL *)aRemoteURL;
+                                  fromRemoteURL:(nonnull NSURL *)aRemoteURL;
               	                  
 	- (void)startDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                            usingResumeData:(nonnull NSData *)aResumeData;
+                                usingResumeData:(nonnull NSData *)aResumeData;
 
 	- (BOOL)isDownloadingIdentifier:(nonnull NSString *)aDownloadIdentifier;
 	
