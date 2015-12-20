@@ -11,23 +11,12 @@
 		ACA04C9919DEA2E300604BBF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = ACA04C9819DEA2E300604BBF /* main.m */; };
 		ACA04C9C19DEA2E300604BBF /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = ACA04C9B19DEA2E300604BBF /* AppDelegate.m */; };
 		ACA04C9F19DEA2E300604BBF /* DownloadTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = ACA04C9E19DEA2E300604BBF /* DownloadTableViewController.m */; };
-		ACA04CB619DEA2E300604BBF /* HWIFileDownloadTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ACA04CB519DEA2E300604BBF /* HWIFileDownloadTests.m */; };
 		ACB045BF19E186C000C3B34D /* HWIFileDownloadItem.m in Sources */ = {isa = PBXBuildFile; fileRef = ACB045BC19E186C000C3B34D /* HWIFileDownloadItem.m */; };
 		ACB9143B19DEF660006193A6 /* DownloadTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = ACB9143A19DEF660006193A6 /* DownloadTableViewCell.xib */; };
 		ACB9143F19DF0975006193A6 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = ACB9143E19DF0975006193A6 /* Default-568h@2x.png */; };
 		ACD1BCC519DEA7CD0066D4A7 /* HWIFileDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = ACD1BCBB19DEA7CD0066D4A7 /* HWIFileDownloader.m */; };
 		ACE9E18919DFFDE60058777C /* DownloadStore.m in Sources */ = {isa = PBXBuildFile; fileRef = ACE9E18819DFFDE60058777C /* DownloadStore.m */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		ACA04CB019DEA2E300604BBF /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = ACA04C8B19DEA2E300604BBF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = ACA04C9219DEA2E300604BBF;
-			remoteInfo = HWIFileDownload;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		AC32704119EA848000ECCD98 /* HWIFileDownloadProgress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HWIFileDownloadProgress.h; path = ../../HWIFileDownloadProgress.h; sourceTree = "<group>"; };
@@ -39,7 +28,6 @@
 		ACA04C9B19DEA2E300604BBF /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		ACA04C9D19DEA2E300604BBF /* DownloadTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadTableViewController.h; sourceTree = "<group>"; };
 		ACA04C9E19DEA2E300604BBF /* DownloadTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloadTableViewController.m; sourceTree = "<group>"; };
-		ACA04CAF19DEA2E300604BBF /* HWIFileDownloadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HWIFileDownloadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		ACA04CB419DEA2E300604BBF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ACA04CB519DEA2E300604BBF /* HWIFileDownloadTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HWIFileDownloadTests.m; sourceTree = "<group>"; };
 		ACB045BB19E186C000C3B34D /* HWIFileDownloadItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HWIFileDownloadItem.h; path = ../../HWIFileDownloadItem.h; sourceTree = "<group>"; };
@@ -62,13 +50,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		ACA04CAC19DEA2E300604BBF /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -85,7 +66,6 @@
 			isa = PBXGroup;
 			children = (
 				ACA04C9319DEA2E300604BBF /* HWIFileDownload.app */,
-				ACA04CAF19DEA2E300604BBF /* HWIFileDownloadTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -168,24 +148,6 @@
 			productReference = ACA04C9319DEA2E300604BBF /* HWIFileDownload.app */;
 			productType = "com.apple.product-type.application";
 		};
-		ACA04CAE19DEA2E300604BBF /* HWIFileDownloadTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = ACA04CBC19DEA2E300604BBF /* Build configuration list for PBXNativeTarget "HWIFileDownloadTests" */;
-			buildPhases = (
-				ACA04CAB19DEA2E300604BBF /* Sources */,
-				ACA04CAC19DEA2E300604BBF /* Frameworks */,
-				ACA04CAD19DEA2E300604BBF /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				ACA04CB119DEA2E300604BBF /* PBXTargetDependency */,
-			);
-			name = HWIFileDownloadTests;
-			productName = HWIFileDownloadTests;
-			productReference = ACA04CAF19DEA2E300604BBF /* HWIFileDownloadTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -197,10 +159,6 @@
 				TargetAttributes = {
 					ACA04C9219DEA2E300604BBF = {
 						CreatedOnToolsVersion = 6.0.1;
-					};
-					ACA04CAE19DEA2E300604BBF = {
-						CreatedOnToolsVersion = 6.0.1;
-						TestTargetID = ACA04C9219DEA2E300604BBF;
 					};
 				};
 			};
@@ -218,7 +176,6 @@
 			projectRoot = "";
 			targets = (
 				ACA04C9219DEA2E300604BBF /* HWIFileDownload */,
-				ACA04CAE19DEA2E300604BBF /* HWIFileDownloadTests */,
 			);
 		};
 /* End PBXProject section */
@@ -230,13 +187,6 @@
 			files = (
 				ACB9143B19DEF660006193A6 /* DownloadTableViewCell.xib in Resources */,
 				ACB9143F19DF0975006193A6 /* Default-568h@2x.png in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		ACA04CAD19DEA2E300604BBF /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -257,23 +207,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		ACA04CAB19DEA2E300604BBF /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				ACA04CB619DEA2E300604BBF /* HWIFileDownloadTests.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		ACA04CB119DEA2E300604BBF /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = ACA04C9219DEA2E300604BBF /* HWIFileDownload */;
-			targetProxy = ACA04CB019DEA2E300604BBF /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		ACA04CB719DEA2E300604BBF /* Debug */ = {
@@ -385,36 +319,6 @@
 			};
 			name = Release;
 		};
-		ACA04CBD19DEA2E300604BBF /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = HWIFileDownloadTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "de.imagomat.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HWIFileDownload.app/HWIFileDownload";
-			};
-			name = Debug;
-		};
-		ACA04CBE19DEA2E300604BBF /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
-				INFOPLIST_FILE = HWIFileDownloadTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "de.imagomat.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HWIFileDownload.app/HWIFileDownload";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -432,15 +336,6 @@
 			buildConfigurations = (
 				ACA04CBA19DEA2E300604BBF /* Debug */,
 				ACA04CBB19DEA2E300604BBF /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		ACA04CBC19DEA2E300604BBF /* Build configuration list for PBXNativeTarget "HWIFileDownloadTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				ACA04CBD19DEA2E300604BBF /* Debug */,
-				ACA04CBE19DEA2E300604BBF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -46,7 +46,7 @@
 @property (nonatomic, assign) NSInteger fileNameLabelTag;
 @property (nonatomic, assign) NSInteger remainingTimeLabelTag;
 @property (nonatomic, assign) NSInteger progressViewTag;
-@property (nonatomic, strong) NSDate *lastProgressChangedUpdate;
+@property (nonatomic, strong, nullable) NSDate *lastProgressChangedUpdate;
 @end
 
 
@@ -124,17 +124,20 @@
     {
         aFileNameLabel.text = aURL.absoluteString;
         HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
-        aRemainingTimeLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
-        [aProgressView setHidden:NO];
-        [aRemainingTimeLabel setHidden:NO];
-        BOOL didFail = [[aDownloadItemDict objectForKey:@"didFail"] boolValue];
-        if (didFail == NO)
+        if (aFileDownloadProgress)
         {
-            aProgressView.progress = aFileDownloadProgress.downloadProgress;
-        }
-        else
-        {
-            aProgressView.progress = 0.0;
+            aRemainingTimeLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
+            [aProgressView setHidden:NO];
+            [aRemainingTimeLabel setHidden:NO];
+            BOOL didFail = [[aDownloadItemDict objectForKey:@"didFail"] boolValue];
+            if (didFail == NO)
+            {
+                aProgressView.progress = aFileDownloadProgress.downloadProgress;
+            }
+            else
+            {
+                aProgressView.progress = 0.0;
+            }
         }
     }
     else
@@ -220,17 +223,20 @@
             {
                 aFileNameLabel.text = aURL.absoluteString;
                 HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadedIdentifier];
-                aRemainingTimeLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
-                [aProgressView setHidden:NO];
-                [aRemainingTimeLabel setHidden:NO];
-                BOOL didFail = [[aDownloadItemDict objectForKey:@"didFail"] boolValue];
-                if (didFail == NO)
+                if (aFileDownloadProgress)
                 {
-                    aProgressView.progress = aFileDownloadProgress.downloadProgress;
-                }
-                else
-                {
-                    aProgressView.progress = 0.0;
+                    aRemainingTimeLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
+                    [aProgressView setHidden:NO];
+                    [aRemainingTimeLabel setHidden:NO];
+                    BOOL didFail = [[aDownloadItemDict objectForKey:@"didFail"] boolValue];
+                    if (didFail == NO)
+                    {
+                        aProgressView.progress = aFileDownloadProgress.downloadProgress;
+                    }
+                    else
+                    {
+                        aProgressView.progress = 0.0;
+                    }
                 }
             }
             else
@@ -269,10 +275,13 @@
                     UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
                     UILabel *aRemaingTimeLabel = (UILabel *)[aTableViewCell viewWithTag:self.remainingTimeLabelTag];
                     HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
-                    aProgressView.progress = aFileDownloadProgress.downloadProgress;
-                    aRemaingTimeLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
-                    [aProgressView setHidden:NO];
-                    [aRemaingTimeLabel setHidden:NO];
+                    if (aFileDownloadProgress)
+                    {
+                        aProgressView.progress = aFileDownloadProgress.downloadProgress;
+                        aRemaingTimeLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
+                        [aProgressView setHidden:NO];
+                        [aRemaingTimeLabel setHidden:NO];
+                    }
                 }
             }
         }
@@ -293,7 +302,7 @@
 #pragma mark - Utilities
 
 
-+ (NSString *)displayStringForRemainingTime:(NSTimeInterval)aRemainingTime
++ (nonnull NSString *)displayStringForRemainingTime:(NSTimeInterval)aRemainingTime
 {
     NSNumberFormatter *aNumberFormatter = [[NSNumberFormatter alloc] init];
     [aNumberFormatter setNumberStyle:NSNumberFormatterDecimalStyle];

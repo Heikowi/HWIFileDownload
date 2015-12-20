@@ -43,7 +43,7 @@
 /**
  HWIFileDownloaderCancelResumeDataBlock is a block optionally called after cancelling a download.
  */
-typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData *aResumeData);
+typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData * _Nullable aResumeData);
 
 
 /**
@@ -60,7 +60,7 @@ typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData *aResumeData);
  @param aDelegate Delegate for salient download events.
  @return HWIFileDownloader.
  */
-- (instancetype)initWithDelegate:(NSObject<HWIFileDownloadDelegate>*)aDelegate;
+- (nullable instancetype)initWithDelegate:(nullable NSObject<HWIFileDownloadDelegate>*)aDelegate;
 
 /**
  Designated initializer.
@@ -68,9 +68,9 @@ typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData *aResumeData);
  @param aMaxConcurrentFileDownloadsCount Maximum number of concurrent downloads. Default: no limit.
  @return HWIFileDownloader.
  */
-- (instancetype)initWithDelegate:(NSObject<HWIFileDownloadDelegate>*)aDelegate maxConcurrentDownloads:(NSInteger)aMaxConcurrentFileDownloadsCount;
-- (instancetype)init __attribute__((unavailable("use initWithDelegate:maxConcurrentDownloads: or initWithDelegate:")));
-+ (instancetype)new __attribute__((unavailable("use initWithDelegate:maxConcurrentDownloads: or initWithDelegate:")));
+- (nullable HWIFileDownloader*)initWithDelegate:(nullable NSObject<HWIFileDownloadDelegate>*)aDelegate maxConcurrentDownloads:(NSInteger)aMaxConcurrentFileDownloadsCount;
+- (nullable HWIFileDownloader*)init __attribute__((unavailable("use initWithDelegate:maxConcurrentDownloads: or initWithDelegate:")));
++ (nullable HWIFileDownloader*)new __attribute__((unavailable("use initWithDelegate:maxConcurrentDownloads: or initWithDelegate:")));
 
 
 #pragma mark - Download
@@ -81,16 +81,16 @@ typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData *aResumeData);
  @param aDownloadIdentifier Download identifier of a download item.
  @param aRemoteURL Remote URL from where data should be downloaded.
  */
-- (void)startDownloadWithDownloadIdentifier:(NSString *)aDownloadIdentifier
-                              fromRemoteURL:(NSURL *)aRemoteURL;
+- (void)startDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
+                              fromRemoteURL:(nonnull NSURL *)aRemoteURL;
 
 /**
  Starts a download.
  @param aDownloadIdentifier Download identifier of a download item.
  @param aResumeData Incomplete data from previous download with implicit remote source information.
  */
-- (void)startDownloadWithDownloadIdentifier:(NSString *)aDownloadIdentifier
-                            usingResumeData:(NSData *)aResumeData;
+- (void)startDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
+                            usingResumeData:(nonnull NSData *)aResumeData;
 
 
 /**
@@ -98,7 +98,7 @@ typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData *aResumeData);
  @param aDownloadIdentifier Download identifier of the download item.
  @return YES if a download is currently running for the download item, NO otherwise.
  */
-- (BOOL)isDownloadingIdentifier:(NSString *)aDownloadIdentifier;
+- (BOOL)isDownloadingIdentifier:(nonnull NSString *)aDownloadIdentifier;
 
 /**
  Answers the question whether any download is currently running.
@@ -112,14 +112,14 @@ typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData *aResumeData);
  @param aDownloadIdentifier Download identifier of the download item.
  @remarks Convenience method, calls cancelDownloadWithIdentifier:resumeDataBlock: with nil as resumeDataBlock.
  */
-- (void)cancelDownloadWithIdentifier:(NSString *)aDownloadIdentifier;
+- (void)cancelDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier;
 
 /**
  Cancels the download of a download item.
  @param aDownloadIdentifier Download identifier of the download item.
  @param aResumeDataBlock Asynchronously called block with resume data.
  */
-- (void)cancelDownloadWithIdentifier:(NSString *)aDownloadIdentifier resumeDataBlock:(HWIFileDownloaderCancelResumeDataBlock)aResumeDataBlock;
+- (void)cancelDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier resumeDataBlock:(nullable HWIFileDownloaderCancelResumeDataBlock)aResumeDataBlock;
 
 
 #pragma mark - BackgroundSessionCompletionHandler
@@ -129,7 +129,7 @@ typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData *aResumeData);
  Sets the completion handler for background session.
  @param aBackgroundSessionCompletionHandlerBlock Completion handler block.
  */
-- (void)setBackgroundSessionCompletionHandlerBlock:(HWIBackgroundSessionCompletionHandlerBlock)aBackgroundSessionCompletionHandlerBlock;
+- (void)setBackgroundSessionCompletionHandlerBlock:(nullable HWIBackgroundSessionCompletionHandlerBlock)aBackgroundSessionCompletionHandlerBlock;
 
 
 #pragma mark - Progress
@@ -140,7 +140,7 @@ typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData *aResumeData);
  @param aDownloadIdentifier Download identifier of the download item.
  @return Download progress information.
  */
-- (HWIFileDownloadProgress *)downloadProgressForIdentifier:(NSString *)aDownloadIdentifier;
+- (nullable HWIFileDownloadProgress *)downloadProgressForIdentifier:(nonnull NSString *)aDownloadIdentifier;
 
 
 #pragma mark - Download Directory
@@ -149,7 +149,7 @@ typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData *aResumeData);
  Returns the default download directory.
  @return The default download directory.
  */
-+ (NSURL *)fileDownloadDirectoryURL;
++ (nullable NSURL *)fileDownloadDirectoryURL;
 
 
 @end

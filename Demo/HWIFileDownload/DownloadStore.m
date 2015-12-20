@@ -44,8 +44,8 @@
 
 @interface DownloadStore()
 @property (nonatomic, assign) NSUInteger networkActivityIndicatorCount;
-@property (nonatomic, strong, readwrite) NSMutableDictionary *downloadItemsDict;
-@property (nonatomic, strong, readwrite) NSArray *sortedDownloadIdentifiersArray;
+@property (nonatomic, strong, readwrite, nonnull) NSMutableDictionary *downloadItemsDict;
+@property (nonatomic, strong, readwrite, nonnull) NSArray *sortedDownloadIdentifiersArray;
 @end
 
 
@@ -53,7 +53,7 @@
 @implementation DownloadStore
 
 
-- (instancetype)init
+- (nullable DownloadStore *)init
 {
     self = [super init];
     if (self)
@@ -104,8 +104,8 @@
 #pragma mark - HWIFileDownloadDelegate
 
 
-- (void)downloadDidCompleteWithIdentifier:(NSString *)aDownloadIdentifier
-                             localFileURL:(NSURL *)aLocalFileURL
+- (void)downloadDidCompleteWithIdentifier:(nonnull NSString *)aDownloadIdentifier
+                             localFileURL:(nonnull NSURL *)aLocalFileURL
 {
     NSLog(@"Download completed (id: %@)", aDownloadIdentifier);
     
@@ -119,18 +119,25 @@
 }
 
 
-- (void)downloadFailedWithIdentifier:(NSString *)aDownloadIdentifier
-                               error:(NSError *)anError
-                          resumeData:(NSData *)aResumeData
+- (void)downloadFailedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
+                               error:(nonnull NSError *)anError
+                          resumeData:(nullable NSData *)aResumeData
 {
     if (aResumeData)
     {
         NSMutableDictionary *aDownloadItemDict = [[self.downloadItemsDict objectForKey:aDownloadIdentifier] mutableCopy];
-        [aDownloadItemDict setObject:aResumeData forKey:@"ResumeData"];
-        [aDownloadItemDict setObject:@(YES) forKey:@"didFail"];
-        [self.downloadItemsDict setObject:aDownloadItemDict forKey:aDownloadIdentifier];
-        [[NSUserDefaults standardUserDefaults] setObject:self.downloadItemsDict forKey:@"downloadItems"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
+        if (aDownloadItemDict)
+        {
+            [aDownloadItemDict setObject:aResumeData forKey:@"ResumeData"];
+            [aDownloadItemDict setObject:@(YES) forKey:@"didFail"];
+            [self.downloadItemsDict setObject:aDownloadItemDict forKey:aDownloadIdentifier];
+            [[NSUserDefaults standardUserDefaults] setObject:self.downloadItemsDict forKey:@"downloadItems"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+        }
+        else
+        {
+            NSLog(@"ERR: Download item dict not found for identifier: %@ (%s, %d)", aDownloadIdentifier, __FILE__, __LINE__);
+        }
     }
     if ([anError.domain isEqualToString:NSURLErrorDomain] && (anError.code == NSURLErrorCancelled))
     {
@@ -138,14 +145,14 @@
     }
     else
     {
-        NSLog(@"ERR: %@ (%s)", anError, __PRETTY_FUNCTION__);
+        NSLog(@"ERR: %@ (%s, %d)", anError, __FILE__, __LINE__);
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:@"downloadDidComplete" object:aDownloadIdentifier userInfo:nil];
 }
 
 
-- (void)downloadProgressChangedForIdentifier:(NSString *)aDownloadIdentifier
+- (void)downloadProgressChangedForIdentifier:(nonnull NSString *)aDownloadIdentifier
 {
     [[NSNotificationCenter defaultCenter] postNotificationName:@"downloadProgressChanged" object:aDownloadIdentifier userInfo:nil];
 }
@@ -169,8 +176,8 @@
 }
 
 
-- (BOOL)downloadIsValidForDownloadIdentifier:(NSString *)aDownloadIdentifier
-                              atLocalFileURL:(NSURL *)aLocalFileURL
+- (BOOL)downloadIsValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
+                              atLocalFileURL:(nonnull NSURL *)aLocalFileURL
 {
     BOOL anIsValidFlag = YES;
     
@@ -181,7 +188,7 @@
     NSDictionary *aFileAttributesDictionary = [[NSFileManager defaultManager] attributesOfItemAtPath:aLocalFileURL.path error:&anError];
     if (anError)
     {
-        NSLog(@"ERR: Error on getting file size for item at %@: %@ (%s)", aLocalFileURL, anError, __PRETTY_FUNCTION__);
+        NSLog(@"ERR: Error on getting file size for item at %@: %@ (%s, %d)", aLocalFileURL, anError, __FILE__, __LINE__);
         anIsValidFlag = NO;
     }
     else
@@ -242,7 +249,7 @@
         }
         else
         {
-            NSLog(@"ERR: No URL (%s)", __PRETTY_FUNCTION__);
+            NSLog(@"ERR: No URL (%s, %d)", __FILE__, __LINE__);
         }
     }
 }

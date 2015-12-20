@@ -42,9 +42,9 @@
 
 
 @interface AppDelegate()
-@property (strong, nonatomic, readwrite) DownloadStore *downloadStore;
-@property (nonatomic, strong, readwrite) HWIFileDownloader *fileDownloader;
-@property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundTaskIdentifier; // iOS 6
+@property (nonnull, nonatomic, strong, readwrite) DownloadStore *downloadStore;
+@property (nonnull, nonatomic, strong, readwrite) HWIFileDownloader *fileDownloader;
+@property (nonatomic, assign) UIBackgroundTaskIdentifier backgroundTaskIdentifier; // iOS 6
 @end
 
 
@@ -52,7 +52,7 @@
 @implementation AppDelegate
 
 
-- (BOOL)application:(UIApplication *)anApplication didFinishLaunchingWithOptions:(NSDictionary *)aLaunchOptionsDict
+- (BOOL)application:(UIApplication *)anApplication didFinishLaunchingWithOptions:(nullable NSDictionary *)aLaunchOptionsDict
 {
     
     // setup app download store

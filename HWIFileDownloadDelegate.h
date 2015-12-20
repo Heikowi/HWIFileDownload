@@ -45,8 +45,8 @@
  @param aDownloadIdentifier Download identifier of the download item.
  @param aLocalFileURL Local file URL of the downloaded item.
  */
-- (void)downloadDidCompleteWithIdentifier:(NSString *)aDownloadIdentifier
-                             localFileURL:(NSURL *)aLocalFileURL;
+- (void)downloadDidCompleteWithIdentifier:(nonnull NSString *)aDownloadIdentifier
+                             localFileURL:(nonnull NSURL *)aLocalFileURL;
 
 /**
  Called on a failed download.
@@ -54,9 +54,9 @@
  @param anError Download error.
  @param aResumeData Incompletely downloaded data that can be reused later if the download is started again.
  */
-- (void)downloadFailedWithIdentifier:(NSString *)aDownloadIdentifier
-                               error:(NSError *)anError
-                          resumeData:(NSData *)aResumeData;
+- (void)downloadFailedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
+                               error:(nonnull NSError *)anError
+                          resumeData:(nullable NSData *)aResumeData;
 
 /**
  Called when the network activity indicator should be displayed because a download started.
@@ -77,9 +77,9 @@
 /**
  Optionally called when the progress changed for a download item.
  @param aDownloadIdentifier Download identifier of the download item.
- @discussion To access the current download progress of a download item call HWIFileDownloader's downloadProgressForIdentifier:.
+ @discussion Use HWIFileDownloader's downloadProgressForIdentifier: to access the current download progress of a download item at any time.
  */
-- (void)downloadProgressChangedForIdentifier:(NSString *)aDownloadIdentifier;
+- (void)downloadProgressChangedForIdentifier:(nonnull NSString *)aDownloadIdentifier;
 
 
 /**
@@ -89,8 +89,8 @@
  @return The local file URL where the downloaded data should be persistently stored in the file system.
  @discussion Although the download identifier is enough to identify a singular download item, the remote URL is passed here too for convenience as it might convey useful information for determining a local file URL.
  */
-- (NSURL *)localFileURLForIdentifier:(NSString *)aDownloadIdentifier
-                           remoteURL:(NSURL *)aRemoteURL;
+- (nullable NSURL *)localFileURLForIdentifier:(nonnull NSString *)aDownloadIdentifier
+                                    remoteURL:(nonnull NSURL *)aRemoteURL;
 
 
 /**
@@ -100,8 +100,8 @@
  @return True if downloaded data in local file passed validation test.
  @discussion The download might finish successfully with an error string as downloaded data. This method can be used to check whether the downloaded data is the expected content and data type.
  */
-- (BOOL)downloadIsValidForDownloadIdentifier:(NSString *)aDownloadIdentifier
-                              atLocalFileURL:(NSURL *)aLocalFileURL;
+- (BOOL)downloadIsValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
+                              atLocalFileURL:(nonnull NSURL *)aLocalFileURL;
 
 
 /**

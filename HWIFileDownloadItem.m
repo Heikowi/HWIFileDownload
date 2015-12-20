@@ -37,9 +37,9 @@
 
 
 @interface HWIFileDownloadItem()
-@property (nonatomic, strong, readwrite) NSString *downloadToken;
-@property (nonatomic, strong, readwrite) NSURLSessionDownloadTask *sessionDownloadTask;
-@property (nonatomic, strong, readwrite) NSURLConnection *urlConnection;
+@property (nonatomic, strong, readwrite, nonnull) NSString *downloadToken;
+@property (nonatomic, strong, readwrite, nullable) NSURLSessionDownloadTask *sessionDownloadTask;
+@property (nonatomic, strong, readwrite, nullable) NSURLConnection *urlConnection;
 @end
 
 
@@ -49,9 +49,9 @@
 #pragma mark - Initialization
 
 
-- (instancetype)initWithDownloadToken:(NSString *)aDownloadToken
-                  sessionDownloadTask:(NSURLSessionDownloadTask *)aSessionDownloadTask
-                        urlConnection:(NSURLConnection *)aURLConnection
+- (nullable instancetype)initWithDownloadToken:(nonnull NSString *)aDownloadToken
+                           sessionDownloadTask:(nullable NSURLSessionDownloadTask *)aSessionDownloadTask
+                                 urlConnection:(nullable NSURLConnection *)aURLConnection
 {
     self = [super init];
     if (self)

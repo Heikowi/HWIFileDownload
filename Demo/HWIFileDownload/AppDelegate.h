@@ -43,11 +43,11 @@
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
-@property (strong, nonatomic) UIWindow *window;
+@property (nullable, nonatomic, strong) UIWindow *window;
 
-@property (strong, nonatomic, readonly) DownloadStore *downloadStore;
+@property (nonnull, nonatomic, strong, readonly) DownloadStore *downloadStore;
 
-@property (nonatomic, strong, readonly) HWIFileDownloader *fileDownloader;
+@property (nonnull, nonatomic, strong, readonly) HWIFileDownloader *fileDownloader;
 
 @end
 

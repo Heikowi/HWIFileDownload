@@ -41,26 +41,26 @@
  */
 @interface HWIFileDownloadItem : NSObject
 
-- (instancetype)initWithDownloadToken:(NSString *)aDownloadToken
-                  sessionDownloadTask:(NSURLSessionDownloadTask *)aSessionDownloadTask
-                        urlConnection:(NSURLConnection *)aURLConnection;
+- (nullable instancetype)initWithDownloadToken:(nonnull NSString *)aDownloadToken
+                           sessionDownloadTask:(nullable NSURLSessionDownloadTask *)aSessionDownloadTask
+                                 urlConnection:(nullable NSURLConnection *)aURLConnection;
 
 
-@property (nonatomic, strong) NSDate *downloadStartDate;
+@property (nonatomic, strong, nullable) NSDate *downloadStartDate;
 @property (nonatomic, assign) int64_t receivedFileSizeInBytes;
 @property (nonatomic, assign) int64_t expectedFileSizeInBytes;
 @property (nonatomic, assign) int64_t resumedFileSizeInBytes;
 @property (nonatomic, assign) NSUInteger bytesPerSecondSpeed;
-@property (nonatomic, strong, readonly) NSString *downloadToken;
+@property (nonatomic, strong, readonly, nonnull) NSString *downloadToken;
 @property (nonatomic, assign) BOOL isCancelled;
 @property (nonatomic, assign) BOOL isInvalid;
 
-@property (nonatomic, strong, readonly) NSURLSessionDownloadTask *sessionDownloadTask;
+@property (nonatomic, strong, readonly, nullable) NSURLSessionDownloadTask *sessionDownloadTask;
 
-@property (nonatomic, strong, readonly) NSURLConnection *urlConnection;
+@property (nonatomic, strong, readonly, nullable) NSURLConnection *urlConnection;
 
 
-- (instancetype)init __attribute__((unavailable("use initWithDownloadToken:sessionDownloadTask:urlConnection:")));
-+ (instancetype)new __attribute__((unavailable("use initWithDownloadToken:sessionDownloadTask:urlConnection:")));
+- (nullable HWIFileDownloadItem *)init __attribute__((unavailable("use initWithDownloadToken:sessionDownloadTask:urlConnection:")));
++ (nullable HWIFileDownloadItem *)new __attribute__((unavailable("use initWithDownloadToken:sessionDownloadTask:urlConnection:")));
 
 @end

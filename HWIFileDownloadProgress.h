@@ -49,13 +49,13 @@
  @param aBytesPerSecondSpeed Download speed in bytes per second.
  @return Download progress item.
  */
-- (instancetype)initWithDownloadProgress:(float)aDownloadProgress
-                        expectedFileSize:(int64_t)anExpectedFileSize
-                        receivedFileSize:(int64_t)aReceivedFileSize
-                  estimatedRemainingTime:(NSTimeInterval)anEstimatedRemainingTime
-                     bytesPerSecondSpeed:(NSUInteger)aBytesPerSecondSpeed;
-- (instancetype)init __attribute__((unavailable("use initWithDownloadProgress:expectedFileSize:receivedFileSize:estimatedRemainingTime:bytesPerSecondSpeed:")));
-+ (instancetype)new __attribute__((unavailable("use initWithDownloadProgress:expectedFileSize:receivedFileSize:estimatedRemainingTime:bytesPerSecondSpeed:")));
+- (nullable instancetype)initWithDownloadProgress:(float)aDownloadProgress
+                                 expectedFileSize:(int64_t)anExpectedFileSize
+                                 receivedFileSize:(int64_t)aReceivedFileSize
+                           estimatedRemainingTime:(NSTimeInterval)anEstimatedRemainingTime
+                              bytesPerSecondSpeed:(NSUInteger)aBytesPerSecondSpeed;
+- (nullable instancetype)init __attribute__((unavailable("use initWithDownloadProgress:expectedFileSize:receivedFileSize:estimatedRemainingTime:bytesPerSecondSpeed:")));
++ (nullable instancetype)new __attribute__((unavailable("use initWithDownloadProgress:expectedFileSize:receivedFileSize:estimatedRemainingTime:bytesPerSecondSpeed:")));
 
 /**
  Download progress with a range of 0.0 to 1.0.
