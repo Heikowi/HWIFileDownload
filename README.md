@@ -14,23 +14,23 @@ The delegate is called on download completion. Additional calls are used to cont
 
 	@protocol HWIFileDownloadDelegate
 
-	- (void)downloadDidCompleteWithIdentifier:(NSString *)aDownloadIdentifier
-    	                         localFileURL:(NSURL *)aLocalFileURL;
+	- (void)downloadDidCompleteWithIdentifier:(nonnull NSString *)aDownloadIdentifier
+                             localFileURL:(nonnull NSURL *)aLocalFileURL;
 
-	- (void)downloadFailedWithIdentifier:(NSString *)aDownloadIdentifier
-    	                           error:(NSError *)anError
-        	                  resumeData:(NSData *)aResumeData;
+	- (void)downloadFailedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
+                               error:(nonnull NSError *)anError
+                          resumeData:(nullable NSData *)aResumeData;
 
 	- (void)incrementNetworkActivityIndicatorActivityCount;
 	- (void)decrementNetworkActivityIndicatorActivityCount;
 
 	@optional
 
-	- (void)downloadProgressChangedForIdentifier:(NSString *)aDownloadIdentifier;
-	- (NSURL *)localFileURLForIdentifier:(NSString *)aDownloadIdentifier
-                               remoteURL:(NSURL *)aRemoteURL;
-	- (BOOL)downloadIsValidForDownloadIdentifier:(NSString *)aDownloadIdentifier
-                                  atLocalFileURL:(NSURL *)aLocalFileURL;
+	- (void)downloadProgressChangedForIdentifier:(nonnull NSString *)aDownloadIdentifier;
+	- (nullable NSURL *)localFileURLForIdentifier:(nonnull NSString *)aDownloadIdentifier
+                                    remoteURL:(nonnull NSURL *)aRemoteURL;
+	- (BOOL)downloadIsValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
+                              atLocalFileURL:(nonnull NSURL *)aLocalFileURL;
 	- (NSTimeInterval)requestTimeoutInterval;
 	- (NSTimeInterval)resourceTimeoutInterval;
 
@@ -38,17 +38,17 @@ The delegate is called on download completion. Additional calls are used to cont
 	
 The app needs to hold an instance of the `HWIFileDownloader` that manages the download process. The `HWIDownloader` provides methods for querying and controlling individual download processes.
 
-	- (void)startDownloadWithDownloadIdentifier:(NSString *)aDownloadIdentifier
-              	                  fromRemoteURL:(NSURL *)aRemoteURL;
+	- (void)startDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
+                              fromRemoteURL:(nonnull NSURL *)aRemoteURL;
               	                  
-	- (void)startDownloadWithDownloadIdentifier:(NSString *)aDownloadIdentifier
-                                usingResumeData:(NSData *)aResumeData;
+	- (void)startDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
+                            usingResumeData:(nonnull NSData *)aResumeData;
 
-	- (BOOL)isDownloadingIdentifier:(NSString *)aDownloadIdentifier;
+	- (BOOL)isDownloadingIdentifier:(nonnull NSString *)aDownloadIdentifier;
 	
-	- (void)cancelDownloadWithIdentifier:(NSString *)aDownloadIdentifier;
+	- (void)cancelDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier;
 	
-	- (HWIFileDownloadProgress *)downloadProgressForIdentifier:(NSString *)aDownloadIdentifier;
+	- (nullable HWIFileDownloadProgress *)downloadProgressForIdentifier:(nonnull NSString *)aDownloadIdentifier;
 	
 	
 `HWIFileDownloadProgress` exposes these properties:
