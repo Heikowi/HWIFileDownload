@@ -103,9 +103,6 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
         }
     };
     
-    self.downloadItemsDict = [NSMutableDictionary dictionary];
-    [self.downloadItemsDict setObject:@{@"URL" : @"http://www.imagomat.de/testimages/10.tiff"} forKey:@"10"];
-    
     NSArray *aDownloadIdentifiersArray = [self.downloadItemsDict allKeys];
     NSSortDescriptor *aDownloadIdentifiersSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:nil
                                                                                          ascending:YES
