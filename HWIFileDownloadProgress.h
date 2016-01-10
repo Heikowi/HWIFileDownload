@@ -47,15 +47,17 @@
  @param aReceivedFileSize Received file size in bytes.
  @param anEstimatedRemainingTime Estimated remaining time in seconds.
  @param aBytesPerSecondSpeed Download speed in bytes per second.
+ @param aProgress Download progress (NSProgress).
  @return Download progress item.
  */
 - (nullable instancetype)initWithDownloadProgress:(float)aDownloadProgress
                                  expectedFileSize:(int64_t)anExpectedFileSize
                                  receivedFileSize:(int64_t)aReceivedFileSize
                            estimatedRemainingTime:(NSTimeInterval)anEstimatedRemainingTime
-                              bytesPerSecondSpeed:(NSUInteger)aBytesPerSecondSpeed;
-- (nullable instancetype)init __attribute__((unavailable("use initWithDownloadProgress:expectedFileSize:receivedFileSize:estimatedRemainingTime:bytesPerSecondSpeed:")));
-+ (nullable instancetype)new __attribute__((unavailable("use initWithDownloadProgress:expectedFileSize:receivedFileSize:estimatedRemainingTime:bytesPerSecondSpeed:")));
+                              bytesPerSecondSpeed:(NSUInteger)aBytesPerSecondSpeed
+                                         progress:(nonnull NSProgress *)aProgress;
+- (nullable instancetype)init __attribute__((unavailable("use initWithDownloadProgress:expectedFileSize:receivedFileSize:estimatedRemainingTime:bytesPerSecondSpeed:progress:")));
++ (nullable instancetype)new __attribute__((unavailable("use initWithDownloadProgress:expectedFileSize:receivedFileSize:estimatedRemainingTime:bytesPerSecondSpeed:progress:")));
 
 /**
  Download progress with a range of 0.0 to 1.0.
@@ -77,5 +79,9 @@
  Download speed in bytes per second.
  */
 @property (nonatomic, assign, readonly) NSUInteger bytesPerSecondSpeed;
+/**
+ Download progress (NSProgress).
+ */
+@property (nonatomic, strong, readonly, nonnull) NSProgress *progress;
 
 @end

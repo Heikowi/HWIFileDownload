@@ -97,8 +97,19 @@ typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData * _Nullable aResum
  Answers the question whether a download is currently running for a download item.
  @param aDownloadIdentifier Download identifier of the download item.
  @return YES if a download is currently running for the download item, NO otherwise.
+ @discussion Waiting downloads are included.
  */
 - (BOOL)isDownloadingIdentifier:(nonnull NSString *)aDownloadIdentifier;
+
+
+/**
+ Answers the question whether a download is currently waiting for start.
+ @param aDownloadIdentifier Download identifier of the download item.
+ @return YES if a download is currently waiting for start, NO otherwise.
+ @discussion Downloads might be queued and waiting for download. When a download is waiting, download of data from a remote host did not start yet.
+ */
+- (BOOL)isWaitingForDownloadOfIdentifier:(nonnull NSString *)aDownloadIdentifier;
+
 
 /**
  Answers the question whether any download is currently running.

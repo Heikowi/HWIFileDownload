@@ -44,8 +44,10 @@
 
 @interface DownloadTableViewController ()
 @property (nonatomic, assign) NSInteger fileNameLabelTag;
-@property (nonatomic, assign) NSInteger remainingTimeLabelTag;
+@property (nonatomic, assign) NSInteger infoTextLabelTag;
 @property (nonatomic, assign) NSInteger progressViewTag;
+@property (nonatomic, weak) UIProgressView *totalProgressView;
+@property (nonatomic, weak) UILabel *totalProgressLocalizedDescriptionLabel;
 @property (nonatomic, strong, nullable) NSDate *lastProgressChangedUpdate;
 @end
 
@@ -60,7 +62,7 @@
     if (self)
     {
         self.fileNameLabelTag = 1;
-        self.remainingTimeLabelTag = 2;
+        self.infoTextLabelTag = 2;
         self.progressViewTag = 3;
         
         UIRefreshControl *aRefreshControl = [[UIRefreshControl alloc] init];
@@ -69,6 +71,10 @@
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDownloadDidComplete:) name:@"downloadDidComplete" object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onProgressDidChange:) name:@"downloadProgressChanged" object:nil];
+        if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+        {
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onTotalProgressDidChange:) name:@"totalDownloadProgressChanged" object:nil];
+        }
     }
     return self;
 }
@@ -118,36 +124,122 @@
     NSURL *aURL = [NSURL URLWithString:aURLString];
     
     UILabel *aFileNameLabel = (UILabel *)[aTableViewCell viewWithTag:self.fileNameLabelTag];
-    UILabel *aRemainingTimeLabel = (UILabel *)[aTableViewCell viewWithTag:self.remainingTimeLabelTag];
+    UILabel *anInfoTextLabel = (UILabel *)[aTableViewCell viewWithTag:self.infoTextLabelTag];
+    
+    if ([UIFont respondsToSelector:@selector(monospacedDigitSystemFontOfSize:weight:)])
+    {
+        [anInfoTextLabel setFont:[UIFont monospacedDigitSystemFontOfSize:10.0 weight:UIFontWeightRegular]];
+    }
+    else
+    {
+        [anInfoTextLabel setFont:[UIFont systemFontOfSize:10.0]];
+    }
+    
     UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
     if ([aURL.scheme isEqualToString:@"http"])
     {
         aFileNameLabel.text = aURL.absoluteString;
-        HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
-        if (aFileDownloadProgress)
+        BOOL isWaitingForDownload = [theAppDelegate.fileDownloader isWaitingForDownloadOfIdentifier:aDownloadIdentifier];
+        if (isWaitingForDownload)
         {
-            aRemainingTimeLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
+            aProgressView.progress = 0.0;
+            anInfoTextLabel.text = @"Waiting for download";
             [aProgressView setHidden:NO];
-            [aRemainingTimeLabel setHidden:NO];
-            BOOL didFail = [[aDownloadItemDict objectForKey:@"didFail"] boolValue];
-            if (didFail == NO)
+            [anInfoTextLabel setHidden:NO];
+        }
+        else
+        {
+            HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
+            if (aFileDownloadProgress)
             {
-                aProgressView.progress = aFileDownloadProgress.downloadProgress;
-            }
-            else
-            {
-                aProgressView.progress = 0.0;
+                [aProgressView setHidden:NO];
+                [anInfoTextLabel setHidden:NO];
+                float aProgress = 0.0;
+                if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+                {
+                    aProgress = aFileDownloadProgress.progress.fractionCompleted;
+                }
+                else
+                {
+                    aProgress = aFileDownloadProgress.downloadProgress;
+                }
+                BOOL didFail = [[aDownloadItemDict objectForKey:@"didFail"] boolValue];
+                if (didFail == YES)
+                {
+                    aProgress = 0.0;
+                }
+                aProgressView.progress = aProgress;
+                if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+                {
+                    anInfoTextLabel.text = aFileDownloadProgress.progress.localizedAdditionalDescription;
+                }
+                else
+                {
+                    anInfoTextLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
+                }
             }
         }
     }
     else
     {
         aFileNameLabel.text = [NSString stringWithFormat:@"%@", aURL.lastPathComponent];
-        aRemainingTimeLabel.text = @"";
+        anInfoTextLabel.text = @"";
         [aProgressView setHidden:YES];
-        [aRemainingTimeLabel setHidden:YES];
+        [anInfoTextLabel setHidden:YES];
     }
     return aTableViewCell;
+}
+
+
+- (CGFloat)tableView:(UITableView *)aTableView heightForHeaderInSection:(NSInteger)aSection
+{
+    CGFloat aHeaderHeight = 0.0;
+    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+    {
+        if (aSection == 0)
+        {
+            aHeaderHeight = 20.0;
+        }
+    }
+    return aHeaderHeight;
+}
+
+
+- (UIView *)tableView:(UITableView *)aTableView viewForHeaderInSection:(NSInteger)aSection
+{
+    UIView *aHeaderView = nil;
+    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+    {
+        if (aSection == 0)
+        {
+            aHeaderView = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 20.0)];
+            [aHeaderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+            [aHeaderView setBackgroundColor:[UIColor colorWithRed:(212.0 / 255.0) green:(212.0 / 255.0) blue:(212.0 / 255.0) alpha:1.0]];
+            // total progress view
+            UIProgressView *aProgressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
+            CGRect aProgressViewRect = aProgressView.frame;
+            aProgressViewRect.size.width = aHeaderView.frame.size.width;
+            [aProgressView setFrame:aProgressViewRect];
+            [aProgressView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+            [aHeaderView addSubview:aProgressView];
+            self.totalProgressView = aProgressView;
+            // total progress localized description view
+            UILabel *aLocalizedDescriptionLabel = [[UILabel alloc] initWithFrame:CGRectMake(10.0, CGRectGetMaxY(self.totalProgressView.frame), aHeaderView.frame.size.width - 20.0, 14.0)];
+            if ([UIFont respondsToSelector:@selector(monospacedDigitSystemFontOfSize:weight:)])
+            {
+                [aLocalizedDescriptionLabel setFont:[UIFont monospacedDigitSystemFontOfSize:10.0 weight:UIFontWeightRegular]];
+            }
+            else
+            {
+                [aLocalizedDescriptionLabel setFont:[UIFont systemFontOfSize:10.0]];
+            }
+            [aLocalizedDescriptionLabel setTextAlignment:NSTextAlignmentCenter];
+            [aLocalizedDescriptionLabel setAutoresizingMask:(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin)];
+            [aHeaderView addSubview:aLocalizedDescriptionLabel];
+            self.totalProgressLocalizedDescriptionLabel = aLocalizedDescriptionLabel;
+        }
+    }
+    return aHeaderView;
 }
 
 
@@ -217,7 +309,7 @@
             NSURL *aURL = [NSURL URLWithString:aURLString];
             
             UILabel *aFileNameLabel = (UILabel *)[aTableViewCell viewWithTag:self.fileNameLabelTag];
-            UILabel *aRemainingTimeLabel = (UILabel *)[aTableViewCell viewWithTag:self.remainingTimeLabelTag];
+            UILabel *anInfoTextLabel = (UILabel *)[aTableViewCell viewWithTag:self.infoTextLabelTag];
             UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
             if ([aURL.scheme isEqualToString:@"http"])
             {
@@ -225,29 +317,50 @@
                 HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadedIdentifier];
                 if (aFileDownloadProgress)
                 {
-                    aRemainingTimeLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
                     [aProgressView setHidden:NO];
-                    [aRemainingTimeLabel setHidden:NO];
-                    BOOL didFail = [[aDownloadItemDict objectForKey:@"didFail"] boolValue];
-                    if (didFail == NO)
+                    [anInfoTextLabel setHidden:NO];
+                    float aProgress = 0.0;
+                    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
                     {
-                        aProgressView.progress = aFileDownloadProgress.downloadProgress;
+                        aProgress = aFileDownloadProgress.progress.fractionCompleted;
                     }
                     else
                     {
-                        aProgressView.progress = 0.0;
+                        aProgress = aFileDownloadProgress.downloadProgress;
+                    }
+                    BOOL didFail = [[aDownloadItemDict objectForKey:@"didFail"] boolValue];
+                    if (didFail == YES)
+                    {
+                        aProgress = 0.0;
+                    }
+                    aProgressView.progress = aProgress;
+                    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+                    {
+                        anInfoTextLabel.text = aFileDownloadProgress.progress.localizedAdditionalDescription;
+                    }
+                    else
+                    {
+                        anInfoTextLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
                     }
                 }
             }
             else
             {
                 aFileNameLabel.text = [NSString stringWithFormat:@"%@", aURL.lastPathComponent];
-                aRemainingTimeLabel.text = @"";
+                anInfoTextLabel.text = @"";
                 [aProgressView setHidden:YES];
-                [aRemainingTimeLabel setHidden:YES];
+                [anInfoTextLabel setHidden:YES];
             }
         }
     }
+}
+
+
+- (void)onTotalProgressDidChange:(NSNotification *)aNotification
+{
+    NSProgress *aProgress = aNotification.object;
+    self.totalProgressView.progress = (float)aProgress.fractionCompleted;
+    self.totalProgressLocalizedDescriptionLabel.text = aProgress.localizedDescription;
 }
 
 
@@ -267,21 +380,41 @@
         {
             NSString *aDownloadIdentifier = [[theAppDelegate downloadStore].sortedDownloadIdentifiersArray objectAtIndex:anIndexPath.row];
             BOOL isDownloading = [theAppDelegate.fileDownloader isDownloadingIdentifier:aDownloadIdentifier];
-            if (isDownloading)
+            BOOL isWaitingForDownload = [theAppDelegate.fileDownloader isWaitingForDownloadOfIdentifier:aDownloadIdentifier];
+            UITableViewCell *aTableViewCell = [self.tableView cellForRowAtIndexPath:anIndexPath];
+            if (aTableViewCell)
             {
-                UITableViewCell *aTableViewCell = [self.tableView cellForRowAtIndexPath:anIndexPath];
-                if (aTableViewCell)
+                UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
+                UILabel *anInfoTextLabel = (UILabel *)[aTableViewCell viewWithTag:self.infoTextLabelTag];
+                HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
+                if (isWaitingForDownload)
                 {
-                    UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
-                    UILabel *aRemaingTimeLabel = (UILabel *)[aTableViewCell viewWithTag:self.remainingTimeLabelTag];
-                    HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
-                    if (aFileDownloadProgress)
+                    aProgressView.progress = 0.0;
+                    anInfoTextLabel.text = @"Waiting for download";
+                    [aProgressView setHidden:NO];
+                    [anInfoTextLabel setHidden:NO];
+                }
+                else if (aFileDownloadProgress && isDownloading)
+                {
+                    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+                    {
+                        aProgressView.progress = aFileDownloadProgress.progress.fractionCompleted;
+                        anInfoTextLabel.text = aFileDownloadProgress.progress.localizedAdditionalDescription;
+                    }
+                    else
                     {
                         aProgressView.progress = aFileDownloadProgress.downloadProgress;
-                        aRemaingTimeLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
-                        [aProgressView setHidden:NO];
-                        [aRemaingTimeLabel setHidden:NO];
+                        anInfoTextLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
                     }
+                    [aProgressView setHidden:NO];
+                    [anInfoTextLabel setHidden:NO];
+                }
+                else
+                {
+                    aProgressView.progress = 0.0;
+                    anInfoTextLabel.text = @"";
+                    [aProgressView setHidden:YES];
+                    [anInfoTextLabel setHidden:YES];
                 }
             }
         }

@@ -28,8 +28,6 @@
 		ACA04C9B19DEA2E300604BBF /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		ACA04C9D19DEA2E300604BBF /* DownloadTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadTableViewController.h; sourceTree = "<group>"; };
 		ACA04C9E19DEA2E300604BBF /* DownloadTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloadTableViewController.m; sourceTree = "<group>"; };
-		ACA04CB419DEA2E300604BBF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		ACA04CB519DEA2E300604BBF /* HWIFileDownloadTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HWIFileDownloadTests.m; sourceTree = "<group>"; };
 		ACB045BB19E186C000C3B34D /* HWIFileDownloadItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HWIFileDownloadItem.h; path = ../../HWIFileDownloadItem.h; sourceTree = "<group>"; };
 		ACB045BC19E186C000C3B34D /* HWIFileDownloadItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HWIFileDownloadItem.m; path = ../../HWIFileDownloadItem.m; sourceTree = "<group>"; };
 		ACB9143A19DEF660006193A6 /* DownloadTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DownloadTableViewCell.xib; sourceTree = "<group>"; };
@@ -57,7 +55,6 @@
 			isa = PBXGroup;
 			children = (
 				ACA04C9519DEA2E300604BBF /* HWIFileDownload */,
-				ACA04CB219DEA2E300604BBF /* HWIFileDownloadTests */,
 				ACA04C9419DEA2E300604BBF /* Products */,
 			);
 			sourceTree = "<group>";
@@ -92,23 +89,6 @@
 				ACB9143E19DF0975006193A6 /* Default-568h@2x.png */,
 				ACA04C9719DEA2E300604BBF /* Info.plist */,
 				ACA04C9819DEA2E300604BBF /* main.m */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		ACA04CB219DEA2E300604BBF /* HWIFileDownloadTests */ = {
-			isa = PBXGroup;
-			children = (
-				ACA04CB519DEA2E300604BBF /* HWIFileDownloadTests.m */,
-				ACA04CB319DEA2E300604BBF /* Supporting Files */,
-			);
-			path = HWIFileDownloadTests;
-			sourceTree = "<group>";
-		};
-		ACA04CB319DEA2E300604BBF /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				ACA04CB419DEA2E300604BBF /* Info.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -298,7 +278,7 @@
 				INFOPLIST_FILE = HWIFileDownload/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "de.imagomat.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = de.imagomat.testapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -314,7 +294,7 @@
 				INFOPLIST_FILE = HWIFileDownload/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "de.imagomat.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = de.imagomat.testapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

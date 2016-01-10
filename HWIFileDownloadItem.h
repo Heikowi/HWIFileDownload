@@ -51,6 +51,7 @@
 @property (nonatomic, assign) int64_t expectedFileSizeInBytes;
 @property (nonatomic, assign) int64_t resumedFileSizeInBytes;
 @property (nonatomic, assign) NSUInteger bytesPerSecondSpeed;
+@property (nonatomic, strong, readonly, nonnull) NSProgress *progress;
 @property (nonatomic, strong, readonly, nonnull) NSString *downloadToken;
 @property (nonatomic, assign) BOOL isCancelled;
 @property (nonatomic, assign) BOOL isInvalid;

@@ -41,11 +41,14 @@
 
 #import <UIKit/UIKit.h>
 
+static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserverContext;
+
 
 @interface DownloadStore()
 @property (nonatomic, assign) NSUInteger networkActivityIndicatorCount;
 @property (nonatomic, strong, readwrite, nonnull) NSMutableDictionary *downloadItemsDict;
 @property (nonatomic, strong, readwrite, nonnull) NSArray *sortedDownloadIdentifiersArray;
+@property (nonatomic, strong, nonnull) NSProgress *progress;
 @end
 
 
@@ -60,33 +63,16 @@
     {
         self.networkActivityIndicatorCount = 0;
         
-        // restore downloaded items
-        self.downloadItemsDict = [[[NSUserDefaults standardUserDefaults] objectForKey:@"downloadItems"] mutableCopy];
-        if (self.downloadItemsDict == nil)
+        self.progress = [NSProgress progressWithTotalUnitCount:0];
+        if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
         {
-            self.downloadItemsDict = [NSMutableDictionary dictionary];
+            [self.progress addObserver:self
+                            forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
+                               options:NSKeyValueObservingOptionInitial
+                               context:DownloadStoreProgressObserverContext];
         }
         
-        // setup items to download
-        for (NSUInteger num = 1; num < 11; num++)
-        {
-            NSString *aDownloadIdentifier = [NSString stringWithFormat:@"%@", @(num)];
-            NSDictionary *aDownloadItemDict = [self.downloadItemsDict objectForKey:aDownloadIdentifier];
-            if (aDownloadItemDict == nil)
-            {
-                NSURL *aRemoteURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://www.imagomat.de/testimages/%@.tiff", @(num)]];
-                aDownloadItemDict = @{@"URL" : aRemoteURL.absoluteString};
-                [self.downloadItemsDict setObject:aDownloadItemDict forKey:aDownloadIdentifier];
-            }
-        };
-        NSArray *aDownloadIdentifiersArray = [self.downloadItemsDict allKeys];
-        NSSortDescriptor *aDownloadIdentifiersSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:nil
-                                                                                             ascending:YES
-                                                                                            comparator:^(id obj1, id obj2)
-                                                                {
-                                                                    return [obj1 compare:obj2 options:NSNumericSearch];
-                                                                }];
-        self.sortedDownloadIdentifiersArray = [aDownloadIdentifiersArray sortedArrayUsingDescriptors:@[aDownloadIdentifiersSortDescriptor]];
+        [self setupDownloadItems];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(restartDownload) name:@"restartDownload" object:nil];
         
@@ -95,8 +81,50 @@
 }
 
 
+- (void)setupDownloadItems
+{
+    // restore downloaded items
+    self.downloadItemsDict = [[[NSUserDefaults standardUserDefaults] objectForKey:@"downloadItems"] mutableCopy];
+    if (self.downloadItemsDict == nil)
+    {
+        self.downloadItemsDict = [NSMutableDictionary dictionary];
+    }
+    
+    // setup items to download
+    for (NSUInteger num = 1; num < 11; num++)
+    {
+        NSString *aDownloadIdentifier = [NSString stringWithFormat:@"%@", @(num)];
+        NSDictionary *aDownloadItemDict = [self.downloadItemsDict objectForKey:aDownloadIdentifier];
+        if (aDownloadItemDict == nil)
+        {
+            NSURL *aRemoteURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://www.imagomat.de/testimages/%@.tiff", @(num)]];
+            aDownloadItemDict = @{@"URL" : aRemoteURL.absoluteString};
+            [self.downloadItemsDict setObject:aDownloadItemDict forKey:aDownloadIdentifier];
+        }
+    };
+    
+    self.downloadItemsDict = [NSMutableDictionary dictionary];
+    [self.downloadItemsDict setObject:@{@"URL" : @"http://www.imagomat.de/testimages/10.tiff"} forKey:@"10"];
+    
+    NSArray *aDownloadIdentifiersArray = [self.downloadItemsDict allKeys];
+    NSSortDescriptor *aDownloadIdentifiersSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:nil
+                                                                                         ascending:YES
+                                                                                        comparator:^(id obj1, id obj2)
+                                                            {
+                                                                return [obj1 compare:obj2 options:NSNumericSearch];
+                                                            }];
+    self.sortedDownloadIdentifiersArray = [aDownloadIdentifiersArray sortedArrayUsingDescriptors:@[aDownloadIdentifiersSortDescriptor]];
+}
+
+
 - (void)dealloc
 {
+    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+    {
+        [self.progress removeObserver:self
+                           forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
+                              context:DownloadStoreProgressObserverContext];
+    }
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"restartDownload" object:nil];
 }
 
@@ -210,11 +238,58 @@
 }
 
 
+- (nullable NSProgress *)rootProgress
+{
+    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+    {
+        return self.progress;
+    }
+    else
+    {
+        return nil;
+    }
+}
+
+
+#pragma mark - NSProgress KVO
+
+
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change
+                       context:(void *)context
+{
+    if (context == DownloadStoreProgressObserverContext)
+    {
+        NSProgress *progress = object; // == self.progress
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"totalDownloadProgressChanged" object:progress userInfo:nil];
+    }
+    else
+    {
+        [super observeValueForKeyPath:keyPath ofObject:object
+                               change:change context:context];
+    }
+}
+
+
 #pragma mark - restart download
 
 
 - (void)restartDownload
 {
+    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+    {
+        [self.progress removeObserver:self forKeyPath:NSStringFromSelector(@selector(fractionCompleted))];
+    }
+    self.progress = [NSProgress progressWithTotalUnitCount:0];
+    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+    {
+        [self.progress addObserver:self
+                        forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
+                           options:NSKeyValueObservingOptionInitial
+                           context:DownloadStoreProgressObserverContext];
+    }
+    
     for (NSString *aDownloadIdentifierString in self.sortedDownloadIdentifiersArray)
     {
         NSDictionary *aDownloadItemDict = [self.downloadItemsDict objectForKey:aDownloadIdentifierString];

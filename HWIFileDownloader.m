@@ -111,9 +111,17 @@
                     NSString *aDownloadToken = [aDownloadTask.taskDescription copy];
                     if (aDownloadToken)
                     {
+                        NSProgress *aRootProgress = nil;
+                        if ([self.fileDownloadDelegate respondsToSelector:@selector(rootProgress)])
+                        {
+                            aRootProgress = [self.fileDownloadDelegate rootProgress];
+                        }
+                        aRootProgress.totalUnitCount++;
+                        [aRootProgress becomeCurrentWithPendingUnitCount:1];
                         HWIFileDownloadItem *aDownloadItem = [[HWIFileDownloadItem alloc] initWithDownloadToken:aDownloadToken
                                                                                             sessionDownloadTask:aDownloadTask
                                                                                                   urlConnection:nil];
+                        [aRootProgress resignCurrent];
                         [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadTask.taskIdentifier)];
                         [self.fileDownloadDelegate incrementNetworkActivityIndicatorActivityCount];
                     }
@@ -173,6 +181,11 @@
         NSURLConnection *aURLConnection = nil;
         
         HWIFileDownloadItem *aDownloadItem = nil;
+        NSProgress *aRootProgress = nil;
+        if ([self.fileDownloadDelegate respondsToSelector:@selector(rootProgress)])
+        {
+            aRootProgress = [self.fileDownloadDelegate rootProgress];
+        }
         if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
         {
             if (aResumeData)
@@ -185,9 +198,14 @@
             }
             aDownloadID = aDownloadTask.taskIdentifier;
             aDownloadTask.taskDescription = aDownloadToken;
+            
+            aRootProgress.totalUnitCount++;
+            [aRootProgress becomeCurrentWithPendingUnitCount:1];
             aDownloadItem = [[HWIFileDownloadItem alloc] initWithDownloadToken:aDownloadToken
                                                            sessionDownloadTask:aDownloadTask
                                                                  urlConnection:nil];
+            aDownloadItem.resumedFileSizeInBytes = aResumeData.length;
+            [aRootProgress resignCurrent];
         }
         else
         {
@@ -199,9 +217,13 @@
             }
             NSURLRequest *aURLRequest = [[NSURLRequest alloc] initWithURL:aRemoteURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:aRequestTimeoutInterval];
             aURLConnection = [[NSURLConnection alloc] initWithRequest:aURLRequest delegate:self startImmediately:NO];
+            
+            aRootProgress.totalUnitCount++;
+            [aRootProgress becomeCurrentWithPendingUnitCount:1];
             aDownloadItem = [[HWIFileDownloadItem alloc] initWithDownloadToken:aDownloadToken
                                                            sessionDownloadTask:nil
                                                                  urlConnection:aURLConnection];
+            [aRootProgress resignCurrent];
         }
         if (aDownloadItem)
         {
@@ -382,6 +404,30 @@
         }
     }
     return isDownloading;
+}
+
+
+- (BOOL)isWaitingForDownloadOfIdentifier:(nonnull NSString *)aDownloadIdentifier
+{
+    BOOL isWaitingForDownload = NO;
+    for (NSDictionary *aWaitingDownloadDict in self.waitingDownloadsArray)
+    {
+        if ([aWaitingDownloadDict[@"downloadToken"] isEqualToString:aDownloadIdentifier])
+        {
+            isWaitingForDownload = YES;
+            break;
+        }
+    }
+    NSInteger aDownloadID = [self downloadIDForActiveDownloadToken:aDownloadIdentifier];
+    if (aDownloadID > -1)
+    {
+        HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadID)];
+        if (aDownloadItem && (aDownloadItem.isCancelled == NO) && (aDownloadItem.isInvalid == NO) && (aDownloadItem.receivedFileSizeInBytes == 0))
+        {
+            isWaitingForDownload = YES;
+        }
+    }
+    return isWaitingForDownload;
 }
 
 
@@ -922,11 +968,17 @@
                 aDownloadProgressFloat = (float)aDownloadItem.receivedFileSizeInBytes / (float)aDownloadItem.expectedFileSizeInBytes;
             }
             NSDictionary *aRemainingTimeDict = [HWIFileDownloader remainingTimeForDownloadItem:aDownloadItem];
+            if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+            {
+                [aDownloadItem.progress setUserInfoObject:[aRemainingTimeDict objectForKey:@"remainingTime"] forKey:NSProgressEstimatedTimeRemainingKey];
+                [aDownloadItem.progress setUserInfoObject:[aRemainingTimeDict objectForKey:@"bytesPerSecondSpeed"] forKey:NSProgressThroughputKey];
+            }
             aDownloadProgress = [[HWIFileDownloadProgress alloc] initWithDownloadProgress:aDownloadProgressFloat
                                                                          expectedFileSize:aDownloadItem.expectedFileSizeInBytes
                                                                          receivedFileSize:aDownloadItem.receivedFileSizeInBytes
                                                                    estimatedRemainingTime:[[aRemainingTimeDict objectForKey:@"remainingTime"] doubleValue]
-                                                                      bytesPerSecondSpeed:[[aRemainingTimeDict objectForKey:@"bytesPerSecondSpeed"] unsignedIntegerValue]];
+                                                                      bytesPerSecondSpeed:[[aRemainingTimeDict objectForKey:@"bytesPerSecondSpeed"] unsignedIntegerValue]
+                                                                                 progress:aDownloadItem.progress];
         }
     }
     return aDownloadProgress;

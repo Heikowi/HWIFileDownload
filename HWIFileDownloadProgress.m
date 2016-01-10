@@ -41,6 +41,7 @@
 @property (nonatomic, assign, readwrite) int64_t receivedFileSize;
 @property (nonatomic, assign, readwrite) NSTimeInterval estimatedRemainingTime;
 @property (nonatomic, assign, readwrite) NSUInteger bytesPerSecondSpeed;
+@property (nonatomic, strong, readwrite, nonnull) NSProgress *progress;
 @end
 
 
@@ -49,11 +50,12 @@
 
 #pragma mark - Initialization
 
-- (instancetype)initWithDownloadProgress:(float)aDownloadProgress
-                        expectedFileSize:(int64_t)anExpectedFileSize
-                        receivedFileSize:(int64_t)aReceivedFileSize
-                  estimatedRemainingTime:(NSTimeInterval)anEstimatedRemainingTime
-                     bytesPerSecondSpeed:(NSUInteger)aBytesPerSecondSpeed
+- (nullable instancetype)initWithDownloadProgress:(float)aDownloadProgress
+                                 expectedFileSize:(int64_t)anExpectedFileSize
+                                 receivedFileSize:(int64_t)aReceivedFileSize
+                           estimatedRemainingTime:(NSTimeInterval)anEstimatedRemainingTime
+                              bytesPerSecondSpeed:(NSUInteger)aBytesPerSecondSpeed
+                                         progress:(nonnull NSProgress *)aProgress
 {
     self = [super init];
     if (self)
@@ -63,6 +65,7 @@
         self.receivedFileSize = aReceivedFileSize;
         self.estimatedRemainingTime = anEstimatedRemainingTime;
         self.bytesPerSecondSpeed = aBytesPerSecondSpeed;
+        self.progress = aProgress;
     }
     return self;
 }
@@ -71,7 +74,7 @@
 #pragma mark - Description
 
 
-- (NSString *)description
+- (nonnull NSString *)description
 {
     NSMutableDictionary *aDescriptionDict = [NSMutableDictionary dictionary];
     [aDescriptionDict setObject:@(self.downloadProgress) forKey:@"downloadProgress"];
@@ -79,6 +82,7 @@
     [aDescriptionDict setObject:@(self.receivedFileSize) forKey:@"receivedFileSize"];
     [aDescriptionDict setObject:@(self.estimatedRemainingTime) forKey:@"estimatedRemainingTime"];
     [aDescriptionDict setObject:@(self.bytesPerSecondSpeed) forKey:@"bytesPerSecondSpeed"];
+    [aDescriptionDict setObject:self.progress forKey:@"progress"];
     
     NSString *aDescriptionString = [NSString stringWithFormat:@"%@", aDescriptionDict];
     

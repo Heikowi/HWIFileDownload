@@ -120,4 +120,12 @@
 - (NSTimeInterval)resourceTimeoutInterval;
 
 
+/**
+ Optionally provide a progress object for tracking progress across individual downloads.
+ @return Root progress object.
+ @discussion NSProgress is set up in a hierarchy. Download progress of HWIFileDownloader items can be tracked individually and in total.
+ */
+- (nullable NSProgress *)rootProgress;
+
+
 @end

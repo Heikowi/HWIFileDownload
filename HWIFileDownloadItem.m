@@ -40,6 +40,7 @@
 @property (nonatomic, strong, readwrite, nonnull) NSString *downloadToken;
 @property (nonatomic, strong, readwrite, nullable) NSURLSessionDownloadTask *sessionDownloadTask;
 @property (nonatomic, strong, readwrite, nullable) NSURLConnection *urlConnection;
+@property (nonatomic, strong, readwrite, nonnull) NSProgress *progress;
 @end
 
 
@@ -65,8 +66,50 @@
         self.resumedFileSizeInBytes = 0;
         self.isCancelled = NO;
         self.isInvalid = NO;
+        
+        self.progress = [[NSProgress alloc] initWithParent:[NSProgress currentProgress] userInfo:nil];
+        if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+        {
+            self.progress.kind = NSProgressKindFile;
+            [self.progress setUserInfoObject:NSProgressFileOperationKindKey forKey:NSProgressFileOperationKindDownloading];
+            [self.progress setUserInfoObject:aDownloadToken forKey:@"downloadToken"];
+            self.progress.cancellable = YES;
+            self.progress.pausable = NO;
+            self.progress.totalUnitCount = NSURLSessionTransferSizeUnknown;
+            self.progress.completedUnitCount = 0;
+        }
+        
     }
     return self;
+}
+
+
+- (void)setExpectedFileSizeInBytes:(int64_t)anExpectedFileSizeInBytes
+{
+    _expectedFileSizeInBytes = anExpectedFileSizeInBytes;
+    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+    {
+        if (anExpectedFileSizeInBytes > 0)
+        {
+            self.progress.totalUnitCount = anExpectedFileSizeInBytes;
+        }
+    }
+}
+
+
+- (void)setReceivedFileSizeInBytes:(int64_t)aReceivedFileSizeInBytes
+{
+    _receivedFileSizeInBytes = aReceivedFileSizeInBytes;
+    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+    {
+        if (aReceivedFileSizeInBytes > 0)
+        {
+            if (self.expectedFileSizeInBytes > 0)
+            {
+                self.progress.completedUnitCount = aReceivedFileSizeInBytes;
+            }
+        }
+    }
 }
 
 
@@ -82,6 +125,7 @@
     [aDescriptionDict setObject:self.downloadToken forKey:@"downloadToken"];
     [aDescriptionDict setObject:@(self.isCancelled) forKey:@"isCancelled"];
     [aDescriptionDict setObject:@(self.isInvalid) forKey:@"isInvalid"];
+    [aDescriptionDict setObject:self.progress forKey:@"progress"];
     if (self.sessionDownloadTask)
     {
         [aDescriptionDict setObject:@(YES) forKey:@"hasSessionDownloadTask"];
