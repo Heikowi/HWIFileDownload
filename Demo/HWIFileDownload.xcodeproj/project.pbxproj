@@ -16,6 +16,7 @@
 		ACD1BCC519DEA7CD0066D4A7 /* HWIFileDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = ACD1BCBB19DEA7CD0066D4A7 /* HWIFileDownloader.m */; };
 		ACE9E18919DFFDE60058777C /* DownloadStore.m in Sources */ = {isa = PBXBuildFile; fileRef = ACE9E18819DFFDE60058777C /* DownloadStore.m */; };
 		ACF88B701C42C1A000ACD0C7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ACF88B6F1C42C1A000ACD0C7 /* LaunchScreen.storyboard */; };
+		ACF88B721C438E3D00ACD0C7 /* AssetCatalog.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ACF88B711C438E3D00ACD0C7 /* AssetCatalog.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +39,7 @@
 		ACE9E18719DFFDE60058777C /* DownloadStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadStore.h; sourceTree = "<group>"; };
 		ACE9E18819DFFDE60058777C /* DownloadStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadStore.m; sourceTree = "<group>"; };
 		ACF88B6F1C42C1A000ACD0C7 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		ACF88B711C438E3D00ACD0C7 /* AssetCatalog.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = AssetCatalog.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,6 +91,7 @@
 				ACA04C9719DEA2E300604BBF /* Info.plist */,
 				ACA04C9819DEA2E300604BBF /* main.m */,
 				ACF88B6F1C42C1A000ACD0C7 /* LaunchScreen.storyboard */,
+				ACF88B711C438E3D00ACD0C7 /* AssetCatalog.xcassets */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -165,6 +168,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ACF88B721C438E3D00ACD0C7 /* AssetCatalog.xcassets in Resources */,
 				ACB9143B19DEF660006193A6 /* DownloadTableViewCell.xib in Resources */,
 				ACF88B701C42C1A000ACD0C7 /* LaunchScreen.storyboard in Resources */,
 			);
@@ -271,6 +275,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -287,6 +292,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
