@@ -360,7 +360,14 @@
 {
     NSProgress *aProgress = aNotification.object;
     self.totalProgressView.progress = (float)aProgress.fractionCompleted;
-    self.totalProgressLocalizedDescriptionLabel.text = aProgress.localizedDescription;
+    if (aProgress.completedUnitCount != aProgress.totalUnitCount)
+    {
+        self.totalProgressLocalizedDescriptionLabel.text = aProgress.localizedDescription;
+    }
+    else
+    {
+        self.totalProgressLocalizedDescriptionLabel.text = @"";
+    }
 }
 
 
