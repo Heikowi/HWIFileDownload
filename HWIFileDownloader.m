@@ -123,6 +123,10 @@
                                                                                                   urlConnection:nil];
                         [aRootProgress resignCurrent];
                         [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadTask.taskIdentifier)];
+                        __weak HWIFileDownloadItem *aWeakDownloadItem = aDownloadItem;
+                        [aDownloadItem.progress setCancellationHandler:^{
+                            [self cancelDownloadAndPostResumeDataOfIdentifier:aWeakDownloadItem.downloadToken];
+                        }];
                         [self.fileDownloadDelegate incrementNetworkActivityIndicatorActivityCount];
                     }
                     else
@@ -233,6 +237,10 @@
         if (aDownloadItem)
         {
             [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadID)];
+            __weak HWIFileDownloadItem *aWeakDownloadItem = aDownloadItem;
+            [aDownloadItem.progress setCancellationHandler:^{
+                [self cancelDownloadAndPostResumeDataOfIdentifier:aWeakDownloadItem.downloadToken];
+            }];
             [self.fileDownloadDelegate incrementNetworkActivityIndicatorActivityCount];
             
             if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
@@ -309,6 +317,7 @@
     if (aDownloadItem)
     {
         aDownloadItem.isCancelled = YES;
+        aDownloadItem.progress.completedUnitCount = aDownloadItem.progress.totalUnitCount;
         if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
         {
             NSURLSessionDownloadTask *aDownloadTask = aDownloadItem.sessionDownloadTask;
@@ -378,6 +387,21 @@
                 [self handleDownloadWithError:aCancelError downloadID:aDownloadID downloadToken:aDownloadItem.downloadToken resumeData:nil];
             }
         }
+    }
+}
+
+
+- (void)cancelDownloadAndPostResumeDataOfIdentifier:(nonnull NSString *)aDownloadIdentifier
+{
+    BOOL isDownloading = [self isDownloadingIdentifier:aDownloadIdentifier];
+    if (isDownloading)
+    {
+        [self cancelDownloadWithIdentifier:aDownloadIdentifier resumeDataBlock:^(NSData *aResumeData) {
+            if (aResumeData)
+            {
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"CancelledDownloadResumeDataNotification" object:aResumeData userInfo:@{@"downloadIdentifier" : aDownloadIdentifier}];
+            }
+        }];
     }
 }
 

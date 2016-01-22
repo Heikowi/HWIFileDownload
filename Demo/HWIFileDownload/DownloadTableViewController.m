@@ -46,6 +46,7 @@
 @property (nonatomic, assign) NSInteger fileNameLabelTag;
 @property (nonatomic, assign) NSInteger infoTextLabelTag;
 @property (nonatomic, assign) NSInteger progressViewTag;
+@property (nonatomic, assign) NSInteger cancelButtonTag;
 @property (nonatomic, weak) UIProgressView *totalProgressView;
 @property (nonatomic, weak) UILabel *totalProgressLocalizedDescriptionLabel;
 @property (nonatomic, strong, nullable) NSDate *lastProgressChangedUpdate;
@@ -64,6 +65,7 @@
         self.fileNameLabelTag = 1;
         self.infoTextLabelTag = 2;
         self.progressViewTag = 3;
+        self.cancelButtonTag = 4;
         
         UIRefreshControl *aRefreshControl = [[UIRefreshControl alloc] init];
         [aRefreshControl addTarget:self action:@selector(onRefreshTable) forControlEvents:UIControlEventValueChanged];
@@ -91,9 +93,9 @@
 {
     [super viewDidLoad];
     
-    self.tableView.rowHeight = 64.0;
+    self.tableView.rowHeight = 98.0;
     [self.tableView registerNib:[UINib nibWithNibName:@"DownloadTableViewCell" bundle:[NSBundle mainBundle]] forCellReuseIdentifier:@"DownloadTableViewCell"];
-    self.title = @"Downloads";
+    self.title = @"Download";
     
     UIBarButtonItem *aLeftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Crash" style:UIBarButtonItemStyleBordered target:self action:@selector(crash)];
     self.navigationItem.leftBarButtonItem = aLeftBarButtonItem;
@@ -125,6 +127,7 @@
     
     UILabel *aFileNameLabel = (UILabel *)[aTableViewCell viewWithTag:self.fileNameLabelTag];
     UILabel *anInfoTextLabel = (UILabel *)[aTableViewCell viewWithTag:self.infoTextLabelTag];
+    UIButton *aCancelDownloadButton = (UIButton *)[aTableViewCell viewWithTag:self.cancelButtonTag];
     
     if ([UIFont respondsToSelector:@selector(monospacedDigitSystemFontOfSize:weight:)])
     {
@@ -134,6 +137,9 @@
     {
         [anInfoTextLabel setFont:[UIFont systemFontOfSize:10.0]];
     }
+    
+    [aCancelDownloadButton addTarget:self action:@selector(onCancelIndividualDownload:) forControlEvents:UIControlEventTouchUpInside];
+    [aCancelDownloadButton setHidden:YES];
     
     UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
     if ([aURL.scheme isEqualToString:@"http"])
@@ -154,6 +160,7 @@
             {
                 [aProgressView setHidden:NO];
                 [anInfoTextLabel setHidden:NO];
+                [aCancelDownloadButton setHidden:NO];
                 float aProgress = 0.0;
                 if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
                 {
@@ -259,22 +266,54 @@
     NSArray *aDownloadIdentifiersArray = [theAppDelegate.downloadStore.downloadItemsDict allKeys];
     for (NSString *aDownloadIdentifier in aDownloadIdentifiersArray)
     {
-        BOOL isDownloading = [theAppDelegate.fileDownloader isDownloadingIdentifier:aDownloadIdentifier];
-        if (isDownloading)
+        [self cancelDownloadWithIdentifier:aDownloadIdentifier];
+    }
+    [self.tableView reloadData];
+}
+
+
+- (void)onCancelIndividualDownload:(id)aSender
+{
+    UITableViewCell *aTableViewCell = nil;
+    UIView *aCurrView = (UIView *)aSender;
+    while (aTableViewCell == nil)
+    {
+        UIView *aSuperView = [aCurrView superview];
+        if ([aSuperView isKindOfClass:[UITableViewCell class]])
+        {
+            aTableViewCell = (UITableViewCell *)aSuperView;
+        }
+        aCurrView = aSuperView;
+    }
+    NSIndexPath *anIndexPath = [self.tableView indexPathForCell:aTableViewCell];
+    AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+    NSString *aDownloadIdentifier = [[theAppDelegate downloadStore].sortedDownloadIdentifiersArray objectAtIndex:anIndexPath.row];
+    
+    [self cancelDownloadWithIdentifier:aDownloadIdentifier];
+}
+
+
+- (void)cancelDownloadWithIdentifier:(NSString *)aDownloadIdentifier
+{
+    AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+    BOOL isDownloading = [theAppDelegate.fileDownloader isDownloadingIdentifier:aDownloadIdentifier];
+    if (isDownloading)
+    {
+        if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+        {
+            HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
+            [aFileDownloadProgress.progress cancel];
+        }
+        else
         {
             [theAppDelegate.fileDownloader cancelDownloadWithIdentifier:aDownloadIdentifier resumeDataBlock:^(NSData *aResumeData) {
                 if (aResumeData)
                 {
-                    NSMutableDictionary *aDownloadItemDict = [[theAppDelegate.downloadStore.downloadItemsDict objectForKey:aDownloadIdentifier] mutableCopy];
-                    [aDownloadItemDict setObject:aResumeData forKey:@"ResumeData"];
-                    [theAppDelegate.downloadStore.downloadItemsDict setObject:aDownloadItemDict forKey:aDownloadIdentifier];
-                    [[NSUserDefaults standardUserDefaults] setObject:theAppDelegate.downloadStore.downloadItemsDict forKey:@"downloadItems"];
-                    [[NSUserDefaults standardUserDefaults] synchronize];
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"CancelledDownloadResumeDataNotification" object:aResumeData userInfo:@{@"downloadIdentifier" : aDownloadIdentifier}];
                 }
             }];
         }
     }
-    [self.tableView reloadData];
 }
 
 
@@ -283,14 +322,14 @@
 
 - (void)onDownloadDidComplete:(NSNotification *)aNotification
 {
-    NSString *aDownloadedIdentifier = (NSString *)aNotification.object;
+    NSString *aDownloadIdentifier = (NSString *)aNotification.object;
     
     AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
     NSInteger aFoundRowIndex = -1;
     NSUInteger aCurrIndex = 0;
     for (NSString *anIdentifier in [theAppDelegate downloadStore].sortedDownloadIdentifiersArray)
     {
-        if ([anIdentifier isEqualToString:aDownloadedIdentifier])
+        if ([anIdentifier isEqualToString:aDownloadIdentifier])
         {
             aFoundRowIndex = aCurrIndex;
             break;
@@ -304,17 +343,19 @@
         UITableViewCell *aTableViewCell = [self.tableView cellForRowAtIndexPath:anIndexPath];
         if (aTableViewCell)
         {
-            NSDictionary *aDownloadItemDict = [[theAppDelegate downloadStore].downloadItemsDict objectForKey:aDownloadedIdentifier];
+            NSDictionary *aDownloadItemDict = [[theAppDelegate downloadStore].downloadItemsDict objectForKey:aDownloadIdentifier];
             NSString *aURLString = [aDownloadItemDict objectForKey:@"URL"];
             NSURL *aURL = [NSURL URLWithString:aURLString];
             
             UILabel *aFileNameLabel = (UILabel *)[aTableViewCell viewWithTag:self.fileNameLabelTag];
             UILabel *anInfoTextLabel = (UILabel *)[aTableViewCell viewWithTag:self.infoTextLabelTag];
             UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
+            UIButton *aCancelDownloadButton = (UIButton *)[aTableViewCell viewWithTag:self.cancelButtonTag];
+            [aCancelDownloadButton setHidden:YES];
             if ([aURL.scheme isEqualToString:@"http"])
             {
                 aFileNameLabel.text = aURL.absoluteString;
-                HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadedIdentifier];
+                HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
                 if (aFileDownloadProgress)
                 {
                     [aProgressView setHidden:NO];
@@ -393,6 +434,8 @@
             {
                 UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
                 UILabel *anInfoTextLabel = (UILabel *)[aTableViewCell viewWithTag:self.infoTextLabelTag];
+                UIButton *aCancelDownloadButton = (UIButton *)[aTableViewCell viewWithTag:self.cancelButtonTag];
+                [aCancelDownloadButton setHidden:YES];
                 HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
                 if (isWaitingForDownload)
                 {
@@ -403,6 +446,7 @@
                 }
                 else if (aFileDownloadProgress && isDownloading)
                 {
+                    [aCancelDownloadButton setHidden:NO];
                     if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
                     {
                         aProgressView.progress = aFileDownloadProgress.progress.fractionCompleted;

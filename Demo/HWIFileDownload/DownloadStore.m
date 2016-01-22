@@ -75,6 +75,7 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
         [self setupDownloadItems];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(restartDownload) name:@"restartDownload" object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onCancelledDownloadResumeDataNotification:) name:@"CancelledDownloadResumeDataNotification" object:nil];
         
     }
     return self;
@@ -251,25 +252,34 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
 #pragma mark - NSProgress KVO
 
 
-- (void)observeValueForKeyPath:(NSString *)keyPath
-                      ofObject:(id)object
-                        change:(NSDictionary *)change
-                       context:(void *)context
+- (void)observeValueForKeyPath:(nullable NSString *)aKeyPath
+                      ofObject:(nullable id)anObject
+                        change:(nullable NSDictionary<NSString*, id> *)aChange
+                       context:(nullable void *)aContext
 {
-    if (context == DownloadStoreProgressObserverContext)
+    if (aContext == DownloadStoreProgressObserverContext)
     {
-        NSProgress *progress = object; // == self.progress
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"totalDownloadProgressChanged" object:progress userInfo:nil];
+        NSProgress *aProgress = anObject; // == self.progress
+        if ([aKeyPath isEqualToString:@"fractionCompleted"])
+        {
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"totalDownloadProgressChanged" object:aProgress userInfo:nil];
+        }
+        else
+        {
+            NSLog(@"ERR: Invalid keyPath (%s, %d)", __FILE__, __LINE__);
+        }
     }
     else
     {
-        [super observeValueForKeyPath:keyPath ofObject:object
-                               change:change context:context];
+        [super observeValueForKeyPath:aKeyPath
+                             ofObject:anObject
+                               change:aChange
+                              context:aContext];
     }
 }
 
 
-#pragma mark - restart download
+#pragma mark - Restart Download
 
 
 - (void)restartDownload
@@ -327,7 +337,26 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
 }
 
 
-#pragma mark - network activity indicator
+#pragma mark - Resume Data
+
+
+- (void)onCancelledDownloadResumeDataNotification:(NSNotification *)aNotification
+{
+    NSData *aResumeData = (NSData *)aNotification.object;
+    NSDictionary *aUserInfo = aNotification.userInfo;
+    NSString *aDownloadIdentifier = (NSString *)[aUserInfo objectForKey:@"downloadIdentifier"];
+    if (aResumeData && (aDownloadIdentifier.length > 0))
+    {
+        NSMutableDictionary *aDownloadItemDict = [[self.downloadItemsDict objectForKey:aDownloadIdentifier] mutableCopy];
+        [aDownloadItemDict setObject:aResumeData forKey:@"ResumeData"];
+        [self.downloadItemsDict setObject:aDownloadItemDict forKey:aDownloadIdentifier];
+        [[NSUserDefaults standardUserDefaults] setObject:self.downloadItemsDict forKey:@"downloadItems"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }
+}
+
+
+#pragma mark - Network Activity Indicator
 
 
 - (void)toggleNetworkActivityIndicatorVisible:(BOOL)visible
