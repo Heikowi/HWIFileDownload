@@ -54,6 +54,7 @@
 @property (nonatomic, strong, readonly, nonnull) NSProgress *progress;
 @property (nonatomic, strong, readonly, nonnull) NSString *downloadToken;
 @property (nonatomic, assign) BOOL isCancelled;
+@property (nonatomic, assign) BOOL isPaused;
 @property (nonatomic, assign) BOOL isInvalid;
 
 @property (nonatomic, strong, readonly, nullable) NSURLSessionDownloadTask *sessionDownloadTask;

@@ -65,6 +65,7 @@
         self.bytesPerSecondSpeed = 0;
         self.resumedFileSizeInBytes = 0;
         self.isCancelled = NO;
+        self.isPaused = NO;
         self.isInvalid = NO;
         
         self.progress = [[NSProgress alloc] initWithParent:[NSProgress currentProgress] userInfo:nil];
@@ -124,6 +125,7 @@
     [aDescriptionDict setObject:@(self.bytesPerSecondSpeed) forKey:@"bytesPerSecondSpeed"];
     [aDescriptionDict setObject:self.downloadToken forKey:@"downloadToken"];
     [aDescriptionDict setObject:@(self.isCancelled) forKey:@"isCancelled"];
+    [aDescriptionDict setObject:@(self.isPaused) forKey:@"isPaused"];
     [aDescriptionDict setObject:@(self.isInvalid) forKey:@"isInvalid"];
     [aDescriptionDict setObject:self.progress forKey:@"progress"];
     if (self.sessionDownloadTask)

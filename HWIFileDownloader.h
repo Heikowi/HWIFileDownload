@@ -41,9 +41,9 @@
 
 
 /**
- HWIFileDownloaderCancelResumeDataBlock is a block optionally called after cancelling a download.
+ HWIFileDownloaderPauseResumeDataBlock is a block optionally called after cancelling a download.
  */
-typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData * _Nullable aResumeData);
+typedef void (^HWIFileDownloaderPauseResumeDataBlock)(NSData * _Nullable aResumeData);
 
 
 /**
@@ -121,16 +121,24 @@ typedef void (^HWIFileDownloaderCancelResumeDataBlock)(NSData * _Nullable aResum
 /**
  Cancels the download of a download item.
  @param aDownloadIdentifier Download identifier of the download item.
- @remarks Convenience method, calls cancelDownloadWithIdentifier:resumeDataBlock: with nil as resumeDataBlock.
  */
 - (void)cancelDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier;
 
+
 /**
- Cancels the download of a download item.
+ Pauses the download of a download item.
  @param aDownloadIdentifier Download identifier of the download item.
- @param aResumeDataBlock Asynchronously called block with resume data.
+ @remarks Convenience method, calls pauseDownloadWithIdentifier:resumeDataBlock: with nil as resumeDataBlock.
  */
-- (void)cancelDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier resumeDataBlock:(nullable HWIFileDownloaderCancelResumeDataBlock)aResumeDataBlock;
+- (void)pauseDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier;
+
+
+/**
+ Pauses the download of a download item.
+ @param aDownloadIdentifier Download identifier of the download item.
+ @param aResumeDataBlock Asynchronously called block with resume data parameter.
+ */
+- (void)pauseDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier resumeDataBlock:(nullable HWIFileDownloaderPauseResumeDataBlock)aResumeDataBlock;
 
 
 #pragma mark - BackgroundSessionCompletionHandler

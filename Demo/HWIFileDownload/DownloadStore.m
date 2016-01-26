@@ -75,7 +75,7 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
         [self setupDownloadItems];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(restartDownload) name:@"restartDownload" object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onCancelledDownloadResumeDataNotification:) name:@"CancelledDownloadResumeDataNotification" object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onPausedDownloadResumeDataNotification:) name:@"PausedDownloadResumeDataNotification" object:nil];
         
     }
     return self;
@@ -141,7 +141,7 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
     [[NSUserDefaults standardUserDefaults] setObject:self.downloadItemsDict forKey:@"downloadItems"];
     [[NSUserDefaults standardUserDefaults] synchronize];
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"downloadDidComplete" object:aDownloadIdentifier userInfo:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"downloadDidComplete" object:aDownloadIdentifier];
 }
 
 
@@ -174,13 +174,13 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
         NSLog(@"ERR: %@ (%s, %d)", anError, __FILE__, __LINE__);
     }
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"downloadDidComplete" object:aDownloadIdentifier userInfo:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"downloadDidComplete" object:aDownloadIdentifier];
 }
 
 
 - (void)downloadProgressChangedForIdentifier:(nonnull NSString *)aDownloadIdentifier
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"downloadProgressChanged" object:aDownloadIdentifier userInfo:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"downloadProgressChanged" object:aDownloadIdentifier];
 }
 
 
@@ -262,7 +262,7 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
         NSProgress *aProgress = anObject; // == self.progress
         if ([aKeyPath isEqualToString:@"fractionCompleted"])
         {
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"totalDownloadProgressChanged" object:aProgress userInfo:nil];
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"totalDownloadProgressChanged" object:aProgress];
         }
         else
         {
@@ -300,47 +300,65 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
     for (NSString *aDownloadIdentifierString in self.sortedDownloadIdentifiersArray)
     {
         NSDictionary *aDownloadItemDict = [self.downloadItemsDict objectForKey:aDownloadIdentifierString];
-        NSString *aURLString = [aDownloadItemDict objectForKey:@"URL"];
-        if (aURLString.length > 0)
+        BOOL isCancelled = [[aDownloadItemDict objectForKey:@"isCancelled"] boolValue];
+        if (isCancelled == NO)
         {
-            NSURL *aURL = [NSURL URLWithString:aURLString];
-            if ([aURL.scheme isEqualToString:@"http"])
+            NSString *aURLString = [aDownloadItemDict objectForKey:@"URL"];
+            if (aURLString.length > 0)
             {
-                NSMutableDictionary *aDownloadItemDict = [[self.downloadItemsDict objectForKey:aDownloadIdentifierString] mutableCopy];
-                [aDownloadItemDict setObject:@(NO) forKey:@"didFail"];
-                [self.downloadItemsDict setObject:aDownloadItemDict forKey:aDownloadIdentifierString];
-                [[NSUserDefaults standardUserDefaults] setObject:self.downloadItemsDict forKey:@"downloadItems"];
-                [[NSUserDefaults standardUserDefaults] synchronize];
-                
-                AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-                BOOL isDownloading = [theAppDelegate.fileDownloader isDownloadingIdentifier:aDownloadIdentifierString];
-                if (isDownloading == NO)
+                NSURL *aURL = [NSURL URLWithString:aURLString];
+                if ([aURL.scheme isEqualToString:@"http"])
                 {
-                    // kick off individual download
-                    NSData *aResumeData = [aDownloadItemDict objectForKey:@"ResumeData"];
-                    if (aResumeData)
+                    NSMutableDictionary *aDownloadItemDict = [[self.downloadItemsDict objectForKey:aDownloadIdentifierString] mutableCopy];
+                    [aDownloadItemDict setObject:@(NO) forKey:@"didFail"];
+                    [self.downloadItemsDict setObject:aDownloadItemDict forKey:aDownloadIdentifierString];
+                    [[NSUserDefaults standardUserDefaults] setObject:self.downloadItemsDict forKey:@"downloadItems"];
+                    [[NSUserDefaults standardUserDefaults] synchronize];
+                    
+                    AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+                    BOOL isDownloading = [theAppDelegate.fileDownloader isDownloadingIdentifier:aDownloadIdentifierString];
+                    if (isDownloading == NO)
                     {
-                        [theAppDelegate.fileDownloader startDownloadWithDownloadIdentifier:aDownloadIdentifierString usingResumeData:aResumeData];
-                    }
-                    else
-                    {
-                        [theAppDelegate.fileDownloader startDownloadWithDownloadIdentifier:aDownloadIdentifierString fromRemoteURL:aURL];
+                        // kick off individual download
+                        NSData *aResumeData = [aDownloadItemDict objectForKey:@"ResumeData"];
+                        if (aResumeData)
+                        {
+                            [theAppDelegate.fileDownloader startDownloadWithDownloadIdentifier:aDownloadIdentifierString usingResumeData:aResumeData];
+                        }
+                        else
+                        {
+                            [theAppDelegate.fileDownloader startDownloadWithDownloadIdentifier:aDownloadIdentifierString fromRemoteURL:aURL];
+                        }
                     }
                 }
             }
-        }
-        else
-        {
-            NSLog(@"ERR: No URL (%s, %d)", __FILE__, __LINE__);
+            else
+            {
+                NSLog(@"ERR: No URL (%s, %d)", __FILE__, __LINE__);
+            }
         }
     }
 }
 
 
-#pragma mark - Resume Data
+
+#pragma mark - Cancel Download
 
 
-- (void)onCancelledDownloadResumeDataNotification:(NSNotification *)aNotification
+- (void)cancelDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifierString
+{
+    NSMutableDictionary *aDownloadItemDict = [[self.downloadItemsDict objectForKey:aDownloadIdentifierString] mutableCopy];
+    [aDownloadItemDict setObject:@(YES) forKey:@"isCancelled"];
+    [self.downloadItemsDict setObject:aDownloadItemDict forKey:aDownloadIdentifierString];
+    [[NSUserDefaults standardUserDefaults] setObject:self.downloadItemsDict forKey:@"downloadItems"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+
+#pragma mark - Resume Data (On Pause)
+
+
+- (void)onPausedDownloadResumeDataNotification:(NSNotification *)aNotification
 {
     NSData *aResumeData = (NSData *)aNotification.object;
     NSDictionary *aUserInfo = aNotification.userInfo;

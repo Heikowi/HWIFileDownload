@@ -47,6 +47,9 @@
 @property (nonatomic, strong, readonly, nonnull) NSArray *sortedDownloadIdentifiersArray;
 
 
+- (void)cancelDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifierString;
+
+
 - (void)restartDownload;
 
 @end
