@@ -64,7 +64,7 @@
         self.expectedFileSizeInBytes = 0;
         self.bytesPerSecondSpeed = 0;
         self.resumedFileSizeInBytes = 0;
-        self.status = HWIFileDownloadItemStatusStarted;
+        self.status = HWIFileDownloadItemStatusWaitingForDownload;
         
         self.progress = [[NSProgress alloc] initWithParent:[NSProgress currentProgress] userInfo:nil];
         if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)

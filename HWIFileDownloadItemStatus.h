@@ -34,7 +34,7 @@
 
 
 typedef NS_ENUM(NSUInteger, HWIFileDownloadItemStatus) {
-    HWIFileDownloadItemStatusStarted = 0,
+    HWIFileDownloadItemStatusWaitingForDownload = 0,
     HWIFileDownloadItemStatusRunning,
     HWIFileDownloadItemStatusFinished,
     HWIFileDownloadItemStatusPaused,

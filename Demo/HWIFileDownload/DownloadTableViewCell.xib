@@ -42,7 +42,7 @@
                             <constraint firstAttribute="width" constant="44" id="Dif-N7-5Lk"/>
                             <constraint firstAttribute="height" constant="44" id="bhG-GX-uj1"/>
                         </constraints>
-                        <fontDescription key="fontDescription" type="system" pointSize="40"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="22"/>
                         <state key="normal" title="||"/>
                     </button>
                     <button opaque="NO" tag="5" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="z7F-N1-WtB" userLabel="CancelButton">
