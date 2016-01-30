@@ -583,7 +583,7 @@
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadTask.taskIdentifier)];
     if (aDownloadItem)
     {
-        aDownloadItem.status = HWIFileDownloadItemStatusError;
+        aDownloadItem.status = HWIFileDownloadItemStatusFinished;
         NSURL *aLocalFileURL = nil;
         if ([self.fileDownloadDelegate respondsToSelector:@selector(localFileURLForIdentifier:remoteURL:)])
         {
@@ -676,6 +676,7 @@
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadTask.taskIdentifier)];
     if (aDownloadItem)
     {
+        aDownloadItem.status = HWIFileDownloadItemStatusRunning;
         if (aDownloadItem.downloadStartDate == nil)
         {
             aDownloadItem.downloadStartDate = [NSDate date];
@@ -699,6 +700,7 @@
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadTask.taskIdentifier)];
     if (aDownloadItem)
     {
+        aDownloadItem.status = HWIFileDownloadItemStatusRunning;
         aDownloadItem.resumedFileSizeInBytes = aFileOffset;
         aDownloadItem.downloadStartDate = [NSDate date];
         aDownloadItem.bytesPerSecondSpeed = 0;
@@ -847,6 +849,7 @@
                                             BOOL anIsValidDownloadFlag = [self.fileDownloadDelegate downloadIsValidForDownloadIdentifier:aFoundDownloadItem.downloadToken atLocalFileURL:aLocalFileURL];
                                             if (anIsValidDownloadFlag)
                                             {
+                                                aDownloadItem.status = HWIFileDownloadItemStatusFinished;
                                                 [anotherStrongSelf handleSuccessfulDownloadToLocalFileURL:aLocalFileURL downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aDownloadItem.downloadToken];
                                             }
                                             else
@@ -859,6 +862,7 @@
                                         }
                                         else
                                         {
+                                            aDownloadItem.status = HWIFileDownloadItemStatusFinished;
                                             [anotherStrongSelf handleSuccessfulDownloadToLocalFileURL:aLocalFileURL downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aDownloadItem.downloadToken];
                                         }
                                     }
@@ -882,6 +886,7 @@
         HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:aFoundDownloadID];
         if (aDownloadItem)
         {
+            aDownloadItem.status = HWIFileDownloadItemStatusRunning;
             if (aDownloadItem.downloadStartDate == nil)
             {
                 aDownloadItem.downloadStartDate = [NSDate date];
@@ -912,6 +917,7 @@
         HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:aFoundDownloadID];
         if (aDownloadItem)
         {
+            aDownloadItem.status = HWIFileDownloadItemStatusRunning;
             if (aDownloadItem.downloadStartDate == nil)
             {
                 aDownloadItem.downloadStartDate = [NSDate date];
