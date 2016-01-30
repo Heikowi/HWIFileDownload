@@ -31,6 +31,7 @@
 		ACA04C9E19DEA2E300604BBF /* DownloadTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloadTableViewController.m; sourceTree = "<group>"; };
 		ACB045BB19E186C000C3B34D /* HWIFileDownloadItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HWIFileDownloadItem.h; path = ../../HWIFileDownloadItem.h; sourceTree = "<group>"; };
 		ACB045BC19E186C000C3B34D /* HWIFileDownloadItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HWIFileDownloadItem.m; path = ../../HWIFileDownloadItem.m; sourceTree = "<group>"; };
+		ACB26D3A1C5CE1AB00BFED40 /* HWIFileDownloadItemStatus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HWIFileDownloadItemStatus.h; path = ../../HWIFileDownloadItemStatus.h; sourceTree = "<group>"; };
 		ACB9143A19DEF660006193A6 /* DownloadTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DownloadTableViewCell.xib; sourceTree = "<group>"; };
 		ACD1BCB819DEA7CD0066D4A7 /* HWIBackgroundSessionCompletionHandlerBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HWIBackgroundSessionCompletionHandlerBlock.h; path = ../../HWIBackgroundSessionCompletionHandlerBlock.h; sourceTree = "<group>"; };
 		ACD1BCB919DEA7CD0066D4A7 /* HWIFileDownloadDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HWIFileDownloadDelegate.h; path = ../../HWIFileDownloadDelegate.h; sourceTree = "<group>"; };
@@ -105,6 +106,7 @@
 				ACD1BCBB19DEA7CD0066D4A7 /* HWIFileDownloader.m */,
 				ACB045BB19E186C000C3B34D /* HWIFileDownloadItem.h */,
 				ACB045BC19E186C000C3B34D /* HWIFileDownloadItem.m */,
+				ACB26D3A1C5CE1AB00BFED40 /* HWIFileDownloadItemStatus.h */,
 				AC32704119EA848000ECCD98 /* HWIFileDownloadProgress.h */,
 				AC32704219EA848000ECCD98 /* HWIFileDownloadProgress.m */,
 			);

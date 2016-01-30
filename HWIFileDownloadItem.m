@@ -64,9 +64,7 @@
         self.expectedFileSizeInBytes = 0;
         self.bytesPerSecondSpeed = 0;
         self.resumedFileSizeInBytes = 0;
-        self.isCancelled = NO;
-        self.isPaused = NO;
-        self.isInvalid = NO;
+        self.status = HWIFileDownloadItemStatusStarted;
         
         self.progress = [[NSProgress alloc] initWithParent:[NSProgress currentProgress] userInfo:nil];
         if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
@@ -124,9 +122,7 @@
     [aDescriptionDict setObject:@(self.expectedFileSizeInBytes) forKey:@"expectedFileSizeInBytes"];
     [aDescriptionDict setObject:@(self.bytesPerSecondSpeed) forKey:@"bytesPerSecondSpeed"];
     [aDescriptionDict setObject:self.downloadToken forKey:@"downloadToken"];
-    [aDescriptionDict setObject:@(self.isCancelled) forKey:@"isCancelled"];
-    [aDescriptionDict setObject:@(self.isPaused) forKey:@"isPaused"];
-    [aDescriptionDict setObject:@(self.isInvalid) forKey:@"isInvalid"];
+    [aDescriptionDict setObject:@(self.status) forKey:@"status"];
     [aDescriptionDict setObject:self.progress forKey:@"progress"];
     if (self.sessionDownloadTask)
     {
