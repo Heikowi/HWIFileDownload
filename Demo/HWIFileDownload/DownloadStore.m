@@ -158,39 +158,36 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
                                error:(nonnull NSError *)anError
                           resumeData:(nullable NSData *)aResumeData
 {
-    if (aResumeData)
+    __block BOOL found = NO;
+    NSUInteger aFailedDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+        if ([[(DemoDownloadItem *)obj downloadIdentifier] isEqualToString:aDownloadIdentifier]) {
+            *stop = YES;
+            found = YES;
+            return YES;
+        }
+        return NO;
+    }];
+    if (found)
     {
-        __block BOOL found = NO;
-        NSUInteger aFailedDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-            if ([[(DemoDownloadItem *)obj downloadIdentifier] isEqualToString:aDownloadIdentifier]) {
-                *stop = YES;
-                found = YES;
-                return YES;
-            }
-            return NO;
-        }];
-        if (found)
+        DemoDownloadItem *aFailedDownloadItem = [self.downloadItemsArray objectAtIndex:aFailedDownloadItemIndex];
+        if (aFailedDownloadItem.status != DemoDownloadItemStatusPaused)
         {
-            DemoDownloadItem *aFailedDownloadItem = [self.downloadItemsArray objectAtIndex:aFailedDownloadItemIndex];
-            if (aFailedDownloadItem.status != DemoDownloadItemStatusPaused)
+            if ([anError.domain isEqualToString:NSURLErrorDomain] && (anError.code == NSURLErrorCancelled))
             {
-                if ([anError.domain isEqualToString:NSURLErrorDomain] && (anError.code == NSURLErrorCancelled))
-                {
-                    aFailedDownloadItem.status = DemoDownloadItemStatusCancelled;
-                }
-                else
-                {
-                    aFailedDownloadItem.status = DemoDownloadItemStatusError;
-                }
+                aFailedDownloadItem.status = DemoDownloadItemStatusCancelled;
             }
-            aFailedDownloadItem.resumeData = aResumeData;
-            [self.downloadItemsArray replaceObjectAtIndex:aFailedDownloadItemIndex withObject:aFailedDownloadItem];
-            [self storeDownloadItems];
+            else
+            {
+                aFailedDownloadItem.status = DemoDownloadItemStatusError;
+            }
         }
-        else
-        {
-            NSLog(@"ERR: Failed download item not found (id: %@), ", aDownloadIdentifier);
-        }
+        aFailedDownloadItem.resumeData = aResumeData;
+        [self.downloadItemsArray replaceObjectAtIndex:aFailedDownloadItemIndex withObject:aFailedDownloadItem];
+        [self storeDownloadItems];
+    }
+    else
+    {
+        NSLog(@"ERR: Failed download item not found (id: %@), ", aDownloadIdentifier);
     }
     if ([anError.domain isEqualToString:NSURLErrorDomain] && (anError.code == NSURLErrorCancelled))
     {

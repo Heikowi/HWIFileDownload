@@ -406,6 +406,8 @@
             anInfoTextLabel.text = @"Waiting for download";
             [aProgressView setHidden:NO];
             [anInfoTextLabel setHidden:NO];
+            [aPauseResumeDownloadButton setHidden:YES];
+            [aCancelDownloadButton setHidden:NO];
         }
         else
         {
@@ -442,6 +444,8 @@
         aFileNameLabel.text = [NSString stringWithFormat:@"%@", aDownloadItem.remoteURL.lastPathComponent];
         anInfoTextLabel.text = @"";
         [aProgressView setHidden:YES];
+        [aPauseResumeDownloadButton setHidden:YES];
+        [aCancelDownloadButton setHidden:YES];
         anInfoTextLabel.text = @"Completed";
     }
     else if (aDownloadItem.status == DemoDownloadItemStatusCancelled)
@@ -449,14 +453,14 @@
         [aProgressView setHidden:YES];
         [anInfoTextLabel setHidden:NO];
         [aPauseResumeDownloadButton setHidden:YES];
-        [aCancelDownloadButton setHidden:NO];
+        [aCancelDownloadButton setHidden:YES];
         anInfoTextLabel.text = @"Cancelled";
     }
     else if (aDownloadItem.status == DemoDownloadItemStatusPaused)
     {
         [aProgressView setHidden:NO];
         [anInfoTextLabel setHidden:NO];
-        [aPauseResumeDownloadButton setHidden:NO];
+        [aPauseResumeDownloadButton setHidden:YES];
         [aCancelDownloadButton setHidden:NO];
         anInfoTextLabel.text = @"Paused";
     }
