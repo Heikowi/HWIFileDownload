@@ -40,7 +40,6 @@
 #import "DownloadStore.h"
 #import "DemoDownloadItem.h"
 #import "HWIFileDownloader.h"
-#import "HWIFileDownloadItemStatus.h"
 
 
 @interface DownloadTableViewController ()

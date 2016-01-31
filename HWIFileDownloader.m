@@ -322,7 +322,6 @@
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadID)];
     if (aDownloadItem)
     {
-        aDownloadItem.status = HWIFileDownloadItemStatusPaused;
         aDownloadItem.progress.completedUnitCount = aDownloadItem.progress.totalUnitCount;
         if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
         {
@@ -417,7 +416,6 @@
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadID)];
     if (aDownloadItem)
     {
-        aDownloadItem.status = HWIFileDownloadItemStatusCancelled;
         aDownloadItem.progress.completedUnitCount = aDownloadItem.progress.totalUnitCount;
         if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
         {
@@ -493,7 +491,7 @@
     if (aDownloadID > -1)
     {
         HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadID)];
-        if (aDownloadItem && (aDownloadItem.status != HWIFileDownloadItemStatusPaused) && (aDownloadItem.status != HWIFileDownloadItemStatusError))
+        if (aDownloadItem)
         {
             isDownloading = YES;
         }
@@ -528,7 +526,7 @@
     if (aDownloadID > -1)
     {
         HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadID)];
-        if (aDownloadItem && (aDownloadItem.status != HWIFileDownloadItemStatusPaused) && (aDownloadItem.status != HWIFileDownloadItemStatusError) && (aDownloadItem.receivedFileSizeInBytes == 0))
+        if (aDownloadItem && (aDownloadItem.receivedFileSizeInBytes == 0))
         {
             isWaitingForDownload = YES;
         }
@@ -583,7 +581,6 @@
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadTask.taskIdentifier)];
     if (aDownloadItem)
     {
-        aDownloadItem.status = HWIFileDownloadItemStatusFinished;
         NSURL *aLocalFileURL = nil;
         if ([self.fileDownloadDelegate respondsToSelector:@selector(localFileURLForIdentifier:remoteURL:)])
         {
@@ -676,7 +673,6 @@
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadTask.taskIdentifier)];
     if (aDownloadItem)
     {
-        aDownloadItem.status = HWIFileDownloadItemStatusRunning;
         if (aDownloadItem.downloadStartDate == nil)
         {
             aDownloadItem.downloadStartDate = [NSDate date];
@@ -700,7 +696,6 @@
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadTask.taskIdentifier)];
     if (aDownloadItem)
     {
-        aDownloadItem.status = HWIFileDownloadItemStatusRunning;
         aDownloadItem.resumedFileSizeInBytes = aFileOffset;
         aDownloadItem.downloadStartDate = [NSDate date];
         aDownloadItem.bytesPerSecondSpeed = 0;
@@ -717,7 +712,6 @@
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadTask.taskIdentifier)];
     if (aDownloadItem)
     {
-        aDownloadItem.status = HWIFileDownloadItemStatusError;
         if (anError == nil)
         {
             anError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorUnknown userInfo:nil];
@@ -797,7 +791,6 @@
                             HWIFileDownloadItem *aFoundDownloadItem = [anotherStrongSelf.activeDownloadsDictionary objectForKey:aDownloadID];
                             if (aFoundDownloadItem)
                             {
-                                aDownloadItem.status = HWIFileDownloadItemStatusError;
                                 [anotherStrongSelf handleDownloadWithError:anError downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aFoundDownloadItem.downloadToken resumeData:nil];
                             }
                         });
@@ -829,7 +822,6 @@
                                 if (anError)
                                 {
                                     NSLog(@"ERR: Error on getting file size for item at %@: %@ (%s, %d)", aLocalFileURL, anError, __FILE__, __LINE__);
-                                    aDownloadItem.status = HWIFileDownloadItemStatusError;
                                     [anotherStrongSelf handleDownloadWithError:anError downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aFoundDownloadItem.downloadToken resumeData:nil];
                                 }
                                 else
@@ -839,7 +831,6 @@
                                     {
                                         NSError *aFileSizeZeroError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorZeroByteResource userInfo:nil];
                                         NSLog(@"ERR: Zero file size for item at %@: %@ (%s, %d)", aLocalFileURL, aFileSizeZeroError, __FILE__, __LINE__);
-                                        aDownloadItem.status = HWIFileDownloadItemStatusError;
                                         [anotherStrongSelf handleDownloadWithError:aFileSizeZeroError downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aFoundDownloadItem.downloadToken resumeData:nil];
                                     }
                                     else
@@ -849,20 +840,17 @@
                                             BOOL anIsValidDownloadFlag = [self.fileDownloadDelegate downloadIsValidForDownloadIdentifier:aFoundDownloadItem.downloadToken atLocalFileURL:aLocalFileURL];
                                             if (anIsValidDownloadFlag)
                                             {
-                                                aDownloadItem.status = HWIFileDownloadItemStatusFinished;
                                                 [anotherStrongSelf handleSuccessfulDownloadToLocalFileURL:aLocalFileURL downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aDownloadItem.downloadToken];
                                             }
                                             else
                                             {
                                                 NSLog(@"ERR: Download check failed for item at %@: %@ (%s, %d)", aLocalFileURL, anError, __FILE__, __LINE__);
                                                 NSError *aValidationError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCannotDecodeRawData userInfo:nil];
-                                                aDownloadItem.status = HWIFileDownloadItemStatusError;
                                                 [anotherStrongSelf handleDownloadWithError:aValidationError downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aFoundDownloadItem.downloadToken resumeData:nil];
                                             }
                                         }
                                         else
                                         {
-                                            aDownloadItem.status = HWIFileDownloadItemStatusFinished;
                                             [anotherStrongSelf handleSuccessfulDownloadToLocalFileURL:aLocalFileURL downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aDownloadItem.downloadToken];
                                         }
                                     }
@@ -886,7 +874,6 @@
         HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:aFoundDownloadID];
         if (aDownloadItem)
         {
-            aDownloadItem.status = HWIFileDownloadItemStatusRunning;
             if (aDownloadItem.downloadStartDate == nil)
             {
                 aDownloadItem.downloadStartDate = [NSDate date];
@@ -917,7 +904,6 @@
         HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:aFoundDownloadID];
         if (aDownloadItem)
         {
-            aDownloadItem.status = HWIFileDownloadItemStatusRunning;
             if (aDownloadItem.downloadStartDate == nil)
             {
                 aDownloadItem.downloadStartDate = [NSDate date];
@@ -982,7 +968,6 @@
         if (aDownloadItem)
         {
             NSLog(@"ERR: NSURLConnection failed with error: %@ (%s, %d)", anError, __FILE__, __LINE__);
-            aDownloadItem.status = HWIFileDownloadItemStatusError;
             [self handleDownloadWithError:anError downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aDownloadItem.downloadToken resumeData:nil];
         }
     }
@@ -1074,26 +1059,23 @@
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadID)];
     if (aDownloadItem)
     {
-        if ((aDownloadItem.status != HWIFileDownloadItemStatusPaused) && (aDownloadItem.status != HWIFileDownloadItemStatusError))
+        float aDownloadProgressFloat = 0.0;
+        if (aDownloadItem.expectedFileSizeInBytes > 0)
         {
-            float aDownloadProgressFloat = 0.0;
-            if (aDownloadItem.expectedFileSizeInBytes > 0)
-            {
-                aDownloadProgressFloat = (float)aDownloadItem.receivedFileSizeInBytes / (float)aDownloadItem.expectedFileSizeInBytes;
-            }
-            NSDictionary *aRemainingTimeDict = [HWIFileDownloader remainingTimeAndBytesPerSecondForDownloadItem:aDownloadItem];
-            if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
-            {
-                [aDownloadItem.progress setUserInfoObject:[aRemainingTimeDict objectForKey:@"remainingTime"] forKey:NSProgressEstimatedTimeRemainingKey];
-                [aDownloadItem.progress setUserInfoObject:[aRemainingTimeDict objectForKey:@"bytesPerSecondSpeed"] forKey:NSProgressThroughputKey];
-            }
-            aDownloadProgress = [[HWIFileDownloadProgress alloc] initWithDownloadProgress:aDownloadProgressFloat
-                                                                         expectedFileSize:aDownloadItem.expectedFileSizeInBytes
-                                                                         receivedFileSize:aDownloadItem.receivedFileSizeInBytes
-                                                                   estimatedRemainingTime:[[aRemainingTimeDict objectForKey:@"remainingTime"] doubleValue]
-                                                                      bytesPerSecondSpeed:[[aRemainingTimeDict objectForKey:@"bytesPerSecondSpeed"] unsignedIntegerValue]
-                                                                                 progress:aDownloadItem.progress];
+            aDownloadProgressFloat = (float)aDownloadItem.receivedFileSizeInBytes / (float)aDownloadItem.expectedFileSizeInBytes;
         }
+        NSDictionary *aRemainingTimeDict = [HWIFileDownloader remainingTimeAndBytesPerSecondForDownloadItem:aDownloadItem];
+        if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+        {
+            [aDownloadItem.progress setUserInfoObject:[aRemainingTimeDict objectForKey:@"remainingTime"] forKey:NSProgressEstimatedTimeRemainingKey];
+            [aDownloadItem.progress setUserInfoObject:[aRemainingTimeDict objectForKey:@"bytesPerSecondSpeed"] forKey:NSProgressThroughputKey];
+        }
+        aDownloadProgress = [[HWIFileDownloadProgress alloc] initWithDownloadProgress:aDownloadProgressFloat
+                                                                     expectedFileSize:aDownloadItem.expectedFileSizeInBytes
+                                                                     receivedFileSize:aDownloadItem.receivedFileSizeInBytes
+                                                               estimatedRemainingTime:[[aRemainingTimeDict objectForKey:@"remainingTime"] doubleValue]
+                                                                  bytesPerSecondSpeed:[[aRemainingTimeDict objectForKey:@"bytesPerSecondSpeed"] unsignedIntegerValue]
+                                                                             progress:aDownloadItem.progress];
     }
     return aDownloadProgress;
 }
@@ -1142,7 +1124,7 @@
 {
     NSTimeInterval aRemainingTimeInterval = 0.0;
     NSUInteger aBytesPerSecondsSpeed = 0;
-    if ((aDownloadItem.status != HWIFileDownloadItemStatusPaused) && (aDownloadItem.status != HWIFileDownloadItemStatusError) && (aDownloadItem.receivedFileSizeInBytes > 0) && (aDownloadItem.expectedFileSizeInBytes > 0))
+    if ((aDownloadItem.receivedFileSizeInBytes > 0) && (aDownloadItem.expectedFileSizeInBytes > 0))
     {
         float aSmoothingFactor = 0.8; // range 0.0 ... 1.0 (determines the weight of the current speed calculation in relation to the stored past speed value)
         NSTimeInterval aDownloadDurationUntilNow = [[NSDate date] timeIntervalSinceDate:aDownloadItem.downloadStartDate];
