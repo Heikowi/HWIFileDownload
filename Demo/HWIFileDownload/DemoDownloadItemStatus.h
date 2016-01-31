@@ -1,7 +1,8 @@
 /*
- * Project: HWIFileDownload
+ * Project: HWIFileDownload (Demo App)
  
- * File: HWIFileDownloadItemStatus.h
+ * Created by Heiko Wichmann (20160130)
+ * File: DemoDownloadItemStatus.h
  *
  */
 
@@ -33,14 +34,10 @@
  ***************************************************************************/
 
 
-/**
- HWIFileDownloadItemStatus is used internally by HWIFileDownloader.
- */
-typedef NS_ENUM(NSUInteger, HWIFileDownloadItemStatus) {
-    HWIFileDownloadItemStatusWaitingForDownload = 0,
-    HWIFileDownloadItemStatusRunning,
-    HWIFileDownloadItemStatusFinished,
-    HWIFileDownloadItemStatusPaused,
-    HWIFileDownloadItemStatusCancelled,
-    HWIFileDownloadItemStatusError
+typedef NS_ENUM(NSUInteger, DemoDownloadItemStatus) {
+    DemoDownloadItemStatusStarted = 0,
+    DemoDownloadItemStatusCompleted,
+    DemoDownloadItemStatusPaused,
+    DemoDownloadItemStatusCancelled,
+    DemoDownloadItemStatusError
 };

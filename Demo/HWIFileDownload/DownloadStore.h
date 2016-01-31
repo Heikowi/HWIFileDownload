@@ -39,15 +39,16 @@
 #import "HWIFileDownloadDelegate.h"
 
 
+@class DemoDownloadItem;
+
+
 @interface DownloadStore : NSObject<HWIFileDownloadDelegate>
 
 
-@property (nonatomic, strong, readonly, nonnull) NSMutableDictionary *downloadItemsDict;
-
-@property (nonatomic, strong, readonly, nonnull) NSArray *sortedDownloadIdentifiersArray;
+@property (nonatomic, strong, readonly, nonnull) NSMutableArray<DemoDownloadItem *> *downloadItemsArray;
 
 
-- (void)cancelDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifierString;
+- (void)cancelDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
 
 
 - (void)restartDownload;

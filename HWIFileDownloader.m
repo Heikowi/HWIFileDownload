@@ -345,8 +345,8 @@
             else
             {
                 NSLog(@"NSURLSessionDownloadTask cancelled (task not found): %@", aDownloadItem.downloadToken);
-                NSError *aCancelError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
-                [self handleDownloadWithError:aCancelError downloadID:aDownloadID downloadToken:aDownloadItem.downloadToken resumeData:nil];
+                NSError *aPauseError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+                [self handleDownloadWithError:aPauseError downloadID:aDownloadID downloadToken:aDownloadItem.downloadToken resumeData:nil];
             }
         }
         else
@@ -359,8 +359,8 @@
             else
             {
                 NSLog(@"NSURLConnection cancelled (connection not found): %@", aDownloadItem.downloadToken);
-                NSError *aCancelError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
-                [self handleDownloadWithError:aCancelError downloadID:aDownloadID downloadToken:aDownloadItem.downloadToken resumeData:nil];
+                NSError *aPauseError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+                [self handleDownloadWithError:aPauseError downloadID:aDownloadID downloadToken:aDownloadItem.downloadToken resumeData:nil];
             }
         }
     }
@@ -493,7 +493,7 @@
     if (aDownloadID > -1)
     {
         HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadID)];
-        if (aDownloadItem && (aDownloadItem.status != HWIFileDownloadItemStatusCancelled) && (aDownloadItem.status != HWIFileDownloadItemStatusPaused) && (aDownloadItem.status != HWIFileDownloadItemStatusError))
+        if (aDownloadItem && (aDownloadItem.status != HWIFileDownloadItemStatusPaused) && (aDownloadItem.status != HWIFileDownloadItemStatusError))
         {
             isDownloading = YES;
         }
@@ -528,7 +528,7 @@
     if (aDownloadID > -1)
     {
         HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadID)];
-        if (aDownloadItem && (aDownloadItem.status != HWIFileDownloadItemStatusCancelled) && (aDownloadItem.status != HWIFileDownloadItemStatusPaused) && (aDownloadItem.status != HWIFileDownloadItemStatusError) && (aDownloadItem.receivedFileSizeInBytes == 0))
+        if (aDownloadItem && (aDownloadItem.status != HWIFileDownloadItemStatusPaused) && (aDownloadItem.status != HWIFileDownloadItemStatusError) && (aDownloadItem.receivedFileSizeInBytes == 0))
         {
             isWaitingForDownload = YES;
         }
@@ -1074,7 +1074,7 @@
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadID)];
     if (aDownloadItem)
     {
-        if ((aDownloadItem.status != HWIFileDownloadItemStatusCancelled) && (aDownloadItem.status != HWIFileDownloadItemStatusPaused) && (aDownloadItem.status != HWIFileDownloadItemStatusError))
+        if ((aDownloadItem.status != HWIFileDownloadItemStatusPaused) && (aDownloadItem.status != HWIFileDownloadItemStatusError))
         {
             float aDownloadProgressFloat = 0.0;
             if (aDownloadItem.expectedFileSizeInBytes > 0)
@@ -1142,7 +1142,7 @@
 {
     NSTimeInterval aRemainingTimeInterval = 0.0;
     NSUInteger aBytesPerSecondsSpeed = 0;
-    if ((aDownloadItem.status != HWIFileDownloadItemStatusCancelled) && (aDownloadItem.status != HWIFileDownloadItemStatusPaused) && (aDownloadItem.status != HWIFileDownloadItemStatusError) && (aDownloadItem.receivedFileSizeInBytes > 0) && (aDownloadItem.expectedFileSizeInBytes > 0))
+    if ((aDownloadItem.status != HWIFileDownloadItemStatusPaused) && (aDownloadItem.status != HWIFileDownloadItemStatusError) && (aDownloadItem.receivedFileSizeInBytes > 0) && (aDownloadItem.expectedFileSizeInBytes > 0))
     {
         float aSmoothingFactor = 0.8; // range 0.0 ... 1.0 (determines the weight of the current speed calculation in relation to the stored past speed value)
         NSTimeInterval aDownloadDurationUntilNow = [[NSDate date] timeIntervalSinceDate:aDownloadItem.downloadStartDate];

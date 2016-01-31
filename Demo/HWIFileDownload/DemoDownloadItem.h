@@ -1,7 +1,8 @@
 /*
- * Project: HWIFileDownload
+ * Project: HWIFileDownload (Demo App)
  
- * File: HWIFileDownloadItemStatus.h
+ * Created by Heiko Wichmann (20160130)
+ * File: DemoDownloadItem.h
  *
  */
 
@@ -32,15 +33,27 @@
  
  ***************************************************************************/
 
+#import <Foundation/Foundation.h>
 
-/**
- HWIFileDownloadItemStatus is used internally by HWIFileDownloader.
- */
-typedef NS_ENUM(NSUInteger, HWIFileDownloadItemStatus) {
-    HWIFileDownloadItemStatusWaitingForDownload = 0,
-    HWIFileDownloadItemStatusRunning,
-    HWIFileDownloadItemStatusFinished,
-    HWIFileDownloadItemStatusPaused,
-    HWIFileDownloadItemStatusCancelled,
-    HWIFileDownloadItemStatusError
-};
+#import "DemoDownloadItemStatus.h"
+
+
+@interface DemoDownloadItem : NSObject
+
+
+- (nullable instancetype)initWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
+                                          remoteURL:(nonnull NSURL *)aRemoteURL;
+
+
+@property (nonatomic, strong, readonly, nonnull) NSString *downloadIdentifier;
+@property (nonatomic, strong, readonly, nonnull) NSURL *remoteURL;
+
+@property (nonatomic, strong, nullable) NSData *resumeData;
+@property (nonatomic, assign) DemoDownloadItemStatus status;
+
+
+- (nullable DemoDownloadItem *)init __attribute__((unavailable("use initWithDownloadIdentifier:remoteURL:")));
++ (nullable DemoDownloadItem *)new __attribute__((unavailable("use initWithDownloadIdentifier:remoteURL:")));
+
+
+@end

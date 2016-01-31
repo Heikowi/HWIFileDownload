@@ -36,6 +36,7 @@
 
 #import "DownloadStore.h"
 #import "AppDelegate.h"
+#import "DemoDownloadItem.h"
 #import "HWIFileDownloadDelegate.h"
 #import "HWIFileDownloader.h"
 
@@ -46,8 +47,7 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
 
 @interface DownloadStore()
 @property (nonatomic, assign) NSUInteger networkActivityIndicatorCount;
-@property (nonatomic, strong, readwrite, nonnull) NSMutableDictionary *downloadItemsDict;
-@property (nonatomic, strong, readwrite, nonnull) NSArray *sortedDownloadIdentifiersArray;
+@property (nonatomic, strong, readwrite, nonnull) NSMutableArray<DemoDownloadItem *> *downloadItemsArray;
 @property (nonatomic, strong, nonnull) NSProgress *progress;
 @end
 
@@ -84,34 +84,27 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
 
 - (void)setupDownloadItems
 {
-    // restore downloaded items
-    self.downloadItemsDict = [[[NSUserDefaults standardUserDefaults] objectForKey:@"downloadItems"] mutableCopy];
-    if (self.downloadItemsDict == nil)
-    {
-        self.downloadItemsDict = [NSMutableDictionary dictionary];
-    }
+    self.downloadItemsArray = [self restoredDownloadItems];
     
     // setup items to download
     for (NSUInteger num = 1; num < 11; num++)
     {
         NSString *aDownloadIdentifier = [NSString stringWithFormat:@"%@", @(num)];
-        NSDictionary *aDownloadItemDict = [self.downloadItemsDict objectForKey:aDownloadIdentifier];
-        if (aDownloadItemDict == nil)
+        NSArray *aFoundDownloadItemsArray = [self.downloadItemsArray filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(DemoDownloadItem *object, NSDictionary *bindings) {
+            BOOL aResult = NO;
+            if ([object.downloadIdentifier isEqualToString:aDownloadIdentifier])
+            {
+                aResult = YES;
+            }
+            return aResult;
+        }]];
+        if (aFoundDownloadItemsArray.count == 0)
         {
             NSURL *aRemoteURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://www.imagomat.de/testimages/%@.tiff", @(num)]];
-            aDownloadItemDict = @{@"URL" : aRemoteURL.absoluteString};
-            [self.downloadItemsDict setObject:aDownloadItemDict forKey:aDownloadIdentifier];
+            DemoDownloadItem *aDemoDownloadItem = [[DemoDownloadItem alloc] initWithDownloadIdentifier:aDownloadIdentifier remoteURL:aRemoteURL];
+            [self.downloadItemsArray addObject:aDemoDownloadItem];
         }
     };
-    
-    NSArray *aDownloadIdentifiersArray = [self.downloadItemsDict allKeys];
-    NSSortDescriptor *aDownloadIdentifiersSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:nil
-                                                                                         ascending:YES
-                                                                                        comparator:^(id obj1, id obj2)
-                                                            {
-                                                                return [obj1 compare:obj2 options:NSNumericSearch];
-                                                            }];
-    self.sortedDownloadIdentifiersArray = [aDownloadIdentifiersArray sortedArrayUsingDescriptors:@[aDownloadIdentifiersSortDescriptor]];
 }
 
 
@@ -124,6 +117,7 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
                               context:DownloadStoreProgressObserverContext];
     }
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"restartDownload" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PausedDownloadResumeDataNotification" object:nil];
 }
 
 
@@ -133,13 +127,28 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
 - (void)downloadDidCompleteWithIdentifier:(nonnull NSString *)aDownloadIdentifier
                              localFileURL:(nonnull NSURL *)aLocalFileURL
 {
-    NSLog(@"Download completed (id: %@)", aDownloadIdentifier);
-    
-    // store download item
-    NSDictionary *aDownloadItemDict = @{@"URL" : aLocalFileURL.absoluteString, @"didFail" : @(NO)};
-    [self.downloadItemsDict setObject:aDownloadItemDict forKey:aDownloadIdentifier];
-    [[NSUserDefaults standardUserDefaults] setObject:self.downloadItemsDict forKey:@"downloadItems"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    __block BOOL found = NO;
+    NSUInteger aCompletedDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+        if ([[(DemoDownloadItem *)obj downloadIdentifier] isEqualToString:aDownloadIdentifier]) {
+            *stop = YES;
+            found = YES;
+            return YES;
+        }
+        return NO;
+    }];
+    if (found)
+    {
+        NSLog(@"Download completed (id: %@)", aDownloadIdentifier);
+        
+        DemoDownloadItem *aCompletedDownloadItem = [self.downloadItemsArray objectAtIndex:aCompletedDownloadItemIndex];
+        aCompletedDownloadItem.status = DemoDownloadItemStatusCompleted;
+        [self.downloadItemsArray replaceObjectAtIndex:aCompletedDownloadItemIndex withObject:aCompletedDownloadItem];
+        [self storeDownloadItems];
+    }
+    else
+    {
+        NSLog(@"ERR: Completed download item not found (id: %@), ", aDownloadIdentifier);
+    }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:@"downloadDidComplete" object:aDownloadIdentifier];
 }
@@ -151,18 +160,36 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
 {
     if (aResumeData)
     {
-        NSMutableDictionary *aDownloadItemDict = [[self.downloadItemsDict objectForKey:aDownloadIdentifier] mutableCopy];
-        if (aDownloadItemDict)
+        __block BOOL found = NO;
+        NSUInteger aFailedDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+            if ([[(DemoDownloadItem *)obj downloadIdentifier] isEqualToString:aDownloadIdentifier]) {
+                *stop = YES;
+                found = YES;
+                return YES;
+            }
+            return NO;
+        }];
+        if (found)
         {
-            [aDownloadItemDict setObject:aResumeData forKey:@"ResumeData"];
-            [aDownloadItemDict setObject:@(YES) forKey:@"didFail"];
-            [self.downloadItemsDict setObject:aDownloadItemDict forKey:aDownloadIdentifier];
-            [[NSUserDefaults standardUserDefaults] setObject:self.downloadItemsDict forKey:@"downloadItems"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
+            DemoDownloadItem *aFailedDownloadItem = [self.downloadItemsArray objectAtIndex:aFailedDownloadItemIndex];
+            if (aFailedDownloadItem.status != DemoDownloadItemStatusPaused)
+            {
+                if ([anError.domain isEqualToString:NSURLErrorDomain] && (anError.code == NSURLErrorCancelled))
+                {
+                    aFailedDownloadItem.status = DemoDownloadItemStatusCancelled;
+                }
+                else
+                {
+                    aFailedDownloadItem.status = DemoDownloadItemStatusError;
+                }
+            }
+            aFailedDownloadItem.resumeData = aResumeData;
+            [self.downloadItemsArray replaceObjectAtIndex:aFailedDownloadItemIndex withObject:aFailedDownloadItem];
+            [self storeDownloadItems];
         }
         else
         {
-            NSLog(@"ERR: Download item dict not found for identifier: %@ (%s, %d)", aDownloadIdentifier, __FILE__, __LINE__);
+            NSLog(@"ERR: Failed download item not found (id: %@), ", aDownloadIdentifier);
         }
     }
     if ([anError.domain isEqualToString:NSURLErrorDomain] && (anError.code == NSURLErrorCancelled))
@@ -297,47 +324,30 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
                            context:DownloadStoreProgressObserverContext];
     }
     
-    for (NSString *aDownloadIdentifierString in self.sortedDownloadIdentifiersArray)
+    for (DemoDownloadItem *aDemoDownloadItem in self.downloadItemsArray)
     {
-        NSDictionary *aDownloadItemDict = [self.downloadItemsDict objectForKey:aDownloadIdentifierString];
-        BOOL isCancelled = [[aDownloadItemDict objectForKey:@"isCancelled"] boolValue];
-        if (isCancelled == NO)
+        if ((aDemoDownloadItem.status != DemoDownloadItemStatusCancelled) && (aDemoDownloadItem.status != DemoDownloadItemStatusCompleted))
         {
-            NSString *aURLString = [aDownloadItemDict objectForKey:@"URL"];
-            if (aURLString.length > 0)
+            aDemoDownloadItem.status = DemoDownloadItemStatusStarted;
+            
+            AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+            BOOL isDownloading = [theAppDelegate.fileDownloader isDownloadingIdentifier:aDemoDownloadItem.downloadIdentifier];
+            if (isDownloading == NO)
             {
-                NSURL *aURL = [NSURL URLWithString:aURLString];
-                if ([aURL.scheme isEqualToString:@"http"])
+                // kick off individual download
+                if (aDemoDownloadItem.resumeData.length > 0)
                 {
-                    NSMutableDictionary *aDownloadItemDict = [[self.downloadItemsDict objectForKey:aDownloadIdentifierString] mutableCopy];
-                    [aDownloadItemDict setObject:@(NO) forKey:@"didFail"];
-                    [self.downloadItemsDict setObject:aDownloadItemDict forKey:aDownloadIdentifierString];
-                    [[NSUserDefaults standardUserDefaults] setObject:self.downloadItemsDict forKey:@"downloadItems"];
-                    [[NSUserDefaults standardUserDefaults] synchronize];
-                    
-                    AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-                    BOOL isDownloading = [theAppDelegate.fileDownloader isDownloadingIdentifier:aDownloadIdentifierString];
-                    if (isDownloading == NO)
-                    {
-                        // kick off individual download
-                        NSData *aResumeData = [aDownloadItemDict objectForKey:@"ResumeData"];
-                        if (aResumeData)
-                        {
-                            [theAppDelegate.fileDownloader startDownloadWithDownloadIdentifier:aDownloadIdentifierString usingResumeData:aResumeData];
-                        }
-                        else
-                        {
-                            [theAppDelegate.fileDownloader startDownloadWithDownloadIdentifier:aDownloadIdentifierString fromRemoteURL:aURL];
-                        }
-                    }
+                    [theAppDelegate.fileDownloader startDownloadWithDownloadIdentifier:aDemoDownloadItem.downloadIdentifier usingResumeData:aDemoDownloadItem.resumeData];
                 }
-            }
-            else
-            {
-                NSLog(@"ERR: No URL (%s, %d)", __FILE__, __LINE__);
+                else
+                {
+                    [theAppDelegate.fileDownloader startDownloadWithDownloadIdentifier:aDemoDownloadItem.downloadIdentifier fromRemoteURL:aDemoDownloadItem.remoteURL];
+                }
             }
         }
     }
+    
+    [self storeDownloadItems];
 }
 
 
@@ -345,13 +355,28 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
 #pragma mark - Cancel Download
 
 
-- (void)cancelDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifierString
+- (void)cancelDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
 {
-    NSMutableDictionary *aDownloadItemDict = [[self.downloadItemsDict objectForKey:aDownloadIdentifierString] mutableCopy];
-    [aDownloadItemDict setObject:@(YES) forKey:@"isCancelled"];
-    [self.downloadItemsDict setObject:aDownloadItemDict forKey:aDownloadIdentifierString];
-    [[NSUserDefaults standardUserDefaults] setObject:self.downloadItemsDict forKey:@"downloadItems"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    __block BOOL found = NO;
+    NSUInteger aCompletedDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+        if ([[(DemoDownloadItem *)obj downloadIdentifier] isEqualToString:aDownloadIdentifier]) {
+            *stop = YES;
+            found = YES;
+            return YES;
+        }
+        return NO;
+    }];
+    if (found)
+    {
+        DemoDownloadItem *aCancelledDownloadItem = [self.downloadItemsArray objectAtIndex:aCompletedDownloadItemIndex];
+        aCancelledDownloadItem.status = DemoDownloadItemStatusCancelled;
+        [self.downloadItemsArray replaceObjectAtIndex:aCompletedDownloadItemIndex withObject:aCancelledDownloadItem];
+        [self storeDownloadItems];
+    }
+    else
+    {
+        NSLog(@"ERR: Cancelled download item not found (id: %@), ", aDownloadIdentifier);
+    }
 }
 
 
@@ -365,11 +390,27 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
     NSString *aDownloadIdentifier = (NSString *)[aUserInfo objectForKey:@"downloadIdentifier"];
     if (aResumeData && (aDownloadIdentifier.length > 0))
     {
-        NSMutableDictionary *aDownloadItemDict = [[self.downloadItemsDict objectForKey:aDownloadIdentifier] mutableCopy];
-        [aDownloadItemDict setObject:aResumeData forKey:@"ResumeData"];
-        [self.downloadItemsDict setObject:aDownloadItemDict forKey:aDownloadIdentifier];
-        [[NSUserDefaults standardUserDefaults] setObject:self.downloadItemsDict forKey:@"downloadItems"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
+        __block BOOL found = NO;
+        NSUInteger aPausedDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+            if ([[(DemoDownloadItem *)obj downloadIdentifier] isEqualToString:aDownloadIdentifier]) {
+                *stop = YES;
+                found = YES;
+                return YES;
+            }
+            return NO;
+        }];
+        if (found)
+        {
+            DemoDownloadItem *aPausedDownloadItem = [self.downloadItemsArray objectAtIndex:aPausedDownloadItemIndex];
+            aPausedDownloadItem.status = DemoDownloadItemStatusPaused;
+            aPausedDownloadItem.resumeData = aResumeData;
+            [self.downloadItemsArray replaceObjectAtIndex:aPausedDownloadItemIndex withObject:aPausedDownloadItem];
+            [self storeDownloadItems];
+        }
+        else
+        {
+            NSLog(@"ERR: Paused download item not found (id: %@), ", aDownloadIdentifier);
+        }
     }
 }
 
@@ -384,5 +425,37 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
     [UIApplication sharedApplication].networkActivityIndicatorVisible = (self.networkActivityIndicatorCount > 0);
 }
 
+
+#pragma mark - Persistence
+
+
+- (void)storeDownloadItems
+{
+    NSMutableArray *aDemoDownloadItemsArchiveArray = [NSMutableArray arrayWithCapacity:self.downloadItemsArray.count];
+    for (DemoDownloadItem *aDemoDownloadItem in self.downloadItemsArray) {
+        NSData *aDemoDownloadItemEncoded = [NSKeyedArchiver archivedDataWithRootObject:aDemoDownloadItem];
+        [aDemoDownloadItemsArchiveArray addObject:aDemoDownloadItemEncoded];
+    }
+    NSUserDefaults *userData = [NSUserDefaults standardUserDefaults];
+    [userData setObject:aDemoDownloadItemsArchiveArray forKey:@"downloadItems"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+
+- (NSMutableArray *)restoredDownloadItems
+{
+    NSMutableArray *aRestoredMutableDownloadItemsArray = [NSMutableArray array];
+    NSMutableArray *aRestoredMutableDataItemsArray = [[[NSUserDefaults standardUserDefaults] objectForKey:@"downloadItems"] mutableCopy];
+    if (aRestoredMutableDataItemsArray == nil)
+    {
+        aRestoredMutableDataItemsArray = [NSMutableArray array];
+    }
+    for (NSData *aDataItem in aRestoredMutableDataItemsArray)
+    {
+        DemoDownloadItem *aDemoDownloadItem = [NSKeyedUnarchiver unarchiveObjectWithData:aDataItem];
+        [aRestoredMutableDownloadItemsArray addObject:aDemoDownloadItem];
+    }
+    return aRestoredMutableDownloadItemsArray;
+}
 
 @end
