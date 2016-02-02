@@ -130,3 +130,7 @@ All files need to be added to the app project.
 
 See the sample code for advice on source code integration with the app delegate.
 
+### Font Awesome
+
+The demo app uses [Font Awesome](http://fontawesome.io "Font Awesome") for the pause, refresh and close button icons.
+
