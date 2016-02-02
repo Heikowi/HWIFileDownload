@@ -48,6 +48,9 @@
 @property (nonatomic, assign) NSInteger progressViewTag;
 @property (nonatomic, assign) NSInteger pauseResumeButtonTag;
 @property (nonatomic, assign) NSInteger cancelButtonTag;
+@property (nonatomic, strong) NSString *closeChar;
+@property (nonatomic, strong) NSString *pauseChar;
+@property (nonatomic, strong) NSString *refreshChar;
 
 @property (nonatomic, weak) UIProgressView *totalProgressView;
 @property (nonatomic, weak) UILabel *totalProgressLocalizedDescriptionLabel;
@@ -70,6 +73,10 @@
         self.progressViewTag = 3;
         self.pauseResumeButtonTag = 4;
         self.cancelButtonTag = 5;
+        
+        self.closeChar = @"\uf00d";
+        self.pauseChar = @"\uf04c";
+        self.refreshChar = @"\uf021";
         
         UIRefreshControl *aRefreshControl = [[UIRefreshControl alloc] init];
         [aRefreshControl addTarget:self action:@selector(onRefreshTable) forControlEvents:UIControlEventValueChanged];
@@ -125,6 +132,13 @@
     
     [aPauseResumeDownloadButton addTarget:self action:@selector(onPauseResumeIndividualDownload:) forControlEvents:UIControlEventTouchUpInside];
     [aCancelDownloadButton addTarget:self action:@selector(onCancelIndividualDownload:) forControlEvents:UIControlEventTouchUpInside];
+    
+    aPauseResumeDownloadButton.hidden = YES;
+    [aPauseResumeDownloadButton.titleLabel setFont:[UIFont fontWithName:@"FontAwesome" size:20.0]];
+    
+    aCancelDownloadButton.hidden = YES;
+    [aCancelDownloadButton.titleLabel setFont:[UIFont fontWithName:@"FontAwesome" size:20.0]];
+    [aCancelDownloadButton setTitle:self.closeChar forState:UIControlStateNormal];
     
     UILabel *anInfoTextLabel = (UILabel *)[aTableViewCell viewWithTag:self.infoTextLabelTag];
     if ([UIFont respondsToSelector:@selector(monospacedDigitSystemFontOfSize:weight:)])
@@ -199,6 +213,7 @@
 
 #pragma mark - Actions
 
+
 - (void)crash
 {
     NSArray *anArray = [NSArray array];
@@ -245,7 +260,15 @@
     AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
     DemoDownloadItem *aDownloadItem = [[theAppDelegate downloadStore].downloadItemsArray objectAtIndex:anIndexPath.row];
     
-    [self pauseResumeDownloadWithIdentifier:aDownloadItem.downloadIdentifier];
+    UIButton *aButton = (UIButton *)aSender;
+    if ([[aButton titleForState:UIControlStateNormal] isEqualToString:self.pauseChar])
+    {
+        [self pauseDownloadWithIdentifier:aDownloadItem.downloadIdentifier];
+    }
+    else if ([[aButton titleForState:UIControlStateNormal] isEqualToString:self.refreshChar])
+    {
+        [self resumeDownloadWithIdentifier:aDownloadItem.downloadIdentifier];
+    }
 }
 
 
@@ -272,7 +295,7 @@
 }
 
 
-- (void)pauseResumeDownloadWithIdentifier:(NSString *)aDownloadIdentifier
+- (void)pauseDownloadWithIdentifier:(NSString *)aDownloadIdentifier
 {
     AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
     BOOL isDownloading = [theAppDelegate.fileDownloader isDownloadingIdentifier:aDownloadIdentifier];
@@ -295,6 +318,13 @@
             }];
         }
     }
+}
+
+
+- (void)resumeDownloadWithIdentifier:(NSString *)aDownloadIdentifier
+{
+    AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+    [theAppDelegate.downloadStore restartDownloadWithDownloadIdentifier:aDownloadIdentifier];
 }
 
 
@@ -391,9 +421,6 @@
     
     AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
     
-    [aPauseResumeDownloadButton setHidden:YES];
-    [aCancelDownloadButton setHidden:YES];
-    
     UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
     
     if (aDownloadItem.status == DemoDownloadItemStatusStarted)
@@ -416,6 +443,7 @@
             {
                 [aProgressView setHidden:NO];
                 [anInfoTextLabel setHidden:NO];
+                [aPauseResumeDownloadButton setTitle:self.pauseChar forState:UIControlStateNormal];
                 [aPauseResumeDownloadButton setHidden:NO];
                 [aCancelDownloadButton setHidden:NO];
                 float aProgress = 0.0;
@@ -460,13 +488,16 @@
     {
         [aProgressView setHidden:NO];
         [anInfoTextLabel setHidden:NO];
-        [aPauseResumeDownloadButton setHidden:YES];
+        [aPauseResumeDownloadButton setHidden:NO];
+        [aPauseResumeDownloadButton setTitle:self.refreshChar forState:UIControlStateNormal];
         [aCancelDownloadButton setHidden:NO];
         anInfoTextLabel.text = @"Paused";
     }
     else if (aDownloadItem.status == DemoDownloadItemStatusError)
     {
         aProgressView.progress = 0.0;
+        [aPauseResumeDownloadButton setHidden:YES];
+        [aCancelDownloadButton setHidden:YES];
         anInfoTextLabel.text = @"Error";
     }
 }

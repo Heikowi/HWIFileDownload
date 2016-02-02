@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		AC1B2A471C5CF9A400AE5FFD /* DemoDownloadItem.m in Sources */ = {isa = PBXBuildFile; fileRef = AC1B2A461C5CF9A400AE5FFD /* DemoDownloadItem.m */; };
 		AC32704319EA848000ECCD98 /* HWIFileDownloadProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = AC32704219EA848000ECCD98 /* HWIFileDownloadProgress.m */; };
+		AC81B1A41C5F3BF300D722A6 /* FontAwesome.otf in Resources */ = {isa = PBXBuildFile; fileRef = AC81B1A31C5F3BF300D722A6 /* FontAwesome.otf */; };
 		ACA04C9919DEA2E300604BBF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = ACA04C9819DEA2E300604BBF /* main.m */; };
 		ACA04C9C19DEA2E300604BBF /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = ACA04C9B19DEA2E300604BBF /* AppDelegate.m */; };
 		ACA04C9F19DEA2E300604BBF /* DownloadTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = ACA04C9E19DEA2E300604BBF /* DownloadTableViewController.m */; };
@@ -26,6 +27,7 @@
 		AC1B2A481C5CFEFF00AE5FFD /* DemoDownloadItemStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoDownloadItemStatus.h; sourceTree = "<group>"; };
 		AC32704119EA848000ECCD98 /* HWIFileDownloadProgress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HWIFileDownloadProgress.h; path = ../../HWIFileDownloadProgress.h; sourceTree = "<group>"; };
 		AC32704219EA848000ECCD98 /* HWIFileDownloadProgress.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HWIFileDownloadProgress.m; path = ../../HWIFileDownloadProgress.m; sourceTree = "<group>"; };
+		AC81B1A31C5F3BF300D722A6 /* FontAwesome.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FontAwesome.otf; sourceTree = "<group>"; };
 		ACA04C9319DEA2E300604BBF /* HWIFileDownload.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HWIFileDownload.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ACA04C9719DEA2E300604BBF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ACA04C9819DEA2E300604BBF /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -95,6 +97,7 @@
 		ACA04C9619DEA2E300604BBF /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				AC81B1A31C5F3BF300D722A6 /* FontAwesome.otf */,
 				ACA04C9719DEA2E300604BBF /* Info.plist */,
 				ACA04C9819DEA2E300604BBF /* main.m */,
 				ACF88B6F1C42C1A000ACD0C7 /* LaunchScreen.storyboard */,
@@ -177,6 +180,7 @@
 			files = (
 				ACF88B721C438E3D00ACD0C7 /* AssetCatalog.xcassets in Resources */,
 				ACB9143B19DEF660006193A6 /* DownloadTableViewCell.xib in Resources */,
+				AC81B1A41C5F3BF300D722A6 /* FontAwesome.otf in Resources */,
 				ACF88B701C42C1A000ACD0C7 /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

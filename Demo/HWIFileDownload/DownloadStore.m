@@ -323,28 +323,65 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
     
     for (DemoDownloadItem *aDemoDownloadItem in self.downloadItemsArray)
     {
-        if ((aDemoDownloadItem.status != DemoDownloadItemStatusCancelled) && (aDemoDownloadItem.status != DemoDownloadItemStatusCompleted))
-        {
-            aDemoDownloadItem.status = DemoDownloadItemStatusStarted;
-            
-            AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-            BOOL isDownloading = [theAppDelegate.fileDownloader isDownloadingIdentifier:aDemoDownloadItem.downloadIdentifier];
-            if (isDownloading == NO)
-            {
-                // kick off individual download
-                if (aDemoDownloadItem.resumeData.length > 0)
-                {
-                    [theAppDelegate.fileDownloader startDownloadWithDownloadIdentifier:aDemoDownloadItem.downloadIdentifier usingResumeData:aDemoDownloadItem.resumeData];
-                }
-                else
-                {
-                    [theAppDelegate.fileDownloader startDownloadWithDownloadIdentifier:aDemoDownloadItem.downloadIdentifier fromRemoteURL:aDemoDownloadItem.remoteURL];
-                }
-            }
-        }
+        [self startDownloadWithDownloadItem:aDemoDownloadItem];
     }
     
     [self storeDownloadItems];
+}
+
+
+- (void)restartDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
+{
+    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+    {
+        [self.progress removeObserver:self forKeyPath:NSStringFromSelector(@selector(fractionCompleted))];
+    }
+    self.progress = [NSProgress progressWithTotalUnitCount:0];
+    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+    {
+        [self.progress addObserver:self
+                        forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
+                           options:NSKeyValueObservingOptionInitial
+                           context:DownloadStoreProgressObserverContext];
+    }
+    
+    NSArray *aFoundDownloadItemsArray = [self.downloadItemsArray filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(DemoDownloadItem *object, NSDictionary *bindings) {
+        BOOL aResult = NO;
+        if ([object.downloadIdentifier isEqualToString:aDownloadIdentifier])
+        {
+            aResult = YES;
+        }
+        return aResult;
+    }]];
+    if (aFoundDownloadItemsArray.count == 1)
+    {
+        DemoDownloadItem *aDemoDownloadItem = aFoundDownloadItemsArray.firstObject;
+        [self startDownloadWithDownloadItem:aDemoDownloadItem];
+    }
+}
+
+
+- (void)startDownloadWithDownloadItem:(DemoDownloadItem *)aDemoDownloadItem
+{
+    if ((aDemoDownloadItem.status != DemoDownloadItemStatusCancelled) && (aDemoDownloadItem.status != DemoDownloadItemStatusCompleted))
+    {
+        AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+        BOOL isDownloading = [theAppDelegate.fileDownloader isDownloadingIdentifier:aDemoDownloadItem.downloadIdentifier];
+        if (isDownloading == NO)
+        {
+            aDemoDownloadItem.status = DemoDownloadItemStatusStarted;
+            
+            // kick off individual download
+            if (aDemoDownloadItem.resumeData.length > 0)
+            {
+                [theAppDelegate.fileDownloader startDownloadWithDownloadIdentifier:aDemoDownloadItem.downloadIdentifier usingResumeData:aDemoDownloadItem.resumeData];
+            }
+            else
+            {
+                [theAppDelegate.fileDownloader startDownloadWithDownloadIdentifier:aDemoDownloadItem.downloadIdentifier fromRemoteURL:aDemoDownloadItem.remoteURL];
+            }
+        }
+    }
 }
 
 

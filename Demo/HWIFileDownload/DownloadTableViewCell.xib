@@ -42,8 +42,8 @@
                             <constraint firstAttribute="width" constant="44" id="Dif-N7-5Lk"/>
                             <constraint firstAttribute="height" constant="44" id="bhG-GX-uj1"/>
                         </constraints>
-                        <fontDescription key="fontDescription" type="system" pointSize="22"/>
-                        <state key="normal" title="||"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                        <state key="normal" title="1"/>
                     </button>
                     <button opaque="NO" tag="5" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="z7F-N1-WtB" userLabel="CancelButton">
                         <rect key="frame" x="268" y="45" width="44" height="44"/>
@@ -51,8 +51,8 @@
                             <constraint firstAttribute="height" constant="44" id="LMq-G3-8Up"/>
                             <constraint firstAttribute="width" constant="44" id="gC5-I3-CH5"/>
                         </constraints>
-                        <fontDescription key="fontDescription" type="system" pointSize="40"/>
-                        <state key="normal" title="×"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                        <state key="normal" title="2"/>
                     </button>
                 </subviews>
                 <constraints>

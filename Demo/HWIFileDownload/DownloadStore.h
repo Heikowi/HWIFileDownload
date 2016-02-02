@@ -53,4 +53,6 @@
 
 - (void)restartDownload;
 
+- (void)restartDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
+
 @end
