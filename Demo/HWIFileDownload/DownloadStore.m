@@ -218,8 +218,15 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
         DemoDownloadItem *aChangedDownloadItem = [self.downloadItemsArray objectAtIndex:aDownloadItemIndex];
         AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
         HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
-        aChangedDownloadItem.progress = aFileDownloadProgress;
-        
+        if (aFileDownloadProgress)
+        {
+            aChangedDownloadItem.progress = aFileDownloadProgress;
+            if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+            {
+                aChangedDownloadItem.progress.lastLocalizedDescription = aChangedDownloadItem.progress.nativeProgress.localizedDescription;
+                aChangedDownloadItem.progress.lastLocalizedAdditionalDescription = aChangedDownloadItem.progress.nativeProgress.localizedAdditionalDescription;
+            }
+        }
     }
     [[NSNotificationCenter defaultCenter] postNotificationName:@"downloadProgressChanged" object:aDownloadIdentifier];
 }

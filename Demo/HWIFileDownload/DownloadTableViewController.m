@@ -285,7 +285,7 @@
         if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
         {
             HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
-            [aFileDownloadProgress.progress cancel];
+            [aFileDownloadProgress.nativeProgress cancel];
         }
         else
         {
@@ -304,7 +304,7 @@
         if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
         {
             HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
-            [aFileDownloadProgress.progress pause];
+            [aFileDownloadProgress.nativeProgress pause];
         }
         else
         {
@@ -448,7 +448,7 @@
                 float aProgress = 0.0;
                 if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
                 {
-                    aProgress = aFileDownloadProgress.progress.fractionCompleted;
+                    aProgress = aFileDownloadProgress.nativeProgress.fractionCompleted;
                 }
                 else
                 {
@@ -457,7 +457,7 @@
                 aProgressView.progress = aProgress;
                 if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
                 {
-                    anInfoTextLabel.text = aFileDownloadProgress.progress.localizedAdditionalDescription;
+                    anInfoTextLabel.text = aFileDownloadProgress.nativeProgress.localizedAdditionalDescription;
                 }
                 else
                 {
@@ -488,7 +488,14 @@
         [aPauseResumeDownloadButton setTitle:self.refreshChar forState:UIControlStateNormal];
         [aCancelDownloadButton setHidden:NO];
         aProgressView.progress = aDownloadItem.progress.downloadProgress;
-        anInfoTextLabel.text = [DownloadTableViewController displayStringForRemainingTime:aDownloadItem.progress.estimatedRemainingTime];
+        if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+        {
+            anInfoTextLabel.text = aDownloadItem.progress.lastLocalizedAdditionalDescription;
+        }
+        else
+        {
+            anInfoTextLabel.text = [DownloadTableViewController displayStringForRemainingTime:aDownloadItem.progress.estimatedRemainingTime];
+        }
     }
     else if (aDownloadItem.status == DemoDownloadItemStatusError)
     {

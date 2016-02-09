@@ -41,7 +41,7 @@
 @property (nonatomic, assign, readwrite) int64_t receivedFileSize;
 @property (nonatomic, assign, readwrite) NSTimeInterval estimatedRemainingTime;
 @property (nonatomic, assign, readwrite) NSUInteger bytesPerSecondSpeed;
-@property (nonatomic, strong, readwrite, nonnull) NSProgress *progress;
+@property (nonatomic, strong, readwrite, nonnull) NSProgress *nativeProgress;
 @end
 
 
@@ -65,7 +65,7 @@
         self.receivedFileSize = aReceivedFileSize;
         self.estimatedRemainingTime = anEstimatedRemainingTime;
         self.bytesPerSecondSpeed = aBytesPerSecondSpeed;
-        self.progress = aProgress;
+        self.nativeProgress = aProgress;
     }
     return self;
 }
@@ -82,7 +82,15 @@
     [aDescriptionDict setObject:@(self.receivedFileSize) forKey:@"receivedFileSize"];
     [aDescriptionDict setObject:@(self.estimatedRemainingTime) forKey:@"estimatedRemainingTime"];
     [aDescriptionDict setObject:@(self.bytesPerSecondSpeed) forKey:@"bytesPerSecondSpeed"];
-    [aDescriptionDict setObject:self.progress forKey:@"progress"];
+    [aDescriptionDict setObject:self.nativeProgress forKey:@"nativeProgress"];
+    if (self.lastLocalizedDescription)
+    {
+        [aDescriptionDict setObject:self.lastLocalizedDescription forKey:@"lastLocalizedDescription"];
+    }
+    if (self.lastLocalizedAdditionalDescription)
+    {
+        [aDescriptionDict setObject:self.lastLocalizedAdditionalDescription forKey:@"lastLocalizedAdditionalDescription"];
+    }
     
     NSString *aDescriptionString = [NSString stringWithFormat:@"%@", aDescriptionDict];
     

@@ -80,8 +80,18 @@
  */
 @property (nonatomic, assign, readonly) NSUInteger bytesPerSecondSpeed;
 /**
+ Can be used to store the last localized description of the native progress.
+ @discussion You might want to store the last localized description before the native progress completes (e.g. with pause/cancel).
+ */
+@property (nonatomic, strong, readwrite, nullable) NSString *lastLocalizedDescription;
+/**
+ Can be used to store the last localized additional description of the native progress.
+ @discussion You might want to store the last localized description before the native progress completes (e.g. with pause/cancel).
+ */
+@property (nonatomic, strong, readwrite, nullable) NSString *lastLocalizedAdditionalDescription;
+/**
  Download progress (NSProgress).
  */
-@property (nonatomic, strong, readonly, nonnull) NSProgress *progress;
+@property (nonatomic, strong, readonly, nonnull) NSProgress *nativeProgress;
 
 @end
