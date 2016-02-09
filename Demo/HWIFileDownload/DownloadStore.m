@@ -204,6 +204,23 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
 
 - (void)downloadProgressChangedForIdentifier:(nonnull NSString *)aDownloadIdentifier
 {
+    __block BOOL found = NO;
+    NSUInteger aDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+        if ([[(DemoDownloadItem *)obj downloadIdentifier] isEqualToString:aDownloadIdentifier]) {
+            *stop = YES;
+            found = YES;
+            return YES;
+        }
+        return NO;
+    }];
+    if (found)
+    {
+        DemoDownloadItem *aChangedDownloadItem = [self.downloadItemsArray objectAtIndex:aDownloadItemIndex];
+        AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+        HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
+        aChangedDownloadItem.progress = aFileDownloadProgress;
+        
+    }
     [[NSNotificationCenter defaultCenter] postNotificationName:@"downloadProgressChanged" object:aDownloadIdentifier];
 }
 

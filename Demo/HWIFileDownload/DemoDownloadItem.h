@@ -38,6 +38,9 @@
 #import "DemoDownloadItemStatus.h"
 
 
+@class HWIFileDownloadProgress;
+
+
 @interface DemoDownloadItem : NSObject
 
 
@@ -50,6 +53,8 @@
 
 @property (nonatomic, strong, nullable) NSData *resumeData;
 @property (nonatomic, assign) DemoDownloadItemStatus status;
+
+@property (nonatomic, strong, nullable) HWIFileDownloadProgress *progress;
 
 
 - (nullable DemoDownloadItem *)init __attribute__((unavailable("use initWithDownloadIdentifier:remoteURL:")));

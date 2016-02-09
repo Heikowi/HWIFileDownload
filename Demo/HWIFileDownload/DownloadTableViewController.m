@@ -423,16 +423,16 @@
     
     UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
     
+    aFileNameLabel.text = aDownloadItem.remoteURL.absoluteString;
+    
     if (aDownloadItem.status == DemoDownloadItemStatusStarted)
     {
-        aFileNameLabel.text = aDownloadItem.remoteURL.absoluteString;
         BOOL isWaitingForDownload = [theAppDelegate.fileDownloader isWaitingForDownloadOfIdentifier:aDownloadItem.downloadIdentifier];
         if (isWaitingForDownload)
         {
             aProgressView.progress = 0.0;
             anInfoTextLabel.text = @"Waiting for download";
             [aProgressView setHidden:NO];
-            [anInfoTextLabel setHidden:NO];
             [aPauseResumeDownloadButton setHidden:YES];
             [aCancelDownloadButton setHidden:NO];
         }
@@ -442,7 +442,6 @@
             if (aFileDownloadProgress)
             {
                 [aProgressView setHidden:NO];
-                [anInfoTextLabel setHidden:NO];
                 [aPauseResumeDownloadButton setTitle:self.pauseChar forState:UIControlStateNormal];
                 [aPauseResumeDownloadButton setHidden:NO];
                 [aCancelDownloadButton setHidden:NO];
@@ -470,7 +469,6 @@
     else if (aDownloadItem.status == DemoDownloadItemStatusCompleted)
     {
         aFileNameLabel.text = [NSString stringWithFormat:@"%@", aDownloadItem.remoteURL.lastPathComponent];
-        anInfoTextLabel.text = @"";
         [aProgressView setHidden:YES];
         [aPauseResumeDownloadButton setHidden:YES];
         [aCancelDownloadButton setHidden:YES];
@@ -479,7 +477,6 @@
     else if (aDownloadItem.status == DemoDownloadItemStatusCancelled)
     {
         [aProgressView setHidden:YES];
-        [anInfoTextLabel setHidden:NO];
         [aPauseResumeDownloadButton setHidden:YES];
         [aCancelDownloadButton setHidden:YES];
         anInfoTextLabel.text = @"Cancelled";
@@ -487,11 +484,11 @@
     else if (aDownloadItem.status == DemoDownloadItemStatusPaused)
     {
         [aProgressView setHidden:NO];
-        [anInfoTextLabel setHidden:NO];
         [aPauseResumeDownloadButton setHidden:NO];
         [aPauseResumeDownloadButton setTitle:self.refreshChar forState:UIControlStateNormal];
         [aCancelDownloadButton setHidden:NO];
-        anInfoTextLabel.text = @"Paused";
+        aProgressView.progress = aDownloadItem.progress.downloadProgress;
+        anInfoTextLabel.text = [DownloadTableViewController displayStringForRemainingTime:aDownloadItem.progress.estimatedRemainingTime];
     }
     else if (aDownloadItem.status == DemoDownloadItemStatusError)
     {
