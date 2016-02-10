@@ -55,6 +55,7 @@
 @property (nonatomic, assign) DemoDownloadItemStatus status;
 
 @property (nonatomic, strong, nullable) HWIFileDownloadProgress *progress;
+@property (nonatomic, strong, nullable) NSError *downloadError;
 
 
 - (nullable DemoDownloadItem *)init __attribute__((unavailable("use initWithDownloadIdentifier:remoteURL:")));

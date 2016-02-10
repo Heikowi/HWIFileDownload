@@ -502,7 +502,14 @@
         aProgressView.progress = 0.0;
         [aPauseResumeDownloadButton setHidden:YES];
         [aCancelDownloadButton setHidden:YES];
-        anInfoTextLabel.text = @"Error";
+        if (aDownloadItem.downloadError)
+        {
+            anInfoTextLabel.text = aDownloadItem.downloadError.localizedDescription;
+        }
+        else
+        {
+            anInfoTextLabel.text = @"Error";
+        }
     }
 }
 

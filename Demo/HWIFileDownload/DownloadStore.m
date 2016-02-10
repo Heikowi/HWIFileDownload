@@ -179,6 +179,7 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
             else
             {
                 aFailedDownloadItem.status = DemoDownloadItemStatusError;
+                aFailedDownloadItem.downloadError = anError;
             }
         }
         aFailedDownloadItem.resumeData = aResumeData;
@@ -276,6 +277,16 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
         {
             if (aFileSize < 40000)
             {
+                NSError *anError = nil;
+                NSString *aString = [NSString stringWithContentsOfURL:aLocalFileURL encoding:NSUTF8StringEncoding error:&anError];
+                if (anError)
+                {
+                    NSLog(@"ERR: %@ (%s, %d)", anError, __FILE__, __LINE__);
+                }
+                else
+                {
+                    NSLog(@"Downloaded file content for download identifier %@: %@", aDownloadIdentifier, aString);
+                }
                 anIsValidFlag = NO;
             }
         }
