@@ -55,6 +55,7 @@
 @property (nonatomic, strong) NSString *errorChar;
 @property (nonatomic, strong) NSString *cancelledChar;
 
+@property (nonatomic, strong) UIView *headerView;
 @property (nonatomic, weak) UIProgressView *totalProgressView;
 @property (nonatomic, weak) UILabel *totalProgressLocalizedDescriptionLabel;
 
@@ -110,7 +111,7 @@
 {
     [super viewDidLoad];
     
-    self.tableView.rowHeight = 98.0;
+    self.tableView.rowHeight = 120.0;
     [self.tableView registerNib:[UINib nibWithNibName:@"DownloadTableViewCell" bundle:[NSBundle mainBundle]] forCellReuseIdentifier:@"DownloadTableViewCell"];
     self.title = @"Download";
     
@@ -180,39 +181,42 @@
 
 - (UIView *)tableView:(UITableView *)aTableView viewForHeaderInSection:(NSInteger)aSection
 {
-    UIView *aHeaderView = nil;
-    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+    if (self.headerView == nil)
     {
-        if (aSection == 0)
+        if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
         {
-            aHeaderView = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 20.0)];
-            [aHeaderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
-            [aHeaderView setBackgroundColor:[UIColor colorWithRed:(212.0 / 255.0) green:(212.0 / 255.0) blue:(212.0 / 255.0) alpha:1.0]];
-            // total progress view
-            UIProgressView *aProgressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
-            CGRect aProgressViewRect = aProgressView.frame;
-            aProgressViewRect.size.width = aHeaderView.frame.size.width;
-            [aProgressView setFrame:aProgressViewRect];
-            [aProgressView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
-            [aHeaderView addSubview:aProgressView];
-            self.totalProgressView = aProgressView;
-            // total progress localized description view
-            UILabel *aLocalizedDescriptionLabel = [[UILabel alloc] initWithFrame:CGRectMake(10.0, CGRectGetMaxY(self.totalProgressView.frame), aHeaderView.frame.size.width - 20.0, 14.0)];
-            if ([UIFont respondsToSelector:@selector(monospacedDigitSystemFontOfSize:weight:)])
+            if (aSection == 0)
             {
-                [aLocalizedDescriptionLabel setFont:[UIFont monospacedDigitSystemFontOfSize:10.0 weight:UIFontWeightRegular]];
+                UIView *aHeaderView = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 20.0)];
+                [aHeaderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+                [aHeaderView setBackgroundColor:[UIColor colorWithRed:(212.0 / 255.0) green:(212.0 / 255.0) blue:(212.0 / 255.0) alpha:1.0]];
+                // total progress view
+                UIProgressView *aProgressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
+                CGRect aProgressViewRect = aProgressView.frame;
+                aProgressViewRect.size.width = aHeaderView.frame.size.width;
+                [aProgressView setFrame:aProgressViewRect];
+                [aProgressView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+                [aHeaderView addSubview:aProgressView];
+                self.totalProgressView = aProgressView;
+                // total progress localized description view
+                UILabel *aLocalizedDescriptionLabel = [[UILabel alloc] initWithFrame:CGRectMake(10.0, CGRectGetMaxY(self.totalProgressView.frame), aHeaderView.frame.size.width - 20.0, 14.0)];
+                if ([UIFont respondsToSelector:@selector(monospacedDigitSystemFontOfSize:weight:)])
+                {
+                    [aLocalizedDescriptionLabel setFont:[UIFont monospacedDigitSystemFontOfSize:10.0 weight:UIFontWeightRegular]];
+                }
+                else
+                {
+                    [aLocalizedDescriptionLabel setFont:[UIFont systemFontOfSize:10.0]];
+                }
+                [aLocalizedDescriptionLabel setTextAlignment:NSTextAlignmentCenter];
+                [aLocalizedDescriptionLabel setAutoresizingMask:(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin)];
+                [aHeaderView addSubview:aLocalizedDescriptionLabel];
+                self.totalProgressLocalizedDescriptionLabel = aLocalizedDescriptionLabel;
+                self.headerView = aHeaderView;
             }
-            else
-            {
-                [aLocalizedDescriptionLabel setFont:[UIFont systemFontOfSize:10.0]];
-            }
-            [aLocalizedDescriptionLabel setTextAlignment:NSTextAlignmentCenter];
-            [aLocalizedDescriptionLabel setAutoresizingMask:(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin)];
-            [aHeaderView addSubview:aLocalizedDescriptionLabel];
-            self.totalProgressLocalizedDescriptionLabel = aLocalizedDescriptionLabel;
         }
     }
-    return aHeaderView;
+    return self.headerView;
 }
 
 
@@ -293,9 +297,26 @@
             [theAppDelegate.fileDownloader cancelDownloadWithIdentifier:aDownloadIdentifier];
         }
     }
-    
-    // app client bookkeeping
-    [theAppDelegate.downloadStore cancelDownloadWithDownloadIdentifier:aDownloadIdentifier];
+    else
+    {
+        // app client bookkeeping
+        [theAppDelegate.downloadStore cancelDownloadWithDownloadIdentifier:aDownloadIdentifier];
+        
+        __block BOOL found = NO;
+        NSUInteger aCompletedDownloadItemIndex = [[theAppDelegate downloadStore].downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+            if ([[(DemoDownloadItem *)obj downloadIdentifier] isEqualToString:aDownloadIdentifier]) {
+                *stop = YES;
+                found = YES;
+                return YES;
+            }
+            return NO;
+        }];
+        if (found)
+        {
+            NSIndexPath *anIndexPath = [NSIndexPath indexPathForRow:aCompletedDownloadItemIndex inSection:0];
+            [self.tableView reloadRowsAtIndexPaths:@[anIndexPath] withRowAnimation:UITableViewRowAnimationNone];
+        }
+    }
 }
 
 
@@ -353,11 +374,7 @@
     if (found)
     {
         NSIndexPath *anIndexPath = [NSIndexPath indexPathForRow:aCompletedDownloadItemIndex inSection:0];
-        UITableViewCell *aTableViewCell = [self.tableView cellForRowAtIndexPath:anIndexPath];
-        if (aTableViewCell)
-        {
-            [self prepareTableViewCell:aTableViewCell withDownloadItem:[[theAppDelegate downloadStore].downloadItemsArray objectAtIndex:aCompletedDownloadItemIndex]];
-        }
+        [self.tableView reloadRowsAtIndexPaths:@[anIndexPath] withRowAnimation:UITableViewRowAnimationNone];
     }
     else
     {
@@ -391,17 +408,7 @@
     // refresh progress display about four times per second
     if ((aLastProgressChangedUpdateDelta == 0.0) || (aLastProgressChangedUpdateDelta > 0.25))
     {
-        AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-        NSArray *aVisibleIndexPathsArray = [self.tableView indexPathsForVisibleRows];
-        for (NSIndexPath *anIndexPath in aVisibleIndexPathsArray)
-        {
-            DemoDownloadItem *aDownloadItem = [[theAppDelegate downloadStore].downloadItemsArray objectAtIndex:anIndexPath.row];
-            UITableViewCell *aTableViewCell = [self.tableView cellForRowAtIndexPath:anIndexPath];
-            if (aTableViewCell)
-            {
-                [self prepareTableViewCell:aTableViewCell withDownloadItem:aDownloadItem];
-            }
-        }
+        [self.tableView reloadData];
         self.lastProgressChangedUpdate = [NSDate date];
     }
 }
