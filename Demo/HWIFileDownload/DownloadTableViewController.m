@@ -283,10 +283,6 @@
     BOOL isDownloading = [theAppDelegate.fileDownloader isDownloadingIdentifier:aDownloadIdentifier];
     if (isDownloading)
     {
-        // app client bookkeeping
-        AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-        [theAppDelegate.downloadStore cancelDownloadWithDownloadIdentifier:aDownloadIdentifier];
-        
         if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
         {
             HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
@@ -297,6 +293,9 @@
             [theAppDelegate.fileDownloader cancelDownloadWithIdentifier:aDownloadIdentifier];
         }
     }
+    
+    // app client bookkeeping
+    [theAppDelegate.downloadStore cancelDownloadWithDownloadIdentifier:aDownloadIdentifier];
 }
 
 
