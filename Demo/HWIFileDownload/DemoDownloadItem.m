@@ -79,7 +79,7 @@
         self.downloadIdentifier = [aCoder decodeObjectForKey:@"downloadIdentifier"];
         self.remoteURL = [aCoder decodeObjectForKey:@"remoteURL"];
         self.status = [[aCoder decodeObjectForKey:@"status"] unsignedIntegerValue];
-        self.resumeData = [aCoder decodeObjectForKey:@"remumeData"];
+        self.resumeData = [aCoder decodeObjectForKey:@"resumeData"];
     }
     return self;
 }
