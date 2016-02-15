@@ -15,20 +15,25 @@
                 <rect key="frame" x="0.0" y="0.0" width="320" height="119"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <label opaque="NO" userInteractionEnabled="NO" tag="1" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="FileNameLabel" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="304" translatesAutoresizingMaskIntoConstraints="NO" id="PNF-eN-rTE" userLabel="FileNameLabel">
-                        <rect key="frame" x="8" y="4" width="304" height="30"/>
+                    <label opaque="NO" userInteractionEnabled="NO" tag="1" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="304" translatesAutoresizingMaskIntoConstraints="NO" id="PNF-eN-rTE" userLabel="FileNameLabel">
+                        <rect key="frame" x="8" y="4" width="304" height="32"/>
                         <constraints>
-                            <constraint firstAttribute="height" constant="30" id="VBS-oI-9zk"/>
+                            <constraint firstAttribute="height" constant="32" id="VBS-oI-9zk"/>
                         </constraints>
+                        <string key="text">FileNameLabel
+1</string>
                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <label opaque="NO" userInteractionEnabled="NO" tag="2" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Waiting for Download" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="304" translatesAutoresizingMaskIntoConstraints="NO" id="Gw6-iS-txV" userLabel="InfoTextLabel">
-                        <rect key="frame" x="8" y="41" width="304" height="30"/>
+                    <label opaque="NO" userInteractionEnabled="NO" tag="2" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="304" translatesAutoresizingMaskIntoConstraints="NO" id="Gw6-iS-txV" userLabel="InfoTextLabel">
+                        <rect key="frame" x="8" y="43" width="304" height="36"/>
                         <constraints>
-                            <constraint firstAttribute="height" constant="30" id="Mvm-cV-g43"/>
+                            <constraint firstAttribute="height" constant="36" id="Mvm-cV-g43"/>
                         </constraints>
+                        <string key="text">Waiting for Download
+1
+2</string>
                         <fontDescription key="fontDescription" type="system" pointSize="9"/>
                         <color key="textColor" red="0.34107389502762431" green="0.34107389502762431" blue="0.34107389502762431" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
