@@ -722,7 +722,7 @@
         }
         else
         {
-            NSLog(@"Task didCompleteWithError: %@ (%@) (%s, %d)", anError, anError.userInfo, __FILE__, __LINE__);
+            NSLog(@"Task didCompleteWithError: %@ (%s, %d)", anError, __FILE__, __LINE__);
         }
         
         NSData *aSessionDownloadTaskResumeData = [anError.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
