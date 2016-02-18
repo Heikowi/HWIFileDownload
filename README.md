@@ -132,5 +132,5 @@ See the sample code for advice on source code integration with the app delegate.
 
 ### Font Awesome
 
-The demo app uses [Font Awesome](http://fontawesome.io "Font Awesome") for the cancel, pause, resume, completed, error, and cancelled icons.
+The demo app uses [Font Awesome](http://fontawesome.io "Font Awesome") for the download, cancel, pause, resume, completed, error, and cancelled icons.
 

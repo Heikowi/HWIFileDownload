@@ -35,7 +35,8 @@
 
 
 typedef NS_ENUM(NSUInteger, DemoDownloadItemStatus) {
-    DemoDownloadItemStatusStarted = 0,
+    DemoDownloadItemStatusNotStarted = 0,
+    DemoDownloadItemStatusStarted,
     DemoDownloadItemStatusCompleted,
     DemoDownloadItemStatusPaused,
     DemoDownloadItemStatusCancelled,

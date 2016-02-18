@@ -362,7 +362,10 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
     
     for (DemoDownloadItem *aDemoDownloadItem in self.downloadItemsArray)
     {
-        [self startDownloadWithDownloadItem:aDemoDownloadItem];
+        if ((aDemoDownloadItem.status == DemoDownloadItemStatusPaused) || (aDemoDownloadItem.status == DemoDownloadItemStatusError))
+        {
+            [self startDownloadWithDownloadItem:aDemoDownloadItem];
+        }
     }
     
     [self storeDownloadItems];
@@ -400,7 +403,7 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
 }
 
 
-- (void)startDownloadWithDownloadItem:(DemoDownloadItem *)aDemoDownloadItem
+- (void)startDownloadWithDownloadItem:(nonnull DemoDownloadItem *)aDemoDownloadItem
 {
     if ((aDemoDownloadItem.status != DemoDownloadItemStatusCancelled) && (aDemoDownloadItem.status != DemoDownloadItemStatusCompleted))
     {
@@ -456,7 +459,7 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
 #pragma mark - Resume Data (On Pause)
 
 
-- (void)onPausedDownloadResumeDataNotification:(NSNotification *)aNotification
+- (void)onPausedDownloadResumeDataNotification:(nonnull NSNotification *)aNotification
 {
     NSData *aResumeData = (NSData *)aNotification.object;
     NSDictionary *aUserInfo = aNotification.userInfo;

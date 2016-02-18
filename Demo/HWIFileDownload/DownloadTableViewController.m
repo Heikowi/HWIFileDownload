@@ -47,7 +47,8 @@
 @property (nonatomic, assign) NSInteger infoTextLabelTag;
 @property (nonatomic, assign) NSInteger progressViewTag;
 @property (nonatomic, assign) NSInteger pauseOrResumeButtonTag;
-@property (nonatomic, assign) NSInteger cancelOrStateButtonTag;
+@property (nonatomic, assign) NSInteger downloadCancelOrStateButtonTag;
+@property (nonatomic, strong) NSString *downloadChar;
 @property (nonatomic, strong) NSString *cancelChar;
 @property (nonatomic, strong) NSString *pauseChar;
 @property (nonatomic, strong) NSString *resumeChar;
@@ -76,8 +77,9 @@
         self.infoTextLabelTag = 2;
         self.progressViewTag = 3;
         self.pauseOrResumeButtonTag = 4;
-        self.cancelOrStateButtonTag = 5;
+        self.downloadCancelOrStateButtonTag = 5;
         
+        self.downloadChar = @"\uf0ed"; // fa-cloud-download
         self.cancelChar = @"\uf00d"; // fa-times (Aliases: fa-remove, fa-close)
         self.pauseChar = @"\uf04c"; // fa-pause
         self.resumeChar = @"\uf021"; // fa-refresh
@@ -135,16 +137,10 @@
     UITableViewCell *aTableViewCell = [aTableView dequeueReusableCellWithIdentifier:@"DownloadTableViewCell" forIndexPath:anIndexPath];
     
     UIButton *aPauseOrResumeButton = (UIButton *)[aTableViewCell viewWithTag:self.pauseOrResumeButtonTag];
-    UIButton *aCancelOrStateButton = (UIButton *)[aTableViewCell viewWithTag:self.cancelOrStateButtonTag];
+    UIButton *aDownloadCancelOrStateButton = (UIButton *)[aTableViewCell viewWithTag:self.downloadCancelOrStateButtonTag];
     
-    [aPauseOrResumeButton addTarget:self action:@selector(onPauseResumeIndividualDownload:) forControlEvents:UIControlEventTouchUpInside];
-    [aCancelOrStateButton addTarget:self action:@selector(onCancelIndividualDownload:) forControlEvents:UIControlEventTouchUpInside];
-    
-    aPauseOrResumeButton.hidden = YES;
     [aPauseOrResumeButton.titleLabel setFont:[UIFont fontWithName:@"FontAwesome" size:20.0]];
-    
-    aCancelOrStateButton.hidden = YES;
-    [aCancelOrStateButton.titleLabel setFont:[UIFont fontWithName:@"FontAwesome" size:20.0]];
+    [aDownloadCancelOrStateButton.titleLabel setFont:[UIFont fontWithName:@"FontAwesome" size:20.0]];
     
     UILabel *anInfoTextLabel = (UILabel *)[aTableViewCell viewWithTag:self.infoTextLabelTag];
     if ([UIFont respondsToSelector:@selector(monospacedDigitSystemFontOfSize:weight:)])
@@ -231,6 +227,30 @@
 }
 
 
+- (void)onStartIndividualDownload:(id)aSender
+{
+    UITableViewCell *aTableViewCell = nil;
+    UIView *aCurrView = (UIView *)aSender;
+    while (aTableViewCell == nil)
+    {
+        UIView *aSuperView = [aCurrView superview];
+        if ([aSuperView isKindOfClass:[UITableViewCell class]])
+        {
+            aTableViewCell = (UITableViewCell *)aSuperView;
+        }
+        aCurrView = aSuperView;
+    }
+    NSIndexPath *anIndexPath = [self.tableView indexPathForCell:aTableViewCell];
+    if (anIndexPath)
+    {
+        AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+        DemoDownloadItem *aDownloadItem = [[theAppDelegate downloadStore].downloadItemsArray objectAtIndex:anIndexPath.row];
+        
+        [theAppDelegate.downloadStore startDownloadWithDownloadItem:aDownloadItem];
+    }
+}
+
+
 - (void)onCancelIndividualDownload:(id)aSender
 {
     UITableViewCell *aTableViewCell = nil;
@@ -245,10 +265,13 @@
         aCurrView = aSuperView;
     }
     NSIndexPath *anIndexPath = [self.tableView indexPathForCell:aTableViewCell];
-    AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-    DemoDownloadItem *aDownloadItem = [[theAppDelegate downloadStore].downloadItemsArray objectAtIndex:anIndexPath.row];
-    
-    [self cancelDownloadWithIdentifier:aDownloadItem.downloadIdentifier];
+    if (anIndexPath)
+    {
+        AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+        DemoDownloadItem *aDownloadItem = [[theAppDelegate downloadStore].downloadItemsArray objectAtIndex:anIndexPath.row];
+        
+        [self cancelDownloadWithIdentifier:aDownloadItem.downloadIdentifier];
+    }
 }
 
 
@@ -266,17 +289,20 @@
         aCurrView = aSuperView;
     }
     NSIndexPath *anIndexPath = [self.tableView indexPathForCell:aTableViewCell];
-    AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-    DemoDownloadItem *aDownloadItem = [[theAppDelegate downloadStore].downloadItemsArray objectAtIndex:anIndexPath.row];
-    
-    UIButton *aButton = (UIButton *)aSender;
-    if ([[aButton titleForState:UIControlStateNormal] isEqualToString:self.pauseChar])
+    if (anIndexPath)
     {
-        [self pauseDownloadWithIdentifier:aDownloadItem.downloadIdentifier];
-    }
-    else if ([[aButton titleForState:UIControlStateNormal] isEqualToString:self.resumeChar])
-    {
-        [self resumeDownloadWithIdentifier:aDownloadItem.downloadIdentifier];
+        AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+        DemoDownloadItem *aDownloadItem = [[theAppDelegate downloadStore].downloadItemsArray objectAtIndex:anIndexPath.row];
+        
+        UIButton *aButton = (UIButton *)aSender;
+        if ([[aButton titleForState:UIControlStateNormal] isEqualToString:self.pauseChar])
+        {
+            [self pauseDownloadWithIdentifier:aDownloadItem.downloadIdentifier];
+        }
+        else if ([[aButton titleForState:UIControlStateNormal] isEqualToString:self.resumeChar])
+        {
+            [self resumeDownloadWithIdentifier:aDownloadItem.downloadIdentifier];
+        }
     }
 }
 
@@ -429,14 +455,7 @@
     UILabel *anInfoTextLabel = (UILabel *)[aTableViewCell viewWithTag:self.infoTextLabelTag];
     
     UIButton *aPauseOrResumeButton = (UIButton *)[aTableViewCell viewWithTag:self.pauseOrResumeButtonTag];
-    UIButton *aCancelOrStateButton = (UIButton *)[aTableViewCell viewWithTag:self.cancelOrStateButtonTag];
-    
-    [aPauseOrResumeButton setTitle:self.pauseChar forState:UIControlStateNormal];
-    [aCancelOrStateButton setTitle:self.cancelChar forState:UIControlStateNormal];
-    
-    [aPauseOrResumeButton setHidden:YES];
-    [aCancelOrStateButton setHidden:YES];
-    [aCancelOrStateButton setEnabled:YES];
+    UIButton *aDownloadCancelOrStateButton = (UIButton *)[aTableViewCell viewWithTag:self.downloadCancelOrStateButtonTag];
     
     AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
     
@@ -445,14 +464,20 @@
     
     aFileNameLabel.text = aDownloadItem.remoteURL.absoluteString;
     
-    if (aDownloadItem.status == DemoDownloadItemStatusStarted)
+    [self prepareDownloadCancelOrStateButton:aDownloadCancelOrStateButton forDemoDownloadItemStatus:aDownloadItem.status];
+    [self preparePauseResumeButton:aPauseOrResumeButton forDemoDownloadItemStatus:aDownloadItem.status];
+    
+    if (aDownloadItem.status == DemoDownloadItemStatusNotStarted)
+    {
+        anInfoTextLabel.text = @"Not started";
+    }
+    else if (aDownloadItem.status == DemoDownloadItemStatusStarted)
     {
         BOOL isWaitingForDownload = [theAppDelegate.fileDownloader isWaitingForDownloadOfIdentifier:aDownloadItem.downloadIdentifier];
         if (isWaitingForDownload)
         {
             aProgressView.progress = 0.0;
             anInfoTextLabel.text = @"Waiting for download";
-            [aCancelOrStateButton setHidden:NO];
         }
         else
         {
@@ -460,7 +485,6 @@
             if (aFileDownloadProgress)
             {
                 [aProgressView setHidden:NO];
-                [aPauseOrResumeButton setHidden:NO];
                 float aProgress = 0.0;
                 if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
                 {
@@ -479,7 +503,6 @@
                 {
                     anInfoTextLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
                 }
-                [aCancelOrStateButton setHidden:NO];
             }
         }
     }
@@ -487,21 +510,9 @@
     {
         aFileNameLabel.text = [NSString stringWithFormat:@"%@", aDownloadItem.remoteURL.lastPathComponent];
         anInfoTextLabel.text = @"Completed";
-        [aCancelOrStateButton setHidden:NO];
-        [aCancelOrStateButton setEnabled:NO];
-        [aCancelOrStateButton setTitle:self.completedChar forState:UIControlStateNormal];
-    }
-    else if (aDownloadItem.status == DemoDownloadItemStatusCancelled)
-    {
-        anInfoTextLabel.text = @"Cancelled";
-        [aCancelOrStateButton setHidden:NO];
-        [aCancelOrStateButton setEnabled:NO];
-        [aCancelOrStateButton setTitle:self.cancelledChar forState:UIControlStateNormal];
     }
     else if (aDownloadItem.status == DemoDownloadItemStatusPaused)
     {
-        [aPauseOrResumeButton setHidden:NO];
-        [aPauseOrResumeButton setTitle:self.resumeChar forState:UIControlStateNormal];
         [aProgressView setHidden:NO];
         aProgressView.progress = aDownloadItem.progress.downloadProgress;
         if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
@@ -512,7 +523,10 @@
         {
             anInfoTextLabel.text = [DownloadTableViewController displayStringForRemainingTime:aDownloadItem.progress.estimatedRemainingTime];
         }
-        [aCancelOrStateButton setHidden:NO];
+    }
+    else if (aDownloadItem.status == DemoDownloadItemStatusCancelled)
+    {
+        anInfoTextLabel.text = @"Cancelled";
     }
     else if (aDownloadItem.status == DemoDownloadItemStatusError)
     {
@@ -524,9 +538,109 @@
         {
             anInfoTextLabel.text = @"Error";
         }
-        [aCancelOrStateButton setHidden:NO];
-        [aCancelOrStateButton setEnabled:NO];
-        [aCancelOrStateButton setTitle:self.errorChar forState:UIControlStateNormal];
+    }
+}
+
+
+- (void)prepareDownloadCancelOrStateButton:(UIButton *)aButton forDemoDownloadItemStatus:(DemoDownloadItemStatus)aStatus
+{
+    NSString *aButtonTitle = [aButton titleForState:UIControlStateNormal];
+    
+    switch (aStatus) {
+            
+        case DemoDownloadItemStatusNotStarted:
+            if ([aButtonTitle isEqualToString:self.downloadChar] == NO)
+            {
+                [aButton setEnabled:YES];
+                [aButton removeTarget:self action:nil forControlEvents:UIControlEventTouchUpInside];
+                [aButton addTarget:self action:@selector(onStartIndividualDownload:) forControlEvents:UIControlEventTouchUpInside];
+                [aButton setTitle:self.downloadChar forState:UIControlStateNormal];
+            }
+            break;
+            
+        case DemoDownloadItemStatusStarted:
+        case DemoDownloadItemStatusPaused:
+            if ([aButtonTitle isEqualToString:self.cancelChar] == NO)
+            {
+                [aButton setEnabled:YES];
+                [aButton removeTarget:self action:nil forControlEvents:UIControlEventTouchUpInside];
+                [aButton addTarget:self action:@selector(onCancelIndividualDownload:) forControlEvents:UIControlEventTouchUpInside];
+                [aButton setTitle:self.cancelChar forState:UIControlStateNormal];
+            }
+            break;
+            
+        case DemoDownloadItemStatusCompleted:
+            if ([aButtonTitle isEqualToString:self.completedChar] == NO)
+            {
+                [aButton setEnabled:NO];
+                [aButton setTitle:self.completedChar forState:UIControlStateNormal];
+            }
+            break;
+            
+        case DemoDownloadItemStatusCancelled:
+            if ([aButtonTitle isEqualToString:self.cancelledChar] == NO)
+            {
+                [aButton setEnabled:NO];
+                [aButton setTitle:self.cancelledChar forState:UIControlStateNormal];
+            }
+            break;
+            
+        case DemoDownloadItemStatusError:
+            if ([aButtonTitle isEqualToString:self.errorChar] == NO)
+            {
+                [aButton setEnabled:NO];
+                [aButton setTitle:self.errorChar forState:UIControlStateNormal];
+            }
+            break;
+            
+        default:
+            NSLog(@"ERR: Invalid status %@ (%s, %d)", @(aStatus), __FILE__, __LINE__);
+            break;
+    }
+}
+
+
+- (void)preparePauseResumeButton:(UIButton *)aButton forDemoDownloadItemStatus:(DemoDownloadItemStatus)aStatus
+{
+    switch (aStatus) {
+            
+        case DemoDownloadItemStatusStarted:
+        {
+            NSString *aButtonTitle = [aButton titleForState:UIControlStateNormal];
+            if ([aButtonTitle isEqualToString:self.pauseChar] == NO)
+            {
+                [aButton removeTarget:self action:nil forControlEvents:UIControlEventTouchUpInside];
+                [aButton addTarget:self action:@selector(onPauseResumeIndividualDownload:) forControlEvents:UIControlEventTouchUpInside];
+                [aButton setHidden:NO];
+                [aButton setTitle:self.pauseChar forState:UIControlStateNormal];
+            }
+        }
+            break;
+            
+        case DemoDownloadItemStatusPaused:
+        {
+            NSString *aButtonTitle = [aButton titleForState:UIControlStateNormal];
+            if ([aButtonTitle isEqualToString:self.resumeChar] == NO)
+            {
+                [aButton removeTarget:self action:nil forControlEvents:UIControlEventTouchUpInside];
+                [aButton addTarget:self action:@selector(onPauseResumeIndividualDownload:) forControlEvents:UIControlEventTouchUpInside];
+                [aButton setHidden:NO];
+                [aButton setTitle:self.resumeChar forState:UIControlStateNormal];
+            }
+        }
+            break;
+            
+        default:
+        {
+            NSString *aButtonTitle = [aButton titleForState:UIControlStateNormal];
+            if (aButtonTitle.length > 0)
+            {
+                [aButton setHidden:YES];
+                [aButton setTitle:@"" forState:UIControlStateNormal];
+            }
+        }
+            
+            break;
     }
 }
 

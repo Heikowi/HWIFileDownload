@@ -50,6 +50,8 @@
 
 - (void)cancelDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
 
+- (void)startDownloadWithDownloadItem:(nonnull DemoDownloadItem *)aDemoDownloadItem;
+
 
 - (void)restartDownload;
 

@@ -53,7 +53,7 @@
     {
         self.downloadIdentifier = aDownloadIdentifier;
         self.remoteURL = aRemoteURL;
-        self.status = DemoDownloadItemStatusStarted;
+        self.status = DemoDownloadItemStatusNotStarted;
     }
     return self;
 }
