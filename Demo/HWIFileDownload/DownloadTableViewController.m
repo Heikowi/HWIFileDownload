@@ -106,6 +106,10 @@
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"downloadDidComplete" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"downloadProgressChanged" object:nil];
+    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+    {
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:@"totalDownloadProgressChanged" object:nil];
+    }
 }
 
 
@@ -380,13 +384,13 @@
 
 - (void)onDownloadDidComplete:(NSNotification *)aNotification
 {
-    NSString *aDownloadIdentifier = (NSString *)aNotification.object;
+    DemoDownloadItem *aDownloadItem = (DemoDownloadItem *)aNotification.object;
     
     AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
     
     __block BOOL found = NO;
     NSUInteger aCompletedDownloadItemIndex = [[theAppDelegate downloadStore].downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        if ([[(DemoDownloadItem *)obj downloadIdentifier] isEqualToString:aDownloadIdentifier]) {
+        if ([[(DemoDownloadItem *)obj downloadIdentifier] isEqualToString:aDownloadItem.downloadIdentifier]) {
             *stop = YES;
             found = YES;
             return YES;
@@ -434,6 +438,9 @@
         self.lastProgressChangedUpdate = [NSDate date];
     }
 }
+
+
+#pragma mark - Table View
 
 
 - (void)onRefreshTable
