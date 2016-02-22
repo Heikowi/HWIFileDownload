@@ -74,7 +74,6 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
         
         [self setupDownloadItems];
         
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(restartDownload) name:@"restartDownload" object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onPausedDownloadResumeDataNotification:) name:@"PausedDownloadResumeDataNotification" object:nil];
         
     }
@@ -120,12 +119,17 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
                            forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
                               context:DownloadStoreProgressObserverContext];
     }
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"restartDownload" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PausedDownloadResumeDataNotification" object:nil];
 }
 
 
 #pragma mark - HWIFileDownloadDelegate
+
+
+- (void)downloaderSetupDidComplete
+{
+    [self restartDownload];
+}
 
 
 - (void)downloadDidCompleteWithIdentifier:(nonnull NSString *)aDownloadIdentifier

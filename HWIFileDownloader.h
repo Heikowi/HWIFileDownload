@@ -60,7 +60,7 @@ typedef void (^HWIFileDownloaderPauseResumeDataBlock)(NSData * _Nullable aResume
  @param aDelegate Delegate for salient download events.
  @return HWIFileDownloader.
  */
-- (nullable instancetype)initWithDelegate:(nullable NSObject<HWIFileDownloadDelegate>*)aDelegate;
+- (nullable instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate;
 
 /**
  Designated initializer.
@@ -68,7 +68,7 @@ typedef void (^HWIFileDownloaderPauseResumeDataBlock)(NSData * _Nullable aResume
  @param aMaxConcurrentFileDownloadsCount Maximum number of concurrent downloads. Default: no limit.
  @return HWIFileDownloader.
  */
-- (nullable HWIFileDownloader*)initWithDelegate:(nullable NSObject<HWIFileDownloadDelegate>*)aDelegate maxConcurrentDownloads:(NSInteger)aMaxConcurrentFileDownloadsCount;
+- (nullable HWIFileDownloader*)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate maxConcurrentDownloads:(NSInteger)aMaxConcurrentFileDownloadsCount;
 - (nullable HWIFileDownloader*)init __attribute__((unavailable("use initWithDelegate:maxConcurrentDownloads: or initWithDelegate:")));
 + (nullable HWIFileDownloader*)new __attribute__((unavailable("use initWithDelegate:maxConcurrentDownloads: or initWithDelegate:")));
 

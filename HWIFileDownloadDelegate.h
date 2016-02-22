@@ -75,6 +75,13 @@
 
 
 /**
+ Optionally called when the downloader did complete setup.
+ @discussion Initialization of HWIFileDownloader completes asynchronously.
+ */
+- (void)downloaderSetupDidComplete;
+
+
+/**
  Optionally called when the progress changed for a download item.
  @param aDownloadIdentifier Download identifier of the download item.
  @discussion Use HWIFileDownloader's downloadProgressForIdentifier: to access the current download progress of a download item at any time.

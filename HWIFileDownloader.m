@@ -58,13 +58,13 @@
 #pragma mark - Initialization
 
 
-- (nullable instancetype)initWithDelegate:(nullable NSObject<HWIFileDownloadDelegate>*)aDelegate
+- (nullable instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate
 {
     return [self initWithDelegate:aDelegate maxConcurrentDownloads:-1];
 }
 
 
-- (nullable instancetype)initWithDelegate:(nullable NSObject<HWIFileDownloadDelegate>*)aDelegate maxConcurrentDownloads:(NSInteger)aMaxConcurrentFileDownloadsCount
+- (nullable instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate maxConcurrentDownloads:(NSInteger)aMaxConcurrentFileDownloadsCount
 {
     self = [super init];
     if (self)
@@ -137,7 +137,10 @@
                         NSLog(@"ERR: Missing task description (%s, %d)", __FILE__, __LINE__);
                     }
                 }
-                [[NSNotificationCenter defaultCenter] postNotificationName:@"restartDownload" object:nil];
+                if ([self.fileDownloadDelegate respondsToSelector:@selector(downloaderSetupDidComplete)])
+                {
+                    [self.fileDownloadDelegate downloaderSetupDidComplete];
+                }
             }];
         }
         else
@@ -145,8 +148,11 @@
             self.downloadFileSerialWriterDispatchQueue = dispatch_queue_create([[NSString stringWithFormat:@"%@.downloadFileWriter", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"]] UTF8String], DISPATCH_QUEUE_SERIAL);
             
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                // restartDownload after init is complete
-                [[NSNotificationCenter defaultCenter] postNotificationName:@"restartDownload" object:nil];
+                // notify delegate after init is complete
+                if ([self.fileDownloadDelegate respondsToSelector:@selector(downloaderSetupDidComplete)])
+                {
+                    [self.fileDownloadDelegate downloaderSetupDidComplete];
+                }
             });
         }
     }
