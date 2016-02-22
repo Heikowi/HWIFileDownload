@@ -122,12 +122,6 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
 #pragma mark - HWIFileDownloadDelegate
 
 
-- (void)downloaderSetupDidComplete
-{
-    [self restartDownload];
-}
-
-
 - (void)downloadDidCompleteWithIdentifier:(nonnull NSString *)aDownloadIdentifier
                              localFileURL:(nonnull NSURL *)aLocalFileURL
 {

@@ -74,7 +74,7 @@
         {
             self.maxConcurrentFileDownloadsCount = aMaxConcurrentFileDownloadsCount;
         }
-    
+        
         self.fileDownloadDelegate = aDelegate;
         self.activeDownloadsDictionary = [NSMutableDictionary dictionary];
         self.waitingDownloadsArray = [NSMutableArray array];
@@ -103,60 +103,70 @@
             {
                 aBackgroundConfigObject.timeoutIntervalForResource = [self.fileDownloadDelegate resourceTimeoutInterval];
             }
-            self.backgroundSession = [NSURLSession sessionWithConfiguration:aBackgroundConfigObject delegate:self delegateQueue:[NSOperationQueue mainQueue]];
             
-            [self.backgroundSession getTasksWithCompletionHandler:^(NSArray *aDataTasksArray, NSArray *anUploadTasksArray, NSArray *aDownloadTasksArray) {
-                for (NSURLSessionDownloadTask *aDownloadTask in aDownloadTasksArray)
-                {
-                    NSString *aDownloadToken = [aDownloadTask.taskDescription copy];
-                    if (aDownloadToken)
-                    {
-                        NSProgress *aRootProgress = nil;
-                        if ([self.fileDownloadDelegate respondsToSelector:@selector(rootProgress)])
-                        {
-                            aRootProgress = [self.fileDownloadDelegate rootProgress];
-                        }
-                        aRootProgress.totalUnitCount++;
-                        [aRootProgress becomeCurrentWithPendingUnitCount:1];
-                        HWIFileDownloadItem *aDownloadItem = [[HWIFileDownloadItem alloc] initWithDownloadToken:aDownloadToken
-                                                                                            sessionDownloadTask:aDownloadTask
-                                                                                                  urlConnection:nil];
-                        [aRootProgress resignCurrent];
-                        [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadTask.taskIdentifier)];
-                        NSString *aDownloadToken = [aDownloadItem.downloadToken copy];
-                        [aDownloadItem.progress setPausingHandler:^{
-                            [self pauseDownloadAndPostResumeDataWithIdentifier:aDownloadToken];
-                        }];
-                        [aDownloadItem.progress setCancellationHandler:^{
-                            [self cancelDownloadWithIdentifier:aDownloadToken];
-                        }];
-                        [self.fileDownloadDelegate incrementNetworkActivityIndicatorActivityCount];
-                    }
-                    else
-                    {
-                        NSLog(@"ERR: Missing task description (%s, %d)", __FILE__, __LINE__);
-                    }
-                }
-                if ([self.fileDownloadDelegate respondsToSelector:@selector(downloaderSetupDidComplete)])
-                {
-                    [self.fileDownloadDelegate downloaderSetupDidComplete];
-                }
-            }];
+            self.backgroundSession = [NSURLSession sessionWithConfiguration:aBackgroundConfigObject
+                                                                   delegate:self
+                                                              delegateQueue:[NSOperationQueue mainQueue]];
         }
         else
         {
             self.downloadFileSerialWriterDispatchQueue = dispatch_queue_create([[NSString stringWithFormat:@"%@.downloadFileWriter", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"]] UTF8String], DISPATCH_QUEUE_SERIAL);
-            
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                // notify delegate after init is complete
-                if ([self.fileDownloadDelegate respondsToSelector:@selector(downloaderSetupDidComplete)])
-                {
-                    [self.fileDownloadDelegate downloaderSetupDidComplete];
-                }
-            });
         }
+        
     }
     return self;
+}
+
+
+- (void)setupWithCompletion:(nullable void (^)(void))aSetupCompletionBlock
+{
+    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+    {
+        [self.backgroundSession getTasksWithCompletionHandler:^(NSArray *aDataTasksArray, NSArray *anUploadTasksArray, NSArray *aDownloadTasksArray) {
+            for (NSURLSessionDownloadTask *aDownloadTask in aDownloadTasksArray)
+            {
+                NSString *aDownloadToken = [aDownloadTask.taskDescription copy];
+                if (aDownloadToken)
+                {
+                    NSProgress *aRootProgress = nil;
+                    if ([self.fileDownloadDelegate respondsToSelector:@selector(rootProgress)])
+                    {
+                        aRootProgress = [self.fileDownloadDelegate rootProgress];
+                    }
+                    aRootProgress.totalUnitCount++;
+                    [aRootProgress becomeCurrentWithPendingUnitCount:1];
+                    HWIFileDownloadItem *aDownloadItem = [[HWIFileDownloadItem alloc] initWithDownloadToken:aDownloadToken
+                                                                                        sessionDownloadTask:aDownloadTask
+                                                                                              urlConnection:nil];
+                    [aRootProgress resignCurrent];
+                    [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadTask.taskIdentifier)];
+                    NSString *aDownloadToken = [aDownloadItem.downloadToken copy];
+                    [aDownloadItem.progress setPausingHandler:^{
+                        [self pauseDownloadAndPostResumeDataWithIdentifier:aDownloadToken];
+                    }];
+                    [aDownloadItem.progress setCancellationHandler:^{
+                        [self cancelDownloadWithIdentifier:aDownloadToken];
+                    }];
+                    [self.fileDownloadDelegate incrementNetworkActivityIndicatorActivityCount];
+                }
+                else
+                {
+                    NSLog(@"ERR: Missing task description (%s, %d)", __FILE__, __LINE__);
+                }
+            }
+            if (aSetupCompletionBlock)
+            {
+                aSetupCompletionBlock();
+            }
+        }];
+    }
+    else
+    {
+        if (aSetupCompletionBlock)
+        {
+            aSetupCompletionBlock();
+        }
+    }
 }
 
 

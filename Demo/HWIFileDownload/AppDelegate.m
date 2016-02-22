@@ -54,6 +54,16 @@
 
 - (BOOL)application:(UIApplication *)anApplication didFinishLaunchingWithOptions:(nullable NSDictionary *)aLaunchOptionsDict
 {
+    self.backgroundTaskIdentifier = UIBackgroundTaskInvalid; // iOS 6
+    
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    
+    DownloadTableViewController *downloadTableViewController = [[DownloadTableViewController alloc] initWithStyle:UITableViewStylePlain];
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:downloadTableViewController];
+    [self.window setRootViewController:navigationController];
+    
+    [self.window makeKeyAndVisible];
+    
     
     // setup app download store
     self.downloadStore = [[DownloadStore alloc] init];
@@ -67,17 +77,10 @@
     {
         self.fileDownloader = [[HWIFileDownloader alloc] initWithDelegate:self.downloadStore maxConcurrentDownloads:1];
     }
+    [self.fileDownloader setupWithCompletion:^{
+        [self.downloadStore restartDownload];
+    }];
     
-    self.backgroundTaskIdentifier = UIBackgroundTaskInvalid; // iOS 6
-    
-    
-    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    
-    DownloadTableViewController *downloadTableViewController = [[DownloadTableViewController alloc] initWithStyle:UITableViewStylePlain];
-    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:downloadTableViewController];
-    [self.window setRootViewController:navigationController];
-    
-    [self.window makeKeyAndVisible];
     
     return YES;
 }

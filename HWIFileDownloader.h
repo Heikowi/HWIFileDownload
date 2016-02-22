@@ -73,6 +73,13 @@ typedef void (^HWIFileDownloaderPauseResumeDataBlock)(NSData * _Nullable aResume
 + (nullable HWIFileDownloader*)new __attribute__((unavailable("use initWithDelegate:maxConcurrentDownloads: or initWithDelegate:")));
 
 
+/**
+ Set up file downloader.
+ @param aSetupCompletionBlock Completion block to be called asynchronously after setup is finished.
+ */
+- (void)setupWithCompletion:(nullable void (^)(void))aSetupCompletionBlock;
+
+
 #pragma mark - Download
 
 
