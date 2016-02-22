@@ -378,11 +378,10 @@
     if (isDownloading)
     {
         [self pauseDownloadWithIdentifier:aDownloadIdentifier resumeDataBlock:^(NSData *aResumeData) {
-            if (aResumeData)
+            if ([self.fileDownloadDelegate respondsToSelector:@selector(downloadPausedWithIdentifier:resumeData:)])
             {
-                [[NSNotificationCenter defaultCenter] postNotificationName:@"PausedDownloadResumeDataNotification"
-                                                                    object:aResumeData
-                                                                  userInfo:@{@"downloadIdentifier" : aDownloadIdentifier}];
+                [self.fileDownloadDelegate downloadPausedWithIdentifier:aDownloadIdentifier
+                                                             resumeData:aResumeData];
             }
         }];
     }

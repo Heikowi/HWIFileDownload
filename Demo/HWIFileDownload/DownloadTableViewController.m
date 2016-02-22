@@ -360,12 +360,8 @@
         else
         {
             [theAppDelegate.fileDownloader pauseDownloadWithIdentifier:aDownloadIdentifier resumeDataBlock:^(NSData *aResumeData) {
-                if (aResumeData)
-                {
-                    [[NSNotificationCenter defaultCenter] postNotificationName:@"PausedDownloadResumeDataNotification"
-                                                                        object:aResumeData
-                                                                      userInfo:@{@"downloadIdentifier" : aDownloadIdentifier}];
-                }
+                [theAppDelegate.downloadStore downloadPausedWithIdentifier:aDownloadIdentifier
+                                                                resumeData:aResumeData];
             }];
         }
     }

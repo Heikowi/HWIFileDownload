@@ -90,6 +90,15 @@
 
 
 /**
+ Optionally called on a paused download.
+ @param aDownloadIdentifier Download identifier of the download item.
+ @param aResumeData Incompletely downloaded data that can be reused later if the download is started again.
+ */
+- (void)downloadPausedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
+                          resumeData:(nullable NSData *)aResumeData;
+
+
+/**
  Optionally called when the HWIFileDownloader needs to store the downloaded data for a download item.
  @param aDownloadIdentifier Download identifier of the download item.
  @param aRemoteURL Remote URL from where the data has been downloaded.

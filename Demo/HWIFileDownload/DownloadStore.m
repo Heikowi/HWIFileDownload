@@ -73,9 +73,6 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
         }
         
         [self setupDownloadItems];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onPausedDownloadResumeDataNotification:) name:@"PausedDownloadResumeDataNotification" object:nil];
-        
     }
     return self;
 }
@@ -119,7 +116,6 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
                            forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
                               context:DownloadStoreProgressObserverContext];
     }
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PausedDownloadResumeDataNotification" object:nil];
 }
 
 
@@ -208,6 +204,33 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:@"downloadDidComplete" object:aDownloadIdentifier];
+}
+
+
+- (void)downloadPausedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
+                          resumeData:(nullable NSData *)aResumeData
+{
+    __block BOOL found = NO;
+    NSUInteger aPausedDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+        if ([[(DemoDownloadItem *)obj downloadIdentifier] isEqualToString:aDownloadIdentifier]) {
+            *stop = YES;
+            found = YES;
+            return YES;
+        }
+        return NO;
+    }];
+    if (found)
+    {
+        DemoDownloadItem *aPausedDownloadItem = [self.downloadItemsArray objectAtIndex:aPausedDownloadItemIndex];
+        aPausedDownloadItem.status = DemoDownloadItemStatusPaused;
+        aPausedDownloadItem.resumeData = aResumeData;
+        [self.downloadItemsArray replaceObjectAtIndex:aPausedDownloadItemIndex withObject:aPausedDownloadItem];
+        [self storeDownloadItems];
+    }
+    else
+    {
+        NSLog(@"ERR: Paused download item not found (id: %@) (%s, %d)", aDownloadIdentifier, __FILE__, __LINE__);
+    }
 }
 
 
@@ -456,41 +479,6 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
     else
     {
         NSLog(@"ERR: Cancelled download item not found (id: %@) (%s, %d)", aDownloadIdentifier, __FILE__, __LINE__);
-    }
-}
-
-
-#pragma mark - Resume Data (On Pause)
-
-
-- (void)onPausedDownloadResumeDataNotification:(nonnull NSNotification *)aNotification
-{
-    NSData *aResumeData = (NSData *)aNotification.object;
-    NSDictionary *aUserInfo = aNotification.userInfo;
-    NSString *aDownloadIdentifier = (NSString *)[aUserInfo objectForKey:@"downloadIdentifier"];
-    if (aResumeData && (aDownloadIdentifier.length > 0))
-    {
-        __block BOOL found = NO;
-        NSUInteger aPausedDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-            if ([[(DemoDownloadItem *)obj downloadIdentifier] isEqualToString:aDownloadIdentifier]) {
-                *stop = YES;
-                found = YES;
-                return YES;
-            }
-            return NO;
-        }];
-        if (found)
-        {
-            DemoDownloadItem *aPausedDownloadItem = [self.downloadItemsArray objectAtIndex:aPausedDownloadItemIndex];
-            aPausedDownloadItem.status = DemoDownloadItemStatusPaused;
-            aPausedDownloadItem.resumeData = aResumeData;
-            [self.downloadItemsArray replaceObjectAtIndex:aPausedDownloadItemIndex withObject:aPausedDownloadItem];
-            [self storeDownloadItems];
-        }
-        else
-        {
-            NSLog(@"ERR: Paused download item not found (id: %@) (%s, %d)", aDownloadIdentifier, __FILE__, __LINE__);
-        }
     }
 }
 
