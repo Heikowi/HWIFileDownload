@@ -146,7 +146,7 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
     }];
     if (found)
     {
-        NSLog(@"Download completed (id: %@)", aDownloadIdentifier);
+        NSLog(@"INFO: Download completed (id: %@) (%s, %d)", aDownloadIdentifier, __FILE__, __LINE__);
         
         DemoDownloadItem *aCompletedDownloadItem = [self.downloadItemsArray objectAtIndex:aCompletedDownloadItemIndex];
         aCompletedDownloadItem.status = DemoDownloadItemStatusCompleted;
@@ -155,7 +155,7 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
     }
     else
     {
-        NSLog(@"ERR: Completed download item not found (id: %@), ", aDownloadIdentifier);
+        NSLog(@"ERR: Completed download item not found (id: %@) (%s, %d)", aDownloadIdentifier, __FILE__, __LINE__);
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:@"downloadDidComplete" object:aDownloadIdentifier];
@@ -196,11 +196,11 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
     }
     else
     {
-        NSLog(@"ERR: Failed download item not found (id: %@), ", aDownloadIdentifier);
+        NSLog(@"ERR: Failed download item not found (id: %@) (%s, %d)", aDownloadIdentifier, __FILE__, __LINE__);
     }
     if ([anError.domain isEqualToString:NSURLErrorDomain] && (anError.code == NSURLErrorCancelled))
     {
-        NSLog(@"Download cancelled - id: %@", aDownloadIdentifier);
+        NSLog(@"INFO: Download cancelled - id: %@ (%s, %d)", aDownloadIdentifier, __FILE__, __LINE__);
     }
     else
     {
@@ -293,7 +293,7 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
                 }
                 else
                 {
-                    NSLog(@"Downloaded file content for download identifier %@: %@", aDownloadIdentifier, aString);
+                    NSLog(@"INFO: Downloaded file content for download identifier %@: %@ (%s, %d)", aDownloadIdentifier, aString, __FILE__, __LINE__);
                 }
                 anIsValidFlag = NO;
             }
@@ -455,7 +455,7 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
     }
     else
     {
-        NSLog(@"ERR: Cancelled download item not found (id: %@), ", aDownloadIdentifier);
+        NSLog(@"ERR: Cancelled download item not found (id: %@) (%s, %d)", aDownloadIdentifier, __FILE__, __LINE__);
     }
 }
 
@@ -489,7 +489,7 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
         }
         else
         {
-            NSLog(@"ERR: Paused download item not found (id: %@), ", aDownloadIdentifier);
+            NSLog(@"ERR: Paused download item not found (id: %@) (%s, %d)", aDownloadIdentifier, __FILE__, __LINE__);
         }
     }
 }
@@ -501,7 +501,7 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
 - (void)toggleNetworkActivityIndicatorVisible:(BOOL)visible
 {
     visible ? self.networkActivityIndicatorCount++ : self.networkActivityIndicatorCount--;
-    NSLog(@"NetworkActivityIndicatorCount: %@", @(self.networkActivityIndicatorCount));
+    NSLog(@"INFO: NetworkActivityIndicatorCount: %@", @(self.networkActivityIndicatorCount));
     [UIApplication sharedApplication].networkActivityIndicatorVisible = (self.networkActivityIndicatorCount > 0);
 }
 

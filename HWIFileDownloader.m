@@ -349,7 +349,7 @@
             }
             else
             {
-                NSLog(@"NSURLSessionDownloadTask cancelled (task not found): %@", aDownloadItem.downloadToken);
+                NSLog(@"INFO: NSURLSessionDownloadTask cancelled (task not found): %@ (%s, %d)", aDownloadItem.downloadToken, __FILE__, __LINE__);
                 NSError *aPauseError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
                 [self handleDownloadWithError:aPauseError downloadID:aDownloadID downloadToken:aDownloadItem.downloadToken resumeData:nil];
             }
@@ -363,7 +363,7 @@
             }
             else
             {
-                NSLog(@"NSURLConnection cancelled (connection not found): %@", aDownloadItem.downloadToken);
+                NSLog(@"INFO: NSURLConnection cancelled (connection not found): %@ (%s, %d)", aDownloadItem.downloadToken, __FILE__, __LINE__);
                 NSError *aPauseError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
                 [self handleDownloadWithError:aPauseError downloadID:aDownloadID downloadToken:aDownloadItem.downloadToken resumeData:nil];
             }
@@ -434,7 +434,7 @@
             }
             else
             {
-                NSLog(@"NSURLSessionDownloadTask cancelled (task not found): %@", aDownloadItem.downloadToken);
+                NSLog(@"INFO: NSURLSessionDownloadTask cancelled (task not found): %@ (%s, %d)", aDownloadItem.downloadToken, __FILE__, __LINE__);
                 NSError *aCancelError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
                 [self handleDownloadWithError:aCancelError downloadID:aDownloadID downloadToken:aDownloadItem.downloadToken resumeData:nil];
             }
@@ -448,7 +448,7 @@
             }
             else
             {
-                NSLog(@"NSURLConnection cancelled (connection not found): %@", aDownloadItem.downloadToken);
+                NSLog(@"INFO: NSURLConnection cancelled (connection not found): %@ (%s, %d)", aDownloadItem.downloadToken, __FILE__, __LINE__);
                 NSError *aCancelError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
                 [self handleDownloadWithError:aCancelError downloadID:aDownloadID downloadToken:aDownloadItem.downloadToken resumeData:nil];
             }
@@ -478,7 +478,7 @@
             HWIFileDownloadItem *aFoundDownloadItem = [strongSelf.activeDownloadsDictionary objectForKey:@(aDownloadID)];
             if (aFoundDownloadItem)
             {
-                NSLog(@"NSURLConnection cancelled: %@", aFoundDownloadItem.downloadToken);
+                NSLog(@"INFO: NSURLConnection cancelled: %@", aFoundDownloadItem.downloadToken);
                 NSError *aCancelError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
                 [anotherStrongSelf handleDownloadWithError:aCancelError downloadID:aDownloadID downloadToken:aFoundDownloadItem.downloadToken resumeData:nil];
             }
@@ -705,7 +705,7 @@
         aDownloadItem.resumedFileSizeInBytes = aFileOffset;
         aDownloadItem.downloadStartDate = [NSDate date];
         aDownloadItem.bytesPerSecondSpeed = 0;
-        NSLog(@"Download (id: %@) resumed (offset: %@ bytes, expected: %@ bytes", aDownloadTask.taskDescription, @(aFileOffset), @(aTotalBytesExpectedCount));
+        NSLog(@"INFO: Download (id: %@) resumed (offset: %@ bytes, expected: %@ bytes", aDownloadTask.taskDescription, @(aFileOffset), @(aTotalBytesExpectedCount));
     }
 }
 
@@ -724,11 +724,11 @@
         }
         if (([anError.domain isEqualToString:NSURLErrorDomain]) && (anError.code == NSURLErrorCancelled))
         {
-            NSLog(@"Task cancelled: %@", aDownloadTask.taskDescription);
+            NSLog(@"INFO: Task cancelled: %@", aDownloadTask.taskDescription);
         }
         else
         {
-            NSLog(@"Task didCompleteWithError: %@ (%s, %d)", anError, __FILE__, __LINE__);
+            NSLog(@"INFO: Task didCompleteWithError: %@ (%s, %d)", anError, __FILE__, __LINE__);
         }
         
         NSData *aSessionDownloadTaskResumeData = [anError.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
@@ -850,7 +850,7 @@
                                             }
                                             else
                                             {
-                                                NSLog(@"ERR: Download check failed for item at %@: %@ (%s, %d)", aLocalFileURL, anError, __FILE__, __LINE__);
+                                                NSLog(@"WARN: Download check failed for item at %@: %@ (%s, %d)", aLocalFileURL, anError, __FILE__, __LINE__);
                                                 NSError *aValidationError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCannotDecodeRawData userInfo:nil];
                                                 [anotherStrongSelf handleDownloadWithError:aValidationError downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aFoundDownloadItem.downloadToken resumeData:nil];
                                             }

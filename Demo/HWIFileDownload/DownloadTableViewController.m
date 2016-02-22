@@ -404,7 +404,7 @@
     }
     else
     {
-        NSLog(@"Completed download item not found");
+        NSLog(@"WARN: Completed download item not found (%s, %d)", __FILE__, __LINE__);
     }
 }
 
