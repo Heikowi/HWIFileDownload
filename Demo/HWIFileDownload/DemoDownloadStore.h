@@ -2,7 +2,7 @@
  * Project: HWIFileDownload (Demo App)
  
  * Created by Heiko Wichmann (20141004)
- * File: DownloadStore.h
+ * File: DemoDownloadStore.h
  *
  */
 
@@ -42,7 +42,7 @@
 @class DemoDownloadItem;
 
 
-@interface DownloadStore : NSObject<HWIFileDownloadDelegate>
+@interface DemoDownloadStore : NSObject<HWIFileDownloadDelegate>
 
 
 @property (nonatomic, strong, readonly, nonnull) NSMutableArray<DemoDownloadItem *> *downloadItemsArray;

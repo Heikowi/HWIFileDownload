@@ -37,7 +37,7 @@
 #import <UIKit/UIKit.h>
 
 
-@class DownloadStore;
+@class DemoDownloadStore;
 @class HWIFileDownloader;
 
 
@@ -45,7 +45,7 @@
 
 @property (nullable, nonatomic, strong) UIWindow *window;
 
-@property (nonnull, nonatomic, strong, readonly) DownloadStore *downloadStore;
+@property (nonnull, nonatomic, strong, readonly) DemoDownloadStore *demoDownloadStore;
 
 @property (nonnull, nonatomic, strong, readonly) HWIFileDownloader *fileDownloader;
 

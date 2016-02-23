@@ -2,7 +2,7 @@
  * Project: HWIFileDownload (Demo App)
  
  * Created by Heiko Wichmann (20141004)
- * File: DownloadStore.m
+ * File: DemoDownloadStore.m
  *
  */
 
@@ -34,7 +34,7 @@
  ***************************************************************************/
 
 
-#import "DownloadStore.h"
+#import "DemoDownloadStore.h"
 #import "AppDelegate.h"
 #import "DemoDownloadItem.h"
 #import "HWIFileDownloadDelegate.h"
@@ -42,10 +42,10 @@
 
 #import <UIKit/UIKit.h>
 
-static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserverContext;
+static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgressObserverContext;
 
 
-@interface DownloadStore()
+@interface DemoDownloadStore()
 @property (nonatomic, assign) NSUInteger networkActivityIndicatorCount;
 @property (nonatomic, strong, readwrite, nonnull) NSMutableArray<DemoDownloadItem *> *downloadItemsArray;
 @property (nonatomic, strong, nonnull) NSProgress *progress;
@@ -53,10 +53,10 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
 
 
 
-@implementation DownloadStore
+@implementation DemoDownloadStore
 
 
-- (nullable DownloadStore *)init
+- (nullable DemoDownloadStore *)init
 {
     self = [super init];
     if (self)
@@ -69,7 +69,7 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
             [self.progress addObserver:self
                             forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
                                options:NSKeyValueObservingOptionInitial
-                               context:DownloadStoreProgressObserverContext];
+                               context:DemoDownloadStoreProgressObserverContext];
         }
         
         [self setupDownloadItems];
@@ -114,7 +114,7 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
     {
         [self.progress removeObserver:self
                            forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
-                              context:DownloadStoreProgressObserverContext];
+                              context:DemoDownloadStoreProgressObserverContext];
     }
 }
 
@@ -350,7 +350,7 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
                         change:(nullable NSDictionary<NSString*, id> *)aChange
                        context:(nullable void *)aContext
 {
-    if (aContext == DownloadStoreProgressObserverContext)
+    if (aContext == DemoDownloadStoreProgressObserverContext)
     {
         NSProgress *aProgress = anObject; // == self.progress
         if ([aKeyPath isEqualToString:@"fractionCompleted"])
@@ -387,7 +387,7 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
         [self.progress addObserver:self
                         forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
                            options:NSKeyValueObservingOptionInitial
-                           context:DownloadStoreProgressObserverContext];
+                           context:DemoDownloadStoreProgressObserverContext];
     }
     
     for (DemoDownloadItem *aDemoDownloadItem in self.downloadItemsArray)
@@ -414,7 +414,7 @@ static void *DownloadStoreProgressObserverContext = &DownloadStoreProgressObserv
         [self.progress addObserver:self
                         forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
                            options:NSKeyValueObservingOptionInitial
-                           context:DownloadStoreProgressObserverContext];
+                           context:DemoDownloadStoreProgressObserverContext];
     }
     
     NSArray *aFoundDownloadItemsArray = [self.downloadItemsArray filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(DemoDownloadItem *object, NSDictionary *bindings) {

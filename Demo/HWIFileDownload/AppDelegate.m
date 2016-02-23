@@ -38,11 +38,11 @@
 
 #import "DownloadTableViewController.h"
 #import "HWIFileDownloader.h"
-#import "DownloadStore.h"
+#import "DemoDownloadStore.h"
 
 
 @interface AppDelegate()
-@property (nonnull, nonatomic, strong, readwrite) DownloadStore *downloadStore;
+@property (nonnull, nonatomic, strong, readwrite) DemoDownloadStore *demoDownloadStore;
 @property (nonnull, nonatomic, strong, readwrite) HWIFileDownloader *fileDownloader;
 @property (nonatomic, assign) UIBackgroundTaskIdentifier backgroundTaskIdentifier; // iOS 6
 @end
@@ -66,19 +66,19 @@
     
     
     // setup app download store
-    self.downloadStore = [[DownloadStore alloc] init];
+    self.demoDownloadStore = [[DemoDownloadStore alloc] init];
     
     // setup downloader
     if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
     {
-        self.fileDownloader = [[HWIFileDownloader alloc] initWithDelegate:self.downloadStore];
+        self.fileDownloader = [[HWIFileDownloader alloc] initWithDelegate:self.demoDownloadStore];
     }
     else
     {
-        self.fileDownloader = [[HWIFileDownloader alloc] initWithDelegate:self.downloadStore maxConcurrentDownloads:1];
+        self.fileDownloader = [[HWIFileDownloader alloc] initWithDelegate:self.demoDownloadStore maxConcurrentDownloads:1];
     }
     [self.fileDownloader setupWithCompletion:^{
-        [self.downloadStore restartDownload];
+        [self.demoDownloadStore restartDownload];
     }];
     
     

@@ -16,7 +16,7 @@
 		ACB045BF19E186C000C3B34D /* HWIFileDownloadItem.m in Sources */ = {isa = PBXBuildFile; fileRef = ACB045BC19E186C000C3B34D /* HWIFileDownloadItem.m */; };
 		ACB9143B19DEF660006193A6 /* DownloadTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = ACB9143A19DEF660006193A6 /* DownloadTableViewCell.xib */; };
 		ACD1BCC519DEA7CD0066D4A7 /* HWIFileDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = ACD1BCBB19DEA7CD0066D4A7 /* HWIFileDownloader.m */; };
-		ACE9E18919DFFDE60058777C /* DownloadStore.m in Sources */ = {isa = PBXBuildFile; fileRef = ACE9E18819DFFDE60058777C /* DownloadStore.m */; };
+		ACE9E18919DFFDE60058777C /* DemoDownloadStore.m in Sources */ = {isa = PBXBuildFile; fileRef = ACE9E18819DFFDE60058777C /* DemoDownloadStore.m */; };
 		ACF88B701C42C1A000ACD0C7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ACF88B6F1C42C1A000ACD0C7 /* LaunchScreen.storyboard */; };
 		ACF88B721C438E3D00ACD0C7 /* AssetCatalog.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ACF88B711C438E3D00ACD0C7 /* AssetCatalog.xcassets */; };
 /* End PBXBuildFile section */
@@ -42,8 +42,8 @@
 		ACD1BCB919DEA7CD0066D4A7 /* HWIFileDownloadDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HWIFileDownloadDelegate.h; path = ../../HWIFileDownloadDelegate.h; sourceTree = "<group>"; };
 		ACD1BCBA19DEA7CD0066D4A7 /* HWIFileDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HWIFileDownloader.h; path = ../../HWIFileDownloader.h; sourceTree = "<group>"; };
 		ACD1BCBB19DEA7CD0066D4A7 /* HWIFileDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HWIFileDownloader.m; path = ../../HWIFileDownloader.m; sourceTree = "<group>"; };
-		ACE9E18719DFFDE60058777C /* DownloadStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadStore.h; sourceTree = "<group>"; };
-		ACE9E18819DFFDE60058777C /* DownloadStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadStore.m; sourceTree = "<group>"; };
+		ACE9E18719DFFDE60058777C /* DemoDownloadStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoDownloadStore.h; sourceTree = "<group>"; };
+		ACE9E18819DFFDE60058777C /* DemoDownloadStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoDownloadStore.m; sourceTree = "<group>"; };
 		ACF88B6F1C42C1A000ACD0C7 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		ACF88B711C438E3D00ACD0C7 /* AssetCatalog.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = AssetCatalog.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -81,8 +81,8 @@
 				ACD1BCB719DEA7BB0066D4A7 /* FileDownload */,
 				ACA04C9A19DEA2E300604BBF /* AppDelegate.h */,
 				ACA04C9B19DEA2E300604BBF /* AppDelegate.m */,
-				ACE9E18719DFFDE60058777C /* DownloadStore.h */,
-				ACE9E18819DFFDE60058777C /* DownloadStore.m */,
+				ACE9E18719DFFDE60058777C /* DemoDownloadStore.h */,
+				ACE9E18819DFFDE60058777C /* DemoDownloadStore.m */,
 				AC1B2A451C5CF9A400AE5FFD /* DemoDownloadItem.h */,
 				AC1B2A461C5CF9A400AE5FFD /* DemoDownloadItem.m */,
 				AC1B2A481C5CFEFF00AE5FFD /* DemoDownloadItemStatus.h */,
@@ -197,7 +197,7 @@
 				ACB045BF19E186C000C3B34D /* HWIFileDownloadItem.m in Sources */,
 				ACA04C9F19DEA2E300604BBF /* DownloadTableViewController.m in Sources */,
 				AC32704319EA848000ECCD98 /* HWIFileDownloadProgress.m in Sources */,
-				ACE9E18919DFFDE60058777C /* DownloadStore.m in Sources */,
+				ACE9E18919DFFDE60058777C /* DemoDownloadStore.m in Sources */,
 				ACA04C9919DEA2E300604BBF /* main.m in Sources */,
 				ACD1BCC519DEA7CD0066D4A7 /* HWIFileDownloader.m in Sources */,
 			);

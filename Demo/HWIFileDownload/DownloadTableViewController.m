@@ -37,7 +37,7 @@
 #import "DownloadTableViewController.h"
 
 #import "AppDelegate.h"
-#import "DownloadStore.h"
+#import "DemoDownloadStore.h"
 #import "DemoDownloadItem.h"
 #import "HWIFileDownloader.h"
 
@@ -132,7 +132,7 @@
 - (NSInteger)tableView:(UITableView *)aTableView numberOfRowsInSection:(NSInteger)aSection
 {
     AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-    return [theAppDelegate downloadStore].downloadItemsArray.count;
+    return [theAppDelegate demoDownloadStore].downloadItemsArray.count;
 }
 
 
@@ -157,7 +157,7 @@
     }
     
     AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-    DemoDownloadItem *aDownloadItem = [[theAppDelegate downloadStore].downloadItemsArray objectAtIndex:anIndexPath.row];
+    DemoDownloadItem *aDownloadItem = [[theAppDelegate demoDownloadStore].downloadItemsArray objectAtIndex:anIndexPath.row];
     
     [self prepareTableViewCell:aTableViewCell withDownloadItem:aDownloadItem];
     
@@ -248,9 +248,9 @@
     if (anIndexPath)
     {
         AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-        DemoDownloadItem *aDownloadItem = [[theAppDelegate downloadStore].downloadItemsArray objectAtIndex:anIndexPath.row];
+        DemoDownloadItem *aDownloadItem = [[theAppDelegate demoDownloadStore].downloadItemsArray objectAtIndex:anIndexPath.row];
         
-        [theAppDelegate.downloadStore startDownloadWithDownloadItem:aDownloadItem];
+        [theAppDelegate.demoDownloadStore startDownloadWithDownloadItem:aDownloadItem];
     }
 }
 
@@ -272,7 +272,7 @@
     if (anIndexPath)
     {
         AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-        DemoDownloadItem *aDownloadItem = [[theAppDelegate downloadStore].downloadItemsArray objectAtIndex:anIndexPath.row];
+        DemoDownloadItem *aDownloadItem = [[theAppDelegate demoDownloadStore].downloadItemsArray objectAtIndex:anIndexPath.row];
         
         [self cancelDownloadWithIdentifier:aDownloadItem.downloadIdentifier];
     }
@@ -296,7 +296,7 @@
     if (anIndexPath)
     {
         AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-        DemoDownloadItem *aDownloadItem = [[theAppDelegate downloadStore].downloadItemsArray objectAtIndex:anIndexPath.row];
+        DemoDownloadItem *aDownloadItem = [[theAppDelegate demoDownloadStore].downloadItemsArray objectAtIndex:anIndexPath.row];
         
         UIButton *aButton = (UIButton *)aSender;
         if ([[aButton titleForState:UIControlStateNormal] isEqualToString:self.pauseChar])
@@ -330,10 +330,10 @@
     else
     {
         // app client bookkeeping
-        [theAppDelegate.downloadStore cancelDownloadWithDownloadIdentifier:aDownloadIdentifier];
+        [theAppDelegate.demoDownloadStore cancelDownloadWithDownloadIdentifier:aDownloadIdentifier];
         
         __block BOOL found = NO;
-        NSUInteger aCompletedDownloadItemIndex = [[theAppDelegate downloadStore].downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+        NSUInteger aCompletedDownloadItemIndex = [[theAppDelegate demoDownloadStore].downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
             if ([[(DemoDownloadItem *)obj downloadIdentifier] isEqualToString:aDownloadIdentifier]) {
                 *stop = YES;
                 found = YES;
@@ -364,7 +364,7 @@
         else
         {
             [theAppDelegate.fileDownloader pauseDownloadWithIdentifier:aDownloadIdentifier resumeDataBlock:^(NSData *aResumeData) {
-                [theAppDelegate.downloadStore downloadPausedWithIdentifier:aDownloadIdentifier
+                [theAppDelegate.demoDownloadStore downloadPausedWithIdentifier:aDownloadIdentifier
                                                                 resumeData:aResumeData];
             }];
         }
@@ -375,7 +375,7 @@
 - (void)resumeDownloadWithIdentifier:(NSString *)aDownloadIdentifier
 {
     AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-    [theAppDelegate.downloadStore restartDownloadWithDownloadIdentifier:aDownloadIdentifier];
+    [theAppDelegate.demoDownloadStore restartDownloadWithDownloadIdentifier:aDownloadIdentifier];
 }
 
 
@@ -389,7 +389,7 @@
     AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
     
     __block BOOL found = NO;
-    NSUInteger aCompletedDownloadItemIndex = [[theAppDelegate downloadStore].downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+    NSUInteger aCompletedDownloadItemIndex = [[theAppDelegate demoDownloadStore].downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
         if ([[(DemoDownloadItem *)obj downloadIdentifier] isEqualToString:aDownloadItem.downloadIdentifier]) {
             *stop = YES;
             found = YES;
@@ -447,7 +447,7 @@
 {
     [self.refreshControl endRefreshing];
     AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
-    [theAppDelegate.downloadStore restartDownload];
+    [theAppDelegate.demoDownloadStore restartDownload];
     [self.tableView reloadData];
 }
 
