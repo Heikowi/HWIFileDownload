@@ -2,7 +2,7 @@
  * Project: HWIFileDownload (Demo App)
  
  * Created by Heiko Wichmann (20141003)
- * File: AppDelegate.m
+ * File: DemoAppDelegate.m
  *
  */
 
@@ -34,14 +34,14 @@
  ***************************************************************************/
 
 
-#import "AppDelegate.h"
+#import "DemoAppDelegate.h"
 
 #import "DemoDownloadTableViewController.h"
 #import "HWIFileDownloader.h"
 #import "DemoDownloadStore.h"
 
 
-@interface AppDelegate()
+@interface DemoAppDelegate()
 @property (nonnull, nonatomic, strong, readwrite) DemoDownloadStore *demoDownloadStore;
 @property (nonnull, nonatomic, strong, readwrite) HWIFileDownloader *fileDownloader;
 @property (nonatomic, assign) UIBackgroundTaskIdentifier backgroundTaskIdentifier; // iOS 6
@@ -49,7 +49,7 @@
 
 
 
-@implementation AppDelegate
+@implementation DemoAppDelegate
 
 
 - (BOOL)application:(UIApplication *)anApplication didFinishLaunchingWithOptions:(nullable NSDictionary *)aLaunchOptionsDict
@@ -114,7 +114,7 @@
         {
             if (self.backgroundTaskIdentifier == UIBackgroundTaskInvalid)
             {
-                __weak AppDelegate *weakSelf = self;
+                __weak DemoAppDelegate *weakSelf = self;
                 dispatch_block_t anExpirationHandler = ^{
                     [[UIApplication sharedApplication] endBackgroundTask:weakSelf.backgroundTaskIdentifier];
                     weakSelf.backgroundTaskIdentifier = UIBackgroundTaskInvalid;

@@ -2,7 +2,7 @@
  * Project: HWIFileDownload (Demo App)
  
  * Created by Heiko Wichmann (20141003)
- * File: AppDelegate.h
+ * File: DemoAppDelegate.h
  *
  */
 
@@ -41,7 +41,7 @@
 @class HWIFileDownloader;
 
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate>
+@interface DemoAppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (nullable, nonatomic, strong) UIWindow *window;
 

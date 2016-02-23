@@ -35,7 +35,7 @@
 
 
 #import "DemoDownloadStore.h"
-#import "AppDelegate.h"
+#import "DemoAppDelegate.h"
 #import "DemoDownloadItem.h"
 #import "HWIFileDownloadDelegate.h"
 #import "HWIFileDownloader.h"
@@ -251,7 +251,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     if (found)
     {
         aChangedDownloadItem = [self.downloadItemsArray objectAtIndex:aDownloadItemIndex];
-        AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+        DemoAppDelegate *theAppDelegate = (DemoAppDelegate *)[UIApplication sharedApplication].delegate;
         HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
         if (aFileDownloadProgress)
         {
@@ -437,7 +437,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 {
     if ((aDemoDownloadItem.status != DemoDownloadItemStatusCancelled) && (aDemoDownloadItem.status != DemoDownloadItemStatusCompleted))
     {
-        AppDelegate *theAppDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+        DemoAppDelegate *theAppDelegate = (DemoAppDelegate *)[UIApplication sharedApplication].delegate;
         BOOL isDownloading = [theAppDelegate.fileDownloader isDownloadingIdentifier:aDemoDownloadItem.downloadIdentifier];
         if (isDownloading == NO)
         {
