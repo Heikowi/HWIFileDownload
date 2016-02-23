@@ -118,7 +118,7 @@
     [super viewDidLoad];
     
     self.tableView.rowHeight = 120.0;
-    [self.tableView registerNib:[UINib nibWithNibName:@"DownloadTableViewCell" bundle:[NSBundle mainBundle]] forCellReuseIdentifier:@"DownloadTableViewCell"];
+    [self.tableView registerNib:[UINib nibWithNibName:@"DemoDownloadTableViewCell" bundle:[NSBundle mainBundle]] forCellReuseIdentifier:@"DemoDownloadTableViewCell"];
     self.title = @"Download";
     
     UIBarButtonItem *aRightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Crash" style:UIBarButtonItemStyleBordered target:self action:@selector(crash)];
@@ -138,7 +138,7 @@
 
 - (UITableViewCell *)tableView:(UITableView *)aTableView cellForRowAtIndexPath:(NSIndexPath *)anIndexPath
 {
-    UITableViewCell *aTableViewCell = [aTableView dequeueReusableCellWithIdentifier:@"DownloadTableViewCell" forIndexPath:anIndexPath];
+    UITableViewCell *aTableViewCell = [aTableView dequeueReusableCellWithIdentifier:@"DemoDownloadTableViewCell" forIndexPath:anIndexPath];
     
     UIButton *aPauseOrResumeButton = (UIButton *)[aTableViewCell viewWithTag:self.pauseOrResumeButtonTag];
     UIButton *aDownloadCancelOrStateButton = (UIButton *)[aTableViewCell viewWithTag:self.downloadCancelOrStateButtonTag];
