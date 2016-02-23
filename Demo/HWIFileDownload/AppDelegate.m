@@ -36,7 +36,7 @@
 
 #import "AppDelegate.h"
 
-#import "DownloadTableViewController.h"
+#import "DemoDownloadTableViewController.h"
 #import "HWIFileDownloader.h"
 #import "DemoDownloadStore.h"
 
@@ -58,8 +58,8 @@
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     
-    DownloadTableViewController *downloadTableViewController = [[DownloadTableViewController alloc] initWithStyle:UITableViewStylePlain];
-    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:downloadTableViewController];
+    DemoDownloadTableViewController *demoDownloadTableViewController = [[DemoDownloadTableViewController alloc] initWithStyle:UITableViewStylePlain];
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:demoDownloadTableViewController];
     [self.window setRootViewController:navigationController];
     
     [self.window makeKeyAndVisible];

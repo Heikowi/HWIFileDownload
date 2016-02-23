@@ -12,7 +12,7 @@
 		AC81B1A41C5F3BF300D722A6 /* FontAwesome.otf in Resources */ = {isa = PBXBuildFile; fileRef = AC81B1A31C5F3BF300D722A6 /* FontAwesome.otf */; };
 		ACA04C9919DEA2E300604BBF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = ACA04C9819DEA2E300604BBF /* main.m */; };
 		ACA04C9C19DEA2E300604BBF /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = ACA04C9B19DEA2E300604BBF /* AppDelegate.m */; };
-		ACA04C9F19DEA2E300604BBF /* DownloadTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = ACA04C9E19DEA2E300604BBF /* DownloadTableViewController.m */; };
+		ACA04C9F19DEA2E300604BBF /* DemoDownloadTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = ACA04C9E19DEA2E300604BBF /* DemoDownloadTableViewController.m */; };
 		ACB045BF19E186C000C3B34D /* HWIFileDownloadItem.m in Sources */ = {isa = PBXBuildFile; fileRef = ACB045BC19E186C000C3B34D /* HWIFileDownloadItem.m */; };
 		ACB9143B19DEF660006193A6 /* DownloadTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = ACB9143A19DEF660006193A6 /* DownloadTableViewCell.xib */; };
 		ACD1BCC519DEA7CD0066D4A7 /* HWIFileDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = ACD1BCBB19DEA7CD0066D4A7 /* HWIFileDownloader.m */; };
@@ -33,8 +33,8 @@
 		ACA04C9819DEA2E300604BBF /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		ACA04C9A19DEA2E300604BBF /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		ACA04C9B19DEA2E300604BBF /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		ACA04C9D19DEA2E300604BBF /* DownloadTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadTableViewController.h; sourceTree = "<group>"; };
-		ACA04C9E19DEA2E300604BBF /* DownloadTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloadTableViewController.m; sourceTree = "<group>"; };
+		ACA04C9D19DEA2E300604BBF /* DemoDownloadTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoDownloadTableViewController.h; sourceTree = "<group>"; };
+		ACA04C9E19DEA2E300604BBF /* DemoDownloadTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DemoDownloadTableViewController.m; sourceTree = "<group>"; };
 		ACB045BB19E186C000C3B34D /* HWIFileDownloadItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HWIFileDownloadItem.h; path = ../../HWIFileDownloadItem.h; sourceTree = "<group>"; };
 		ACB045BC19E186C000C3B34D /* HWIFileDownloadItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HWIFileDownloadItem.m; path = ../../HWIFileDownloadItem.m; sourceTree = "<group>"; };
 		ACB9143A19DEF660006193A6 /* DownloadTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DownloadTableViewCell.xib; sourceTree = "<group>"; };
@@ -86,8 +86,8 @@
 				AC1B2A451C5CF9A400AE5FFD /* DemoDownloadItem.h */,
 				AC1B2A461C5CF9A400AE5FFD /* DemoDownloadItem.m */,
 				AC1B2A481C5CFEFF00AE5FFD /* DemoDownloadItemStatus.h */,
-				ACA04C9D19DEA2E300604BBF /* DownloadTableViewController.h */,
-				ACA04C9E19DEA2E300604BBF /* DownloadTableViewController.m */,
+				ACA04C9D19DEA2E300604BBF /* DemoDownloadTableViewController.h */,
+				ACA04C9E19DEA2E300604BBF /* DemoDownloadTableViewController.m */,
 				ACB9143A19DEF660006193A6 /* DownloadTableViewCell.xib */,
 				ACA04C9619DEA2E300604BBF /* Supporting Files */,
 			);
@@ -195,7 +195,7 @@
 				ACA04C9C19DEA2E300604BBF /* AppDelegate.m in Sources */,
 				AC1B2A471C5CF9A400AE5FFD /* DemoDownloadItem.m in Sources */,
 				ACB045BF19E186C000C3B34D /* HWIFileDownloadItem.m in Sources */,
-				ACA04C9F19DEA2E300604BBF /* DownloadTableViewController.m in Sources */,
+				ACA04C9F19DEA2E300604BBF /* DemoDownloadTableViewController.m in Sources */,
 				AC32704319EA848000ECCD98 /* HWIFileDownloadProgress.m in Sources */,
 				ACE9E18919DFFDE60058777C /* DemoDownloadStore.m in Sources */,
 				ACA04C9919DEA2E300604BBF /* main.m in Sources */,

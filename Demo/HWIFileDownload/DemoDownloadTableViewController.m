@@ -2,7 +2,7 @@
  * Project: HWIFileDownload (Demo App)
  
  * Created by Heiko Wichmann (20141003)
- * File: DownloadTableViewController.m
+ * File: DemoDownloadTableViewController.m
  *
  */
 
@@ -34,7 +34,7 @@
  ***************************************************************************/
 
 
-#import "DownloadTableViewController.h"
+#import "DemoDownloadTableViewController.h"
 
 #import "AppDelegate.h"
 #import "DemoDownloadStore.h"
@@ -42,7 +42,7 @@
 #import "HWIFileDownloader.h"
 
 
-@interface DownloadTableViewController ()
+@interface DemoDownloadTableViewController ()
 @property (nonatomic, assign) NSInteger fileNameLabelTag;
 @property (nonatomic, assign) NSInteger infoTextLabelTag;
 @property (nonatomic, assign) NSInteger progressViewTag;
@@ -65,7 +65,7 @@
 
 
 
-@implementation DownloadTableViewController
+@implementation DemoDownloadTableViewController
 
 
 - (instancetype)initWithStyle:(UITableViewStyle)aTableViewStyle
@@ -504,7 +504,7 @@
                 }
                 else
                 {
-                    anInfoTextLabel.text = [DownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
+                    anInfoTextLabel.text = [DemoDownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
                 }
             }
         }
@@ -524,7 +524,7 @@
         }
         else
         {
-            anInfoTextLabel.text = [DownloadTableViewController displayStringForRemainingTime:aDownloadItem.progress.estimatedRemainingTime];
+            anInfoTextLabel.text = [DemoDownloadTableViewController displayStringForRemainingTime:aDownloadItem.progress.estimatedRemainingTime];
         }
     }
     else if (aDownloadItem.status == DemoDownloadItemStatusCancelled)

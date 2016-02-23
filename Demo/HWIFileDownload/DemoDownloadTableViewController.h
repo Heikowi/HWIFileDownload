@@ -2,7 +2,7 @@
  * Project: HWIFileDownload (Demo App)
  
  * Created by Heiko Wichmann (20141003)
- * File: DownloadTableViewController.h
+ * File: DemoDownloadTableViewController.h
  *
  */
 
@@ -37,7 +37,7 @@
 #import <UIKit/UIKit.h>
 
 
-@interface DownloadTableViewController : UITableViewController
+@interface DemoDownloadTableViewController : UITableViewController
 
 @end
 
