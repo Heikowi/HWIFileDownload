@@ -1,8 +1,12 @@
 # HWIFileDownload
 
-HWIFileDownload simplifies file download integration on iOS. Based on `NSURLSession` it offers system background operation even when the app is not running. HWIFileDownload is backwards compatible down to iOS 6 (where `NSURLConnection` is used instead of `NSURLSession`).
+HWIFileDownload simplifies file download integration on iOS. It offers a complete set of operations (start, cancel, pause, resume) for parallel download of files with no size limitation. Native reporting of single file download progress and total progress is included.
 
 ## Features
+
+Based on `NSURLSession` HWIFileDownload offers system background operation even when the app is not running. HWIFileDownload is backwards compatible down to iOS 6 (where `NSURLConnection` is used instead of `NSURLSession`). Downloads can be started independently, cancelled, paused and resumed. When resuming cancelled downloads, data of previous downloads is reused. Progress is reported natively as `NSProgress`.
+
+## Implementation
 
 HWIFileDownload uses a __download identifier__ for starting a download, retrieving progress information, and for handling download completion. The __download identifier__ is a string that must be unique for each individual file download.
 
@@ -27,12 +31,15 @@ The delegate is called on download completion. Additional calls are used to cont
 	@optional
 
 	- (void)downloadProgressChangedForIdentifier:(nonnull NSString *)aDownloadIdentifier;
+	- (void)downloadPausedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
+                              resumeData:(nullable NSData *)aResumeData;
 	- (nullable NSURL *)localFileURLForIdentifier:(nonnull NSString *)aDownloadIdentifier
                                         remoteURL:(nonnull NSURL *)aRemoteURL;
 	- (BOOL)downloadIsValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
                                   atLocalFileURL:(nonnull NSURL *)aLocalFileURL;
 	- (NSTimeInterval)requestTimeoutInterval;
 	- (NSTimeInterval)resourceTimeoutInterval;
+	- (nullable NSProgress *)rootProgress;
 
 	@end
 	
@@ -40,14 +47,13 @@ The app needs to hold an instance of the `HWIFileDownloader` that manages the do
 
 	- (void)startDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
                                   fromRemoteURL:(nonnull NSURL *)aRemoteURL;
-              	                  
 	- (void)startDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
                                 usingResumeData:(nonnull NSData *)aResumeData;
-
 	- (BOOL)isDownloadingIdentifier:(nonnull NSString *)aDownloadIdentifier;
-	
+	- (BOOL)isWaitingForDownloadOfIdentifier:(nonnull NSString *)aDownloadIdentifier;
+	- (BOOL)hasActiveDownloads;
 	- (void)cancelDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier;
-	
+	- (void)pauseDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier;
 	- (nullable HWIFileDownloadProgress *)downloadProgressForIdentifier:(nonnull NSString *)aDownloadIdentifier;
 	
 	
@@ -58,6 +64,9 @@ The app needs to hold an instance of the `HWIFileDownloader` that manages the do
 	@property (nonatomic, assign, readonly) int64_t receivedFileSize;
 	@property (nonatomic, assign, readonly) NSTimeInterval estimatedRemainingTime;
 	@property (nonatomic, assign, readonly) NSUInteger bytesPerSecondSpeed;
+	@property (nonatomic, strong, readwrite, nullable) NSString *lastLocalizedDescription;
+	@property (nonatomic, strong, readwrite, nullable) NSString *lastLocalizedAdditionalDescription;
+	@property (nonatomic, strong, readonly, nonnull) NSProgress *nativeProgress;
 	
 
 ## Demo App
