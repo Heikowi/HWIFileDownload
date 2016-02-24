@@ -56,6 +56,7 @@
 {
     self.backgroundTaskIdentifier = UIBackgroundTaskInvalid; // iOS 6
     
+    // setup UI
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     
     DemoDownloadTableViewController *demoDownloadTableViewController = [[DemoDownloadTableViewController alloc] initWithStyle:UITableViewStylePlain];

@@ -34,6 +34,9 @@
  ***************************************************************************/
 
 
+#import <Foundation/Foundation.h>
+
+
 typedef NS_ENUM(NSUInteger, DemoDownloadItemStatus) {
     DemoDownloadItemStatusNotStarted = 0,
     DemoDownloadItemStatusStarted,

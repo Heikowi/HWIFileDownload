@@ -1,8 +1,8 @@
 /*
  * Project: HWIFileDownload (Demo App)
  
- * Created by Heiko Wichmann (20160130)
- * File: DemoDownloadItem.h
+ * Created by Heiko Wichmann (20160224)
+ * File: DemoDownloadNotifications.h
  *
  */
 
@@ -36,31 +36,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "DemoDownloadItemStatus.h"
 
-
-@class HWIFileDownloadProgress;
-
-
-@interface DemoDownloadItem : NSObject
-
-
-- (nullable instancetype)initWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                                          remoteURL:(nonnull NSURL *)aRemoteURL;
-
-
-@property (nonatomic, strong, readonly, nonnull) NSString *downloadIdentifier;
-@property (nonatomic, strong, readonly, nonnull) NSURL *remoteURL;
-
-@property (nonatomic, strong, nullable) NSData *resumeData;
-@property (nonatomic, assign) DemoDownloadItemStatus status;
-
-@property (nonatomic, strong, nullable) HWIFileDownloadProgress *progress;
-@property (nonatomic, strong, nullable) NSError *downloadError;
-
-
-- (nullable DemoDownloadItem *)init __attribute__((unavailable("use initWithDownloadIdentifier:remoteURL:")));
-+ (nullable DemoDownloadItem *)new __attribute__((unavailable("use initWithDownloadIdentifier:remoteURL:")));
-
-
-@end
+extern NSString* _Nonnull const downloadDidCompleteNotification;
+extern NSString* _Nonnull const downloadProgressChangedNotification;
+extern NSString* _Nonnull const totalDownloadProgressChangedNotification;

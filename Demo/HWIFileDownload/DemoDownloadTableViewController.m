@@ -39,6 +39,7 @@
 #import "DemoAppDelegate.h"
 #import "DemoDownloadStore.h"
 #import "DemoDownloadItem.h"
+#import "DemoDownloadNotifications.h"
 #import "HWIFileDownloader.h"
 
 
@@ -91,11 +92,11 @@
         [aRefreshControl addTarget:self action:@selector(onRefreshTable) forControlEvents:UIControlEventValueChanged];
         self.refreshControl = aRefreshControl;
         
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDownloadDidComplete:) name:@"downloadDidComplete" object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onProgressDidChange:) name:@"downloadProgressChanged" object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDownloadDidComplete:) name:downloadDidCompleteNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onProgressDidChange:) name:downloadProgressChangedNotification object:nil];
         if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
         {
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onTotalProgressDidChange:) name:@"totalDownloadProgressChanged" object:nil];
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onTotalProgressDidChange:) name:totalDownloadProgressChangedNotification object:nil];
         }
     }
     return self;
@@ -104,11 +105,11 @@
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"downloadDidComplete" object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"downloadProgressChanged" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:downloadDidCompleteNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:downloadProgressChangedNotification object:nil];
     if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
     {
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:@"totalDownloadProgressChanged" object:nil];
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:totalDownloadProgressChangedNotification object:nil];
     }
 }
 

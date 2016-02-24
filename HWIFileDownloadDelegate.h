@@ -35,6 +35,7 @@
 
 #import <Foundation/Foundation.h>
 
+
 /**
  HWIFileDownloadDelegate is a protocol for handling salient download events.
  */

@@ -35,6 +35,7 @@
 
 #import <Foundation/Foundation.h>
 
+
 /**
  HWIFileDownloadProgress is the download progress of a download item.
  */

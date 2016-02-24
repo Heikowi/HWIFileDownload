@@ -35,6 +35,7 @@
 
 #import "HWIFileDownloadProgress.h"
 
+
 @interface HWIFileDownloadProgress()
 @property (nonatomic, assign, readwrite) float downloadProgress;
 @property (nonatomic, assign, readwrite) int64_t expectedFileSize;

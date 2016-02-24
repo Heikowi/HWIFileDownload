@@ -37,10 +37,12 @@
 #import "DemoDownloadStore.h"
 #import "DemoAppDelegate.h"
 #import "DemoDownloadItem.h"
+#import "DemoDownloadNotifications.h"
 #import "HWIFileDownloadDelegate.h"
 #import "HWIFileDownloader.h"
 
 #import <UIKit/UIKit.h>
+
 
 static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgressObserverContext;
 
@@ -150,7 +152,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
         NSLog(@"ERR: Completed download item not found (id: %@) (%s, %d)", aDownloadIdentifier, __FILE__, __LINE__);
     }
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"downloadDidComplete" object:aCompletedDownloadItem];
+    [[NSNotificationCenter defaultCenter] postNotificationName:downloadDidCompleteNotification object:aCompletedDownloadItem];
 }
 
 
@@ -201,7 +203,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
         NSLog(@"ERR: %@ (%s, %d)", anError, __FILE__, __LINE__);
     }
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"downloadDidComplete" object:aFailedDownloadItem];
+    [[NSNotificationCenter defaultCenter] postNotificationName:downloadDidCompleteNotification object:aFailedDownloadItem];
 }
 
 
@@ -263,7 +265,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
             }
         }
     }
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"downloadProgressChanged" object:aChangedDownloadItem];
+    [[NSNotificationCenter defaultCenter] postNotificationName:downloadProgressChangedNotification object:aChangedDownloadItem];
 }
 
 
@@ -355,7 +357,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
         NSProgress *aProgress = anObject; // == self.progress
         if ([aKeyPath isEqualToString:@"fractionCompleted"])
         {
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"totalDownloadProgressChanged" object:aProgress];
+            [[NSNotificationCenter defaultCenter] postNotificationName:totalDownloadProgressChangedNotification object:aProgress];
         }
         else
         {
