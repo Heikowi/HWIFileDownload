@@ -656,7 +656,7 @@
                             }
                             else
                             {
-                                NSLog(@"ERR: Download check failed for item at %@: %@ (%s, %d)", aLocalFileURL, anError, __FILE__, __LINE__);
+                                NSLog(@"ERR: Download check failed for item at %@ (%s, %d)", aLocalFileURL, __FILE__, __LINE__);
                                 NSError *aValidationError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCannotDecodeRawData userInfo:nil];
                                 [self handleDownloadWithError:aValidationError downloadID:aDownloadTask.taskIdentifier downloadToken:aDownloadItem.downloadToken resumeData:nil];
                             }
