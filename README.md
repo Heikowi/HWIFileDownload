@@ -4,7 +4,7 @@ HWIFileDownload simplifies file download with NSURLSession on iOS. It offers a c
 
 ## Features
 
-Based on `NSURLSession` HWIFileDownload offers system background operation even when the app is not running. Downloads can be started independently, cancelled, paused and resumed. When resuming cancelled downloads, previously downloaded data is reused. Progress is reported with `NSProgress`.
+Based on `NSURLSession` HWIFileDownload offers system background operation even when the app is not running. Downloads can be started individually, cancelled, paused and resumed. When resuming cancelled downloads, previously downloaded data is reused. Progress is reported with `NSProgress`.
 
 HWIFileDownload is backwards compatible down to iOS 6 (where `NSURLConnection` is used instead of `NSURLSession`).
 
