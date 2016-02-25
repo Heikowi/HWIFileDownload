@@ -1,10 +1,12 @@
 # HWIFileDownload
 
-HWIFileDownload simplifies file download integration on iOS. It offers a complete set of operations (start, cancel, pause, resume) for parallel download of files with no size limitation. Native reporting of single file download progress and total progress is included.
+HWIFileDownload simplifies file download with NSURLSession on iOS. It offers a complete set of operations (start, cancel, pause, resume) for parallel download of files with no size limitation. Native reporting of single file download progress and total progress is included.
 
 ## Features
 
-Based on `NSURLSession` HWIFileDownload offers system background operation even when the app is not running. HWIFileDownload is backwards compatible down to iOS 6 (where `NSURLConnection` is used instead of `NSURLSession`). Downloads can be started independently, cancelled, paused and resumed. When resuming cancelled downloads, data of previous downloads is reused. Progress is reported natively as `NSProgress`.
+Based on `NSURLSession` HWIFileDownload offers system background operation even when the app is not running. Downloads can be started independently, cancelled, paused and resumed. When resuming cancelled downloads, previously downloaded data is reused. Progress is reported with `NSProgress`.
+
+HWIFileDownload is backwards compatible down to iOS 6 (where `NSURLConnection` is used instead of `NSURLSession`).
 
 ## Implementation
 
