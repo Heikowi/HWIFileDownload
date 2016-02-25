@@ -85,9 +85,9 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     self.downloadItemsArray = [self restoredDownloadItems];
     
     // setup items to download
-    for (NSUInteger aDownloadIdentifierNumber = 1; aDownloadIdentifierNumber < 11; aDownloadIdentifierNumber++)
+    for (NSUInteger aDownloadIdentifierUInteger = 1; aDownloadIdentifierUInteger < 11; aDownloadIdentifierUInteger++)
     {
-        NSString *aDownloadIdentifier = [NSString stringWithFormat:@"%@", @(aDownloadIdentifierNumber)];
+        NSString *aDownloadIdentifier = [NSString stringWithFormat:@"%@", @(aDownloadIdentifierUInteger)];
         NSArray *aFoundDownloadItemsArray = [self.downloadItemsArray filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSDictionary *bindings) {
             BOOL aResult = NO;
             if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadIdentifier])
@@ -98,7 +98,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
         }]];
         if (aFoundDownloadItemsArray.count == 0)
         {
-            NSURL *aRemoteURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://www.imagomat.de/testimages/%@.tiff", @(aDownloadIdentifierNumber)]];
+            NSURL *aRemoteURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://www.imagomat.de/testimages/%@.tiff", @(aDownloadIdentifierUInteger)]];
             DemoDownloadItem *aDemoDownloadItem = [[DemoDownloadItem alloc] initWithDownloadIdentifier:aDownloadIdentifier remoteURL:aRemoteURL];
             [self.downloadItemsArray addObject:aDemoDownloadItem];
         }
