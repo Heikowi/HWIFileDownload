@@ -40,8 +40,8 @@
 @interface HWIFileDownloader()<NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDataDelegate, NSURLSessionDownloadDelegate, NSURLConnectionDelegate>
 
 @property (nonatomic, strong, nullable) NSURLSession *backgroundSession;
-@property (nonatomic, strong, nonnull) NSMutableDictionary *activeDownloadsDictionary;
-@property (nonatomic, strong, nonnull) NSMutableArray *waitingDownloadsArray;
+@property (nonatomic, strong, nonnull) NSMutableDictionary<NSNumber *, HWIFileDownloadItem *> *activeDownloadsDictionary;
+@property (nonatomic, strong, nonnull) NSMutableArray<NSDictionary <NSString *, NSObject *> *> *waitingDownloadsArray;
 @property (nonatomic, weak, nullable) NSObject<HWIFileDownloadDelegate>* fileDownloadDelegate;
 @property (nonatomic, copy, nullable) HWIBackgroundSessionCompletionHandlerBlock bgSessionCompletionHandlerBlock;
 @property (nonatomic, assign) NSInteger maxConcurrentFileDownloadsCount;
@@ -122,7 +122,7 @@
 {
     if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
     {
-        [self.backgroundSession getTasksWithCompletionHandler:^(NSArray *aDataTasksArray, NSArray *anUploadTasksArray, NSArray *aDownloadTasksArray) {
+        [self.backgroundSession getTasksWithCompletionHandler:^( NSArray * _Nonnull aDataTasksArray, NSArray * _Nonnull anUploadTasksArray, NSArray * _Nonnull aDownloadTasksArray) {
             for (NSURLSessionDownloadTask *aDownloadTask in aDownloadTasksArray)
             {
                 NSString *aDownloadToken = [aDownloadTask.taskDescription copy];
@@ -139,14 +139,17 @@
                                                                                         sessionDownloadTask:aDownloadTask
                                                                                               urlConnection:nil];
                     [aRootProgress resignCurrent];
-                    [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadTask.taskIdentifier)];
-                    NSString *aDownloadToken = [aDownloadItem.downloadToken copy];
-                    [aDownloadItem.progress setPausingHandler:^{
-                        [self pauseDownloadAndPostResumeDataWithIdentifier:aDownloadToken];
-                    }];
-                    [aDownloadItem.progress setCancellationHandler:^{
-                        [self cancelDownloadWithIdentifier:aDownloadToken];
-                    }];
+                    if (aDownloadItem)
+                    {
+                        [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadTask.taskIdentifier)];
+                        NSString *aDownloadToken = [aDownloadItem.downloadToken copy];
+                        [aDownloadItem.progress setPausingHandler:^{
+                            [self pauseDownloadAndPostResumeDataWithIdentifier:aDownloadToken];
+                        }];
+                        [aDownloadItem.progress setCancellationHandler:^{
+                            [self cancelDownloadWithIdentifier:aDownloadToken];
+                        }];
+                    }
                     [self.fileDownloadDelegate incrementNetworkActivityIndicatorActivityCount];
                 }
                 else
