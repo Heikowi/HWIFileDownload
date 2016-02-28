@@ -364,7 +364,7 @@
             {
                 NSLog(@"INFO: NSURLSessionDownloadTask cancelled (task not found): %@ (%s, %d)", aDownloadItem.downloadToken, __FILE__, __LINE__);
                 NSError *aPauseError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
-                [self handleDownloadWithError:aPauseError downloadID:aDownloadID downloadToken:aDownloadItem.downloadToken resumeData:nil];
+                [self handleDownloadWithError:aPauseError downloadItem:aDownloadItem downloadID:aDownloadID resumeData:nil];
             }
         }
         else
@@ -378,7 +378,7 @@
             {
                 NSLog(@"INFO: NSURLConnection cancelled (connection not found): %@ (%s, %d)", aDownloadItem.downloadToken, __FILE__, __LINE__);
                 NSError *aPauseError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
-                [self handleDownloadWithError:aPauseError downloadID:aDownloadID downloadToken:aDownloadItem.downloadToken resumeData:nil];
+                [self handleDownloadWithError:aPauseError downloadItem:aDownloadItem downloadID:aDownloadID resumeData:nil];
             }
         }
     }
@@ -448,7 +448,7 @@
             {
                 NSLog(@"INFO: NSURLSessionDownloadTask cancelled (task not found): %@ (%s, %d)", aDownloadItem.downloadToken, __FILE__, __LINE__);
                 NSError *aCancelError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
-                [self handleDownloadWithError:aCancelError downloadID:aDownloadID downloadToken:aDownloadItem.downloadToken resumeData:nil];
+                [self handleDownloadWithError:aCancelError downloadItem:aDownloadItem downloadID:aDownloadID resumeData:nil];
             }
         }
         else
@@ -462,7 +462,7 @@
             {
                 NSLog(@"INFO: NSURLConnection cancelled (connection not found): %@ (%s, %d)", aDownloadItem.downloadToken, __FILE__, __LINE__);
                 NSError *aCancelError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
-                [self handleDownloadWithError:aCancelError downloadID:aDownloadID downloadToken:aDownloadItem.downloadToken resumeData:nil];
+                [self handleDownloadWithError:aCancelError downloadItem:aDownloadItem downloadID:aDownloadID resumeData:nil];
             }
         }
     }
@@ -482,7 +482,7 @@
         [[NSFileManager defaultManager] removeItemAtURL:aTempFileURL error:&aRemoveError];
         if (aRemoveError)
         {
-            NSLog(@"ERR: Unable to remove file at %@: %@ (%s, %d)", aTempFileURL, aRemoveError, __FILE__, __LINE__);
+            NSLog(@"ERR: Unable to remove file at %@: %@ (%s, %d)", aTempFileURL, aRemoveError.localizedDescription, __FILE__, __LINE__);
         }
         __weak HWIFileDownloader *anotherWeakSelf = strongSelf;
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -492,7 +492,7 @@
             {
                 NSLog(@"INFO: NSURLConnection cancelled: %@", aFoundDownloadItem.downloadToken);
                 NSError *aCancelError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
-                [anotherStrongSelf handleDownloadWithError:aCancelError downloadID:aDownloadID downloadToken:aFoundDownloadItem.downloadToken resumeData:nil];
+                [anotherStrongSelf handleDownloadWithError:aCancelError downloadItem:aFoundDownloadItem downloadID:aDownloadID resumeData:nil];
             }
         });
     });
@@ -596,9 +596,12 @@
 
 - (void)URLSession:(nonnull NSURLSession *)aSession downloadTask:(nonnull NSURLSessionDownloadTask *)aDownloadTask didFinishDownloadingToURL:(nonnull NSURL *)aLocation
 {
+    NSString *anErrorString = nil;
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadTask.taskIdentifier)];
     if (aDownloadItem)
     {
+        // move download item to final local location
+        
         NSURL *aLocalFileURL = nil;
         if ([self.fileDownloadDelegate respondsToSelector:@selector(localFileURLForIdentifier:remoteURL:)])
         {
@@ -609,12 +612,13 @@
             }
             else
             {
-                NSLog(@"ERR: Missing information: Remote URL (token: %@) (%s, %d)", aDownloadItem.downloadToken, __FILE__, __LINE__);
+                anErrorString = [NSString stringWithFormat:@"ERR: Missing information: Remote URL (token: %@) (%s, %d)", aDownloadItem.downloadToken, __FILE__, __LINE__];
+                NSLog(@"%@", anErrorString);
             }
         }
         else
         {
-            aLocalFileURL = [HWIFileDownloader localFileURLForRemoteURL:[aDownloadTask.originalRequest URL]];
+            aLocalFileURL = [HWIFileDownloader localFileURLForRemoteURL:aDownloadTask.originalRequest.URL];
         }
         if (aLocalFileURL)
         {
@@ -627,8 +631,8 @@
                 {
                     aMoveError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCannotMoveFile userInfo:nil];
                 }
-                NSLog(@"ERR: Unable to move file from %@ to %@ (%@) (%s, %d)", aLocation, aLocalFileURL, aMoveError, __FILE__, __LINE__);
-                [self handleDownloadWithError:anError downloadID:aDownloadTask.taskIdentifier downloadToken:aDownloadItem.downloadToken resumeData:nil];
+                anErrorString = [NSString stringWithFormat:@"ERR: Unable to move file from %@ to %@ (%@) (%s, %d)", aLocation, aLocalFileURL, aMoveError.localizedDescription, __FILE__, __LINE__];
+                NSLog(@"%@", anErrorString);
             }
             else
             {
@@ -636,8 +640,8 @@
                 NSDictionary *aFileAttributesDictionary = [[NSFileManager defaultManager] attributesOfItemAtPath:aLocalFileURL.path error:&anError];
                 if (anError)
                 {
-                    NSLog(@"ERR: Error on getting file size for item at %@: %@ (%s, %d)", aLocalFileURL, anError, __FILE__, __LINE__);
-                    [self handleDownloadWithError:anError downloadID:aDownloadTask.taskIdentifier downloadToken:aDownloadItem.downloadToken resumeData:nil];
+                    anErrorString = [NSString stringWithFormat:@"ERR: Error on getting file size for item at %@: %@ (%s, %d)", aLocalFileURL, anError.localizedDescription, __FILE__, __LINE__];
+                    NSLog(@"%@", anErrorString);
                 }
                 else
                 {
@@ -645,28 +649,19 @@
                     if (aFileSize == 0)
                     {
                         NSError *aFileSizeZeroError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorZeroByteResource userInfo:nil];
-                        NSLog(@"ERR: Zero file size for item at %@: %@ (%s, %d)", aLocalFileURL, aFileSizeZeroError, __FILE__, __LINE__);
-                        [self handleDownloadWithError:aFileSizeZeroError downloadID:aDownloadTask.taskIdentifier downloadToken:aDownloadItem.downloadToken resumeData:nil];
+                        anErrorString = [NSString stringWithFormat:@"ERR: Zero file size for item at %@: %@ (%s, %d)", aLocalFileURL, aFileSizeZeroError.localizedDescription, __FILE__, __LINE__];
+                        NSLog(@"%@", anErrorString);
                     }
                     else
                     {
-                        if ([self.fileDownloadDelegate respondsToSelector:@selector(downloadIsValidForDownloadIdentifier:atLocalFileURL:)])
+                        if ([self.fileDownloadDelegate respondsToSelector:@selector(downloadAtLocalFileURL:isValidForDownloadIdentifier:)])
                         {
-                            BOOL anIsValidDownloadFlag = [self.fileDownloadDelegate downloadIsValidForDownloadIdentifier:aDownloadItem.downloadToken atLocalFileURL:aLocalFileURL];
-                            if (anIsValidDownloadFlag)
+                            BOOL anIsValidDownloadFlag = [self.fileDownloadDelegate downloadAtLocalFileURL:aLocalFileURL isValidForDownloadIdentifier:aDownloadItem.downloadToken];
+                            if (anIsValidDownloadFlag == NO)
                             {
-                                [self handleSuccessfulDownloadToLocalFileURL:aLocalFileURL downloadID:aDownloadTask.taskIdentifier downloadToken:aDownloadItem.downloadToken];
+                                anErrorString = [NSString stringWithFormat:@"ERR: Download check failed for item at %@", aLocalFileURL];
+                                NSLog(@"%@", anErrorString);
                             }
-                            else
-                            {
-                                NSLog(@"ERR: Download check failed for item at %@ (%s, %d)", aLocalFileURL, __FILE__, __LINE__);
-                                NSError *aValidationError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCannotDecodeRawData userInfo:nil];
-                                [self handleDownloadWithError:aValidationError downloadID:aDownloadTask.taskIdentifier downloadToken:aDownloadItem.downloadToken resumeData:nil];
-                            }
-                        }
-                        else
-                        {
-                            [self handleSuccessfulDownloadToLocalFileURL:aLocalFileURL downloadID:aDownloadTask.taskIdentifier downloadToken:aDownloadItem.downloadToken];
                         }
                     }
                 }
@@ -674,9 +669,22 @@
         }
         else
         {
-            NSLog(@"ERR: Missing information: Local file URL (token: %@) (%s, %d)", aDownloadItem.downloadToken, __FILE__, __LINE__);
-            NSError *aValidationError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCannotCreateFile userInfo:nil];
-            [self handleDownloadWithError:aValidationError downloadID:aDownloadTask.taskIdentifier downloadToken:aDownloadItem.downloadToken resumeData:nil];
+            anErrorString = [NSString stringWithFormat:@"ERR: Missing information: Local file URL (token: %@) (%s, %d)", aDownloadItem.downloadToken, __FILE__, __LINE__];
+            NSLog(@"%@", anErrorString);
+        }
+        if (anErrorString)
+        {
+            NSMutableArray *anErrorMessagesStackArray = [aDownloadItem.errorMessagesStack mutableCopy];
+            if (anErrorMessagesStackArray == nil)
+            {
+                anErrorMessagesStackArray = [NSMutableArray array];
+            }
+            [anErrorMessagesStackArray addObject:anErrorString];
+            [aDownloadItem setErrorMessagesStack:anErrorMessagesStackArray];
+        }
+        else
+        {
+            aDownloadItem.finalLocalFileURL = aLocalFileURL;
         }
     }
     else
@@ -732,22 +740,56 @@
     {
         if (anError == nil)
         {
-            anError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorUnknown userInfo:nil];
-        }
-        if (([anError.domain isEqualToString:NSURLErrorDomain]) && (anError.code == NSURLErrorCancelled))
-        {
-            NSLog(@"INFO: Task cancelled: %@", aDownloadTask.taskDescription);
+            NSHTTPURLResponse *aHttpResponse = (NSHTTPURLResponse *)aDownloadTask.response;
+            BOOL aHttpStatusCodeIsCorrectFlag = NO;
+            if ([self.fileDownloadDelegate respondsToSelector:@selector(httpStatusCode:isValidForDownloadIdentifier:)])
+            {
+                aHttpStatusCodeIsCorrectFlag = [self.fileDownloadDelegate httpStatusCode:aHttpResponse.statusCode isValidForDownloadIdentifier:aDownloadItem.downloadToken];
+            }
+            else
+            {
+                aHttpStatusCodeIsCorrectFlag = [HWIFileDownloader httpStatusCode:aHttpResponse.statusCode isValidForDownloadIdentifier:aDownloadItem.downloadToken];
+            }
+            if (aHttpStatusCodeIsCorrectFlag == YES)
+            {
+                NSURL *aFinalLocalFileURL = aDownloadItem.finalLocalFileURL;
+                if (aFinalLocalFileURL)
+                {
+                    [self handleSuccessfulDownloadToLocalFileURL:aFinalLocalFileURL downloadID:aDownloadTask.taskIdentifier downloadToken:aDownloadItem.downloadToken];
+                }
+                else
+                {
+                    NSError *aFinalError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorResourceUnavailable userInfo:nil];
+                    [self handleDownloadWithError:aFinalError downloadItem:aDownloadItem downloadID:aDownloadTask.taskIdentifier resumeData:nil];
+                }
+            }
+            else
+            {
+                NSString *anErrorString = [NSString stringWithFormat:@"Invalid http status code: %@", @(aHttpResponse.statusCode)];
+                NSMutableArray *anErrorMessagesStackArray = [aDownloadItem.errorMessagesStack mutableCopy];
+                if (anErrorMessagesStackArray == nil)
+                {
+                    anErrorMessagesStackArray = [NSMutableArray array];
+                }
+                [anErrorMessagesStackArray addObject:anErrorString];
+                [aDownloadItem setErrorMessagesStack:anErrorMessagesStackArray];
+                
+                NSError *aFinalError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorBadServerResponse userInfo:nil];
+                [self handleDownloadWithError:aFinalError downloadItem:aDownloadItem downloadID:aDownloadTask.taskIdentifier resumeData:nil];
+            }
         }
         else
         {
-            NSLog(@"INFO: Task didCompleteWithError: %@ (%s, %d)", anError, __FILE__, __LINE__);
+            NSData *aSessionDownloadTaskResumeData = [anError.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
+            //NSString *aFailingURLStringErrorKeyString = [anError.userInfo objectForKey:NSURLErrorFailingURLStringErrorKey];
+            //NSNumber *aBackgroundTaskCancelledReasonKeyNumber = [anError.userInfo objectForKey:NSURLErrorBackgroundTaskCancelledReasonKey];
+            
+            [self handleDownloadWithError:anError downloadItem:aDownloadItem downloadID:aDownloadTask.taskIdentifier resumeData:aSessionDownloadTaskResumeData];
         }
-        
-        NSData *aSessionDownloadTaskResumeData = [anError.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
-        //NSString *aFailingURLStringErrorKeyString = [anError.userInfo objectForKey:NSURLErrorFailingURLStringErrorKey];
-        //NSNumber *aBackgroundTaskCancelledReasonKeyNumber = [anError.userInfo objectForKey:NSURLErrorBackgroundTaskCancelledReasonKey];
-        
-        [self handleDownloadWithError:anError downloadID:aDownloadTask.taskIdentifier downloadToken:aDownloadTask.taskDescription resumeData:aSessionDownloadTaskResumeData];
+    }
+    else
+    {
+        NSLog(@"ERR: Download item not found for download task: %@ (%s, %d)", aDownloadTask, __FILE__, __LINE__);
     }
 }
 
@@ -798,18 +840,20 @@
                 
                 if (aTempFileURL)
                 {
+                    HWIFileDownloadItem *aFoundDownloadItem = [strongSelf.activeDownloadsDictionary objectForKey:aDownloadID];
+                    
                     NSError *anError = nil;
                     BOOL aMoveSuccessFlag = [[NSFileManager defaultManager] moveItemAtURL:aTempFileURL toURL:aLocalFileURL error:&anError];
                     if (aMoveSuccessFlag == NO)
                     {
-                        NSLog(@"ERR: Unable to move file from %@ to %@ (%@) (%s, %d)", aTempFileURL, aLocalFileURL, anError, __FILE__, __LINE__);
+                        NSLog(@"ERR: Unable to move file from %@ to %@ (%@) (%s, %d)", aTempFileURL, aLocalFileURL, anError.localizedDescription, __FILE__, __LINE__);
                         __weak HWIFileDownloader *anotherWeakSelf = strongSelf;
                         dispatch_async(dispatch_get_main_queue(), ^{
                             HWIFileDownloader *anotherStrongSelf = anotherWeakSelf;
                             HWIFileDownloadItem *aFoundDownloadItem = [anotherStrongSelf.activeDownloadsDictionary objectForKey:aDownloadID];
                             if (aFoundDownloadItem)
                             {
-                                [anotherStrongSelf handleDownloadWithError:anError downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aFoundDownloadItem.downloadToken resumeData:nil];
+                                [anotherStrongSelf handleDownloadWithError:anError downloadItem:aFoundDownloadItem downloadID:[aDownloadID unsignedIntegerValue] resumeData:nil];
                             }
                         });
                     }
@@ -821,7 +865,6 @@
                             
                             HWIFileDownloader *anotherStrongSelf = anotherWeakSelf;
                             
-                            HWIFileDownloadItem *aFoundDownloadItem = [anotherStrongSelf.activeDownloadsDictionary objectForKey:aDownloadID];
                             if (aFoundDownloadItem == nil)
                             {
                                 // download has been cancelled meanwhile
@@ -829,7 +872,7 @@
                                 BOOL aRemoveSuccessFlag = [[NSFileManager defaultManager] removeItemAtURL:aLocalFileURL error:&anError];
                                 if (aRemoveSuccessFlag == NO)
                                 {
-                                    NSLog(@"ERR: Unable to remove file at %@ (%@) (%s, %d)", aLocalFileURL, anError, __FILE__, __LINE__);
+                                    NSLog(@"ERR: Unable to remove file at %@ (%@) (%s, %d)", aLocalFileURL, anError.localizedDescription, __FILE__, __LINE__);
                                 }
                             }
                             else
@@ -839,8 +882,8 @@
                                 NSDictionary *aFileAttributesDictionary = [[NSFileManager defaultManager] attributesOfItemAtPath:aLocalFileURL.path error:&anError];
                                 if (anError)
                                 {
-                                    NSLog(@"ERR: Error on getting file size for item at %@: %@ (%s, %d)", aLocalFileURL, anError, __FILE__, __LINE__);
-                                    [anotherStrongSelf handleDownloadWithError:anError downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aFoundDownloadItem.downloadToken resumeData:nil];
+                                    NSLog(@"ERR: Error on getting file size for item at %@: %@ (%s, %d)", aLocalFileURL, anError.localizedDescription, __FILE__, __LINE__);
+                                    [anotherStrongSelf handleDownloadWithError:anError downloadItem:aFoundDownloadItem downloadID:[aDownloadID unsignedIntegerValue] resumeData:nil];
                                 }
                                 else
                                 {
@@ -848,28 +891,29 @@
                                     if (aFileSize == 0)
                                     {
                                         NSError *aFileSizeZeroError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorZeroByteResource userInfo:nil];
-                                        NSLog(@"ERR: Zero file size for item at %@: %@ (%s, %d)", aLocalFileURL, aFileSizeZeroError, __FILE__, __LINE__);
-                                        [anotherStrongSelf handleDownloadWithError:aFileSizeZeroError downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aFoundDownloadItem.downloadToken resumeData:nil];
+                                        NSLog(@"ERR: Zero file size for item at %@: %@ (%s, %d)", aLocalFileURL, aFileSizeZeroError.localizedDescription, __FILE__, __LINE__);
+                                        [anotherStrongSelf handleDownloadWithError:aFileSizeZeroError downloadItem:aFoundDownloadItem downloadID:[aDownloadID unsignedIntegerValue] resumeData:nil];
                                     }
                                     else
                                     {
-                                        if ([self.fileDownloadDelegate respondsToSelector:@selector(downloadIsValidForDownloadIdentifier:atLocalFileURL:)])
+                                        aFoundDownloadItem.finalLocalFileURL = aLocalFileURL;
+                                        if ([self.fileDownloadDelegate respondsToSelector:@selector(downloadAtLocalFileURL:isValidForDownloadIdentifier:)])
                                         {
-                                            BOOL anIsValidDownloadFlag = [self.fileDownloadDelegate downloadIsValidForDownloadIdentifier:aFoundDownloadItem.downloadToken atLocalFileURL:aLocalFileURL];
+                                            BOOL anIsValidDownloadFlag = [self.fileDownloadDelegate downloadAtLocalFileURL:aLocalFileURL isValidForDownloadIdentifier:aDownloadItem.downloadToken];
                                             if (anIsValidDownloadFlag)
                                             {
-                                                [anotherStrongSelf handleSuccessfulDownloadToLocalFileURL:aLocalFileURL downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aDownloadItem.downloadToken];
+                                                [anotherStrongSelf handleSuccessfulDownloadToLocalFileURL:aLocalFileURL downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aFoundDownloadItem.downloadToken];
                                             }
                                             else
                                             {
                                                 NSLog(@"WARN: Download check failed for item at %@: %@ (%s, %d)", aLocalFileURL, anError, __FILE__, __LINE__);
                                                 NSError *aValidationError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCannotDecodeRawData userInfo:nil];
-                                                [anotherStrongSelf handleDownloadWithError:aValidationError downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aFoundDownloadItem.downloadToken resumeData:nil];
+                                                [anotherStrongSelf handleDownloadWithError:aValidationError downloadItem:aFoundDownloadItem downloadID:[aDownloadID unsignedIntegerValue] resumeData:nil];
                                             }
                                         }
                                         else
                                         {
-                                            [anotherStrongSelf handleSuccessfulDownloadToLocalFileURL:aLocalFileURL downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aDownloadItem.downloadToken];
+                                            [anotherStrongSelf handleSuccessfulDownloadToLocalFileURL:aLocalFileURL downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aFoundDownloadItem.downloadToken];
                                         }
                                     }
                                 }
@@ -985,8 +1029,8 @@
         HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:aDownloadID];
         if (aDownloadItem)
         {
-            NSLog(@"ERR: NSURLConnection failed with error: %@ (%s, %d)", anError, __FILE__, __LINE__);
-            [self handleDownloadWithError:anError downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aDownloadItem.downloadToken resumeData:nil];
+            NSLog(@"ERR: NSURLConnection failed with error: %@ (%s, %d)", anError.localizedDescription, __FILE__, __LINE__);
+            [self handleDownloadWithError:anError downloadItem:aDownloadItem downloadID:[aDownloadID unsignedIntegerValue] resumeData:nil];
         }
     }
 }
@@ -1032,10 +1076,23 @@
 }
 
 
++ (BOOL)httpStatusCode:(NSInteger)aHttpStatusCode isValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
+{
+    BOOL anIsCorrectFlag = NO;
+    if ((aHttpStatusCode >= 200) && (aHttpStatusCode < 300))
+    {
+        anIsCorrectFlag = YES;
+    }
+    return anIsCorrectFlag;
+}
+
+
 #pragma mark - Download Completion Handler
 
 
-- (void)handleSuccessfulDownloadToLocalFileURL:(nonnull NSURL *)aLocalFileURL downloadID:(NSUInteger)aDownloadID downloadToken:(nonnull NSString *)aDownloadToken
+- (void)handleSuccessfulDownloadToLocalFileURL:(nonnull NSURL *)aLocalFileURL
+                                    downloadID:(NSUInteger)aDownloadID
+                                 downloadToken:(nonnull NSString *)aDownloadToken
 {
     [self.fileDownloadDelegate downloadDidCompleteWithIdentifier:aDownloadToken
                                                     localFileURL:aLocalFileURL];
@@ -1045,10 +1102,14 @@
 }
 
 
-- (void)handleDownloadWithError:(nonnull NSError *)anError downloadID:(NSUInteger)aDownloadID downloadToken:(nullable NSString *)aDownloadToken resumeData:(nullable NSData *)aResumeData
+- (void)handleDownloadWithError:(nonnull NSError *)anError
+                   downloadItem:(HWIFileDownloadItem *)aDownloadItem
+                     downloadID:(NSUInteger)aDownloadID
+                     resumeData:(nullable NSData *)aResumeData
 {
-    [self.fileDownloadDelegate downloadFailedWithIdentifier:aDownloadToken
+    [self.fileDownloadDelegate downloadFailedWithIdentifier:aDownloadItem.downloadToken
                                                       error:anError
+                                         errorMessagesStack:aDownloadItem.errorMessagesStack
                                                  resumeData:aResumeData];
     [self.activeDownloadsDictionary removeObjectForKey:@(aDownloadID)];
     [self.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];

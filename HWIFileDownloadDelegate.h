@@ -53,10 +53,12 @@
  Called on a failed download.
  @param aDownloadIdentifier Download identifier of the download item.
  @param anError Download error.
+ @param anErrorMessagesStack Array with error strings (latest error messages added on top of stack).
  @param aResumeData Incompletely downloaded data that can be reused later if the download is started again.
  */
 - (void)downloadFailedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
                                error:(nonnull NSError *)anError
+                  errorMessagesStack:(nullable NSArray *)anErrorMessagesStack
                           resumeData:(nullable NSData *)aResumeData;
 
 /**
@@ -105,13 +107,22 @@
 
 /**
  Optionally called to validate downloaded data.
- @param aDownloadIdentifier Download identifier of the download item.
  @param aLocalFileURL Local file URL of the downloaded item.
+ @param aDownloadIdentifier Download identifier of the download item.
  @return True if downloaded data in local file passed validation test.
- @discussion The download might finish successfully with an error string as downloaded data. This method can be used to check whether the downloaded data is the expected content and data type.
+ @discussion The download might finish successfully with an error explanation string as downloaded data. This method can be used to check whether the downloaded data is the expected content and data type. If not implemented, every download is valid.
  */
-- (BOOL)downloadIsValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                              atLocalFileURL:(nonnull NSURL *)aLocalFileURL;
+- (BOOL)downloadAtLocalFileURL:(nonnull NSURL *)aLocalFileURL isValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
+
+
+/**
+ Optionally called to validate http status code.
+ @param httpStatusCode Http status code of the http response.
+ @param aDownloadIdentifier Download identifier of the download item.
+ @return True if http status code is valued as correct.
+ @discussion Default implementation values http status code from 200 to 299 as correct.
+ */
+- (BOOL)httpStatusCode:(NSInteger)aHttpStatusCode isValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
 
 
 /**

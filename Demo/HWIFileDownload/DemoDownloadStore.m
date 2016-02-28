@@ -158,6 +158,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 
 - (void)downloadFailedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
                                error:(nonnull NSError *)anError
+                  errorMessagesStack:(nullable NSArray *)anErrorMessagesStack
                           resumeData:(nullable NSData *)aResumeData
 {
     __block BOOL found = NO;
@@ -184,6 +185,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
             {
                 aFailedDownloadItem.status = DemoDownloadItemStatusError;
                 aFailedDownloadItem.downloadError = anError;
+                aFailedDownloadItem.downloadErrorMessagesStack = anErrorMessagesStack;
             }
         }
         aFailedDownloadItem.resumeData = aResumeData;
@@ -200,7 +202,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     }
     else
     {
-        NSLog(@"ERR: %@ (%s, %d)", anError, __FILE__, __LINE__);
+        NSLog(@"ERR: %@ (%s, %d)", anError.localizedDescription, __FILE__, __LINE__);
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:downloadDidCompleteNotification object:aFailedDownloadItem];
@@ -287,8 +289,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 }
 
 
-- (BOOL)downloadIsValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                              atLocalFileURL:(nonnull NSURL *)aLocalFileURL
+- (BOOL)downloadAtLocalFileURL:(nonnull NSURL *)aLocalFileURL isValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
 {
     BOOL anIsValidFlag = YES;
     
@@ -299,7 +300,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     NSDictionary *aFileAttributesDictionary = [[NSFileManager defaultManager] attributesOfItemAtPath:aLocalFileURL.path error:&anError];
     if (anError)
     {
-        NSLog(@"ERR: Error on getting file size for item at %@: %@ (%s, %d)", aLocalFileURL, anError, __FILE__, __LINE__);
+        NSLog(@"ERR: Error on getting file size for item at %@: %@ (%s, %d)", aLocalFileURL, anError.localizedDescription, __FILE__, __LINE__);
         anIsValidFlag = NO;
     }
     else
@@ -317,7 +318,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
                 NSString *aString = [NSString stringWithContentsOfURL:aLocalFileURL encoding:NSUTF8StringEncoding error:&anError];
                 if (anError)
                 {
-                    NSLog(@"ERR: %@ (%s, %d)", anError, __FILE__, __LINE__);
+                    NSLog(@"ERR: %@ (%s, %d)", anError.localizedDescription, __FILE__, __LINE__);
                 }
                 else
                 {

@@ -536,7 +536,16 @@
     {
         if (aDownloadItem.downloadError)
         {
-            anInfoTextLabel.text = aDownloadItem.downloadError.localizedDescription;
+            NSString *aFinalErrorMessage = nil;
+            if (aDownloadItem.downloadErrorMessagesStack.count > 0)
+            {
+                aFinalErrorMessage = [NSString stringWithFormat:@"%@\n%@", [aDownloadItem.downloadErrorMessagesStack componentsJoinedByString:@"\n"], aDownloadItem.downloadError.localizedDescription];
+            }
+            else
+            {
+                aFinalErrorMessage = aDownloadItem.downloadError.localizedDescription;
+            }
+            anInfoTextLabel.text = aFinalErrorMessage;
         }
         else
         {
