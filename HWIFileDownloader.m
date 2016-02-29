@@ -738,17 +738,19 @@
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadTask.taskIdentifier)];
     if (aDownloadItem)
     {
+        NSHTTPURLResponse *aHttpResponse = (NSHTTPURLResponse *)aDownloadTask.response;
+        NSInteger aHttpStatusCode = aHttpResponse.statusCode;
+        aDownloadItem.lastHttpStatusCode = aHttpStatusCode;
         if (anError == nil)
         {
-            NSHTTPURLResponse *aHttpResponse = (NSHTTPURLResponse *)aDownloadTask.response;
             BOOL aHttpStatusCodeIsCorrectFlag = NO;
             if ([self.fileDownloadDelegate respondsToSelector:@selector(httpStatusCode:isValidForDownloadIdentifier:)])
             {
-                aHttpStatusCodeIsCorrectFlag = [self.fileDownloadDelegate httpStatusCode:aHttpResponse.statusCode isValidForDownloadIdentifier:aDownloadItem.downloadToken];
+                aHttpStatusCodeIsCorrectFlag = [self.fileDownloadDelegate httpStatusCode:aHttpStatusCode isValidForDownloadIdentifier:aDownloadItem.downloadToken];
             }
             else
             {
-                aHttpStatusCodeIsCorrectFlag = [HWIFileDownloader httpStatusCode:aHttpResponse.statusCode isValidForDownloadIdentifier:aDownloadItem.downloadToken];
+                aHttpStatusCodeIsCorrectFlag = [HWIFileDownloader httpStatusCode:aHttpStatusCode isValidForDownloadIdentifier:aDownloadItem.downloadToken];
             }
             if (aHttpStatusCodeIsCorrectFlag == YES)
             {
@@ -765,7 +767,7 @@
             }
             else
             {
-                NSString *anErrorString = [NSString stringWithFormat:@"Invalid http status code: %@", @(aHttpResponse.statusCode)];
+                NSString *anErrorString = [NSString stringWithFormat:@"Invalid http status code: %@", @(aHttpStatusCode)];
                 NSMutableArray *anErrorMessagesStackArray = [aDownloadItem.errorMessagesStack mutableCopy];
                 if (anErrorMessagesStackArray == nil)
                 {
@@ -945,6 +947,8 @@
             {
                 aDownloadItem.expectedFileSizeInBytes = anExpectedContentLength;
             }
+            NSHTTPURLResponse *aHttpResponse = (NSHTTPURLResponse *)aResponse;
+            aDownloadItem.lastHttpStatusCode = aHttpResponse.statusCode;
         }
     }
 }
@@ -1109,6 +1113,7 @@
 {
     [self.fileDownloadDelegate downloadFailedWithIdentifier:aDownloadItem.downloadToken
                                                       error:anError
+                                             httpStatusCode:aDownloadItem.lastHttpStatusCode
                                          errorMessagesStack:aDownloadItem.errorMessagesStack
                                                  resumeData:aResumeData];
     [self.activeDownloadsDictionary removeObjectForKey:@(aDownloadID)];

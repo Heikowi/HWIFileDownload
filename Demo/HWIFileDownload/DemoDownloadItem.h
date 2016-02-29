@@ -59,6 +59,7 @@
 
 @property (nonatomic, strong, nullable) NSError *downloadError;
 @property (nonatomic, strong, nullable) NSArray *downloadErrorMessagesStack;
+@property (nonatomic, assign) NSInteger lastHttpStatusCode;
 
 - (nullable DemoDownloadItem *)init __attribute__((unavailable("use initWithDownloadIdentifier:remoteURL:")));
 + (nullable DemoDownloadItem *)new __attribute__((unavailable("use initWithDownloadIdentifier:remoteURL:")));

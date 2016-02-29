@@ -158,6 +158,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 
 - (void)downloadFailedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
                                error:(nonnull NSError *)anError
+                      httpStatusCode:(NSInteger)aHttpStatusCode
                   errorMessagesStack:(nullable NSArray *)anErrorMessagesStack
                           resumeData:(nullable NSData *)aResumeData
 {
@@ -175,6 +176,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     if (found)
     {
         aFailedDownloadItem = [self.downloadItemsArray objectAtIndex:aFailedDownloadItemIndex];
+        aFailedDownloadItem.lastHttpStatusCode = aHttpStatusCode;
         if (aFailedDownloadItem.status != DemoDownloadItemStatusPaused)
         {
             if ([anError.domain isEqualToString:NSURLErrorDomain] && (anError.code == NSURLErrorCancelled))

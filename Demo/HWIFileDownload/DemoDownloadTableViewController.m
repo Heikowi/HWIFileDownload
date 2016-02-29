@@ -539,17 +539,17 @@
             NSString *aFinalErrorMessage = nil;
             if (aDownloadItem.downloadErrorMessagesStack.count > 0)
             {
-                aFinalErrorMessage = [NSString stringWithFormat:@"%@\n%@", [aDownloadItem.downloadErrorMessagesStack componentsJoinedByString:@"\n"], aDownloadItem.downloadError.localizedDescription];
+                aFinalErrorMessage = [NSString stringWithFormat:@"http status: %@\n%@\n%@", @(aDownloadItem.lastHttpStatusCode), [aDownloadItem.downloadErrorMessagesStack componentsJoinedByString:@"\n"], aDownloadItem.downloadError.localizedDescription];
             }
             else
             {
-                aFinalErrorMessage = aDownloadItem.downloadError.localizedDescription;
+                aFinalErrorMessage = [NSString stringWithFormat:@"http status: %@\n%@", @(aDownloadItem.lastHttpStatusCode), aDownloadItem.downloadError.localizedDescription];
             }
             anInfoTextLabel.text = aFinalErrorMessage;
         }
         else
         {
-            anInfoTextLabel.text = @"Error";
+            anInfoTextLabel.text = [NSString stringWithFormat:@"Error (http status: %@)", @(aDownloadItem.lastHttpStatusCode)];
         }
     }
 }
