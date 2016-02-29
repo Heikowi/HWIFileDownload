@@ -25,6 +25,8 @@ The delegate is called on download completion. Additional calls are used to cont
 
 	- (void)downloadFailedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
                                    error:(nonnull NSError *)anError
+                          httpStatusCode:(NSInteger)aHttpStatusCode
+                      errorMessagesStack:(nullable NSArray *)anErrorMessagesStack
                               resumeData:(nullable NSData *)aResumeData;
 
 	- (void)incrementNetworkActivityIndicatorActivityCount;
