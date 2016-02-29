@@ -37,8 +37,8 @@ The delegate is called on download completion. Additional calls are used to cont
                               resumeData:(nullable NSData *)aResumeData;
 	- (nullable NSURL *)localFileURLForIdentifier:(nonnull NSString *)aDownloadIdentifier
                                         remoteURL:(nonnull NSURL *)aRemoteURL;
-	- (BOOL)downloadIsValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                                  atLocalFileURL:(nonnull NSURL *)aLocalFileURL;
+	- (BOOL)downloadAtLocalFileURL:(nonnull NSURL *)aLocalFileURL isValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
+	- (BOOL)httpStatusCode:(NSInteger)aHttpStatusCode isValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
 	- (NSTimeInterval)requestTimeoutInterval;
 	- (NSTimeInterval)resourceTimeoutInterval;
 	- (nullable NSProgress *)rootProgress;
