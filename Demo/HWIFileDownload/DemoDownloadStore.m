@@ -38,7 +38,6 @@
 #import "DemoAppDelegate.h"
 #import "DemoDownloadItem.h"
 #import "DemoDownloadNotifications.h"
-#import "HWIFileDownloadDelegate.h"
 #import "HWIFileDownloader.h"
 
 #import <UIKit/UIKit.h>
@@ -272,12 +271,12 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     [[NSNotificationCenter defaultCenter] postNotificationName:downloadProgressChangedNotification object:aChangedDownloadItem];
 }
 
-
+/*
 - (NSTimeInterval)requestTimeoutInterval
 {
     return 30.0;
 }
-
+*/
 
 - (void)incrementNetworkActivityIndicatorActivityCount
 {

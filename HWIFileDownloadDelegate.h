@@ -36,6 +36,9 @@
 #import <Foundation/Foundation.h>
 
 
+@class NSURLSessionConfiguration;
+
+
 /**
  HWIFileDownloadDelegate is a protocol for handling salient download events.
  */
@@ -128,19 +131,19 @@
 
 
 /**
- Optionally set timeout interval for a request with this return value.
- @return The timeout to use for the a request.
- @discussion The timeout fires if no data is transmitted for the given timeout value.
+ Optionally customize the background session configuration.
+ @param aBackgroundSessionConfiguration Background session configuration to modify.
+ @discussion With the background session configuration parameters can be adjusted (e.g. timeoutIntervalForRequest, timeoutIntervalForResource, HTTPAdditionalHeaders).
  */
-- (NSTimeInterval)requestTimeoutInterval;
+- (void)customizeBackgroundSessionConfiguration:(NSURLSessionConfiguration * _Nonnull * _Nonnull)aBackgroundSessionConfiguration;
 
 
 /**
- Optionally set timeout interval for downloading an individual item with this return value.
- @return The timeout to use for a download item.
- @discussion The timeout fires if a download item does not complete download during the time interval (only applies to NSURLSession).
+ Optionally create a custom url request for a remote url.
+ @param aRemoteURL Remote URL from where the data should be downloaded.
+ @discussion Create a custom url request if you want to customize cachePolicy or timeoutInterval. Used with NSURLConnection on iOS 6 only.
  */
-- (NSTimeInterval)resourceTimeoutInterval;
+- (nullable NSURLRequest *)urlRequestForRemoteURL:(nonnull NSURL *)aRemoteURL;
 
 
 /**
