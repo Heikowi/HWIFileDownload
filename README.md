@@ -41,13 +41,13 @@ The delegate is called on download completion. Additional calls are used to cont
                                         remoteURL:(nonnull NSURL *)aRemoteURL;
 	- (BOOL)downloadAtLocalFileURL:(nonnull NSURL *)aLocalFileURL isValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
 	- (BOOL)httpStatusCode:(NSInteger)aHttpStatusCode isValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
-	- (NSTimeInterval)requestTimeoutInterval;
-	- (NSTimeInterval)resourceTimeoutInterval;
+	- (void)customizeBackgroundSessionConfiguration:(NSURLSessionConfiguration * _Nonnull * _Nonnull)aBackgroundSessionConfiguration;
+	- (nullable NSURLRequest *)urlRequestForRemoteURL:(nonnull NSURL *)aRemoteURL;
 	- (nullable NSProgress *)rootProgress;
 
 	@end
 	
-The app needs to hold an instance of the `HWIFileDownloader` that manages the download process. The `HWIDownloader` provides methods for querying and controlling individual download processes.
+The app needs to hold an instance of the `HWIFileDownloader` that manages the download process. `HWIFileDownloader` provides methods for querying and controlling individual download processes.
 
 	- (void)startDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
                                   fromRemoteURL:(nonnull NSURL *)aRemoteURL;
@@ -77,9 +77,9 @@ The app needs to hold an instance of the `HWIFileDownloader` that manages the do
 
 The demo app shows a sample setup and integration of HWIFileDownload.
 
-The app __download store__ is implemented with the custom class `DownloadStore`.
+The app __download store__ is implemented with the custom class `DemoDownloadStore`.
 
-The app delegate of the demo app holds an instance of the `DownloadStore` and an instance of the `HWIFileDownloader`.
+The app delegate of the demo app holds an instance of the `DemoDownloadStore` and an instance of the `HWIFileDownloader`.
 
 ## Workflows and Scenarios
 
@@ -101,7 +101,7 @@ After the app has been killed by the user, downloads do not continue in the back
 
 ### Refresh
 
-By pulling down the table view, the contents are refreshed. All items with incomplete data resume download.
+By pulling down the table view, the content is refreshed. All items with incomplete data resume download.
 
 
 ### Background
@@ -112,9 +112,14 @@ When running in the background, all running downloads continue on iOS 7 (and lat
 
 When loosing network connection, all running downloads pause after request timeout. On iOS 7 (and later) the downloads resume when network becomes available again. On iOS 6 downloads are stopped after request timeout; they start again with the next app start.
 
-## Timeout
+## Customization
 
-There are two timeouts available: __request timeout__ and __resource timeout__.
+Two delegate calls provide hooks for adjusting connection parameters:
+
+	- (void)customizeBackgroundSessionConfiguration:(NSURLSessionConfiguration * _Nonnull * _Nonnull)aBackgroundSessionConfiguration;
+	- (nullable NSURLRequest *)urlRequestForRemoteURL:(nonnull NSURL *)aRemoteURL; // iOS 6 only
+
+With the delegate calls, timeout behaviour can be customized. On iOS there are two timeouts: __request timeout__ and __resource timeout__.
 
 The __request timeout__ fires "if no data is transmitted for the given timeout value, and is reset whenever data is transmitted". iOS's system default value is 60 seconds.
 
