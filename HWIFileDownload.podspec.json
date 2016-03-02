@@ -1,6 +1,6 @@
 {
   "name": "HWIFileDownload",
-  "version": "2.0",
+  "version": "2.1",
   "license": {
     "type": "zlib",
     "file": "LICENCE.md"
@@ -11,14 +11,14 @@
   "social_media_url": "https://twitter.com/heikowi",
   "source": {
     "git": "https://github.com/Heikowi/HWIFileDownload.git",
-    "tag": "2.0"
+    "tag": "2.1"
   },
   "source_files": [
     "HWIBackgroundSessionCompletionHandlerBlock.h", 
     "HWIFileDownloadDelegate.h", 
+    "HWIFileDownloader.{h,m}",
     "HWIFileDownloadItem.{h,m}", 
-    "HWIFileDownloadProgress.{h,m}", 
-    "HWIFileDownloader.{h,m}"
+    "HWIFileDownloadProgress.{h,m}"
   ],
   "requires_arc": true,
   "platforms": {
