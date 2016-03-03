@@ -135,7 +135,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     DemoDownloadItem *aCompletedDownloadItem = nil;
     if (aFoundDownloadItemIndex != NSNotFound)
     {
-        NSLog(@"INFO: Download completed (id: %@) (%s, %d)", aDownloadIdentifier, __FILE__, __LINE__);
+        NSLog(@"INFO: Download completed (id: %@) (%@, %d)", aDownloadIdentifier, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
         
         aCompletedDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
         aCompletedDownloadItem.status = DemoDownloadItemStatusCompleted;
@@ -144,7 +144,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     }
     else
     {
-        NSLog(@"ERR: Completed download item not found (id: %@) (%s, %d)", aDownloadIdentifier, __FILE__, __LINE__);
+        NSLog(@"ERR: Completed download item not found (id: %@) (%@, %d)", aDownloadIdentifier, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:downloadDidCompleteNotification object:aCompletedDownloadItem];
@@ -188,15 +188,15 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     }
     else
     {
-        NSLog(@"ERR: Failed download item not found (id: %@) (%s, %d)", aDownloadIdentifier, __FILE__, __LINE__);
+        NSLog(@"ERR: Failed download item not found (id: %@) (%@, %d)", aDownloadIdentifier, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
     }
     if ([anError.domain isEqualToString:NSURLErrorDomain] && (anError.code == NSURLErrorCancelled))
     {
-        NSLog(@"INFO: Download cancelled - id: %@ (%s, %d)", aDownloadIdentifier, __FILE__, __LINE__);
+        NSLog(@"INFO: Download cancelled - id: %@ (%@, %d)", aDownloadIdentifier, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
     }
     else
     {
-        NSLog(@"ERR: %@ (%s, %d)", anError.localizedDescription, __FILE__, __LINE__);
+        NSLog(@"ERR: %@ (%@, %d)", anError.localizedDescription, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:downloadDidCompleteNotification object:aFailedDownloadItem];
@@ -215,7 +215,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     }];
     if (aFoundDownloadItemIndex != NSNotFound)
     {
-        NSLog(@"INFO: Download paused - id: %@ (%s, %d)", aDownloadIdentifier, __FILE__, __LINE__);
+        NSLog(@"INFO: Download paused - id: %@ (%@, %d)", aDownloadIdentifier, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
         
         DemoDownloadItem *aPausedDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
         aPausedDownloadItem.status = DemoDownloadItemStatusPaused;
@@ -225,7 +225,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     }
     else
     {
-        NSLog(@"ERR: Paused download item not found (id: %@) (%s, %d)", aDownloadIdentifier, __FILE__, __LINE__);
+        NSLog(@"ERR: Paused download item not found (id: %@) (%@, %d)", aDownloadIdentifier, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
     }
 }
 
@@ -282,7 +282,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     NSDictionary <NSString *, id> *aFileAttributesDictionary = [[NSFileManager defaultManager] attributesOfItemAtPath:aLocalFileURL.path error:&anError];
     if (anError)
     {
-        NSLog(@"ERR: Error on getting file size for item at %@: %@ (%s, %d)", aLocalFileURL, anError.localizedDescription, __FILE__, __LINE__);
+        NSLog(@"ERR: Error on getting file size for item at %@: %@ (%@, %d)", aLocalFileURL, anError.localizedDescription, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
         anIsValidFlag = NO;
     }
     else
@@ -300,11 +300,11 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
                 NSString *aString = [NSString stringWithContentsOfURL:aLocalFileURL encoding:NSUTF8StringEncoding error:&anError];
                 if (anError)
                 {
-                    NSLog(@"ERR: %@ (%s, %d)", anError.localizedDescription, __FILE__, __LINE__);
+                    NSLog(@"ERR: %@ (%@, %d)", anError.localizedDescription, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
                 }
                 else
                 {
-                    NSLog(@"INFO: Downloaded file content for download identifier %@: %@ (%s, %d)", aDownloadIdentifier, aString, __FILE__, __LINE__);
+                    NSLog(@"INFO: Downloaded file content for download identifier %@: %@ (%@, %d)", aDownloadIdentifier, aString, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
                 }
                 anIsValidFlag = NO;
             }
@@ -344,7 +344,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
         }
         else
         {
-            NSLog(@"ERR: Invalid keyPath (%s, %d)", __FILE__, __LINE__);
+            NSLog(@"ERR: Invalid keyPath (%@, %d)", [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
         }
     }
     else
@@ -463,7 +463,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     }
     else
     {
-        NSLog(@"ERR: Cancelled download item not found (id: %@) (%s, %d)", aDownloadIdentifier, __FILE__, __LINE__);
+        NSLog(@"ERR: Cancelled download item not found (id: %@) (%@, %d)", aDownloadIdentifier, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
     }
 }
 

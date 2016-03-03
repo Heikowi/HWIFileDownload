@@ -399,7 +399,7 @@
     }
     else
     {
-        NSLog(@"WARN: Completed download item not found (%s, %d)", __FILE__, __LINE__);
+        NSLog(@"WARN: Completed download item not found (%@, %d)", [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
     }
 }
 
@@ -601,7 +601,7 @@
             break;
             
         default:
-            NSLog(@"ERR: Invalid status %@ (%s, %d)", @(aStatus), __FILE__, __LINE__);
+            NSLog(@"ERR: Invalid status %@ (%@, %d)", @(aStatus), [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
             break;
     }
 }
