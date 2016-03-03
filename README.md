@@ -20,35 +20,31 @@ The app client should maintain a custom __download store__ to manage the downloa
 
 The delegate is called on download completion. Additional calls are used to control the visibility of the network activity indicator. Optionally the delegate can be called on download progress change for each download item. To control the local name of the downloaded file, the delegate can implement the method `localFileURLForIdentifier:remoteURL:`.
 
-	@protocol HWIFileDownloadDelegate
+```objective-c
+@protocol HWIFileDownloadDelegate
+- (void)downloadDidCompleteWithIdentifier:(nonnull NSString *)aDownloadIdentifier
+                             localFileURL:(nonnull NSURL *)aLocalFileURL;
+- (void)downloadFailedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
+                               error:(nonnull NSError *)anError
+                      httpStatusCode:(NSInteger)aHttpStatusCode
+                  errorMessagesStack:(nullable NSArray *)anErrorMessagesStack
+                          resumeData:(nullable NSData *)aResumeData;
+- (void)incrementNetworkActivityIndicatorActivityCount;
+- (void)decrementNetworkActivityIndicatorActivityCount;
+@optional
+- (void)downloadProgressChangedForIdentifier:(nonnull NSString *)aDownloadIdentifier;
+- (void)downloadPausedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
+                          resumeData:(nullable NSData *)aResumeData;
+- (nullable NSURL *)localFileURLForIdentifier:(nonnull NSString *)aDownloadIdentifier
+                                    remoteURL:(nonnull NSURL *)aRemoteURL;
+- (BOOL)downloadAtLocalFileURL:(nonnull NSURL *)aLocalFileURL isValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
+- (BOOL)httpStatusCode:(NSInteger)aHttpStatusCode isValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
+- (void)customizeBackgroundSessionConfiguration:(NSURLSessionConfiguration * _Nonnull * _Nonnull)aBackgroundSessionConfiguration;
+- (nullable NSURLRequest *)urlRequestForRemoteURL:(nonnull NSURL *)aRemoteURL;
+- (nullable NSProgress *)rootProgress;
+@end
+```
 
-	- (void)downloadDidCompleteWithIdentifier:(nonnull NSString *)aDownloadIdentifier
-                                 localFileURL:(nonnull NSURL *)aLocalFileURL;
-
-	- (void)downloadFailedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
-                                   error:(nonnull NSError *)anError
-                          httpStatusCode:(NSInteger)aHttpStatusCode
-                      errorMessagesStack:(nullable NSArray *)anErrorMessagesStack
-                              resumeData:(nullable NSData *)aResumeData;
-
-	- (void)incrementNetworkActivityIndicatorActivityCount;
-	- (void)decrementNetworkActivityIndicatorActivityCount;
-
-	@optional
-
-	- (void)downloadProgressChangedForIdentifier:(nonnull NSString *)aDownloadIdentifier;
-	- (void)downloadPausedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
-                              resumeData:(nullable NSData *)aResumeData;
-	- (nullable NSURL *)localFileURLForIdentifier:(nonnull NSString *)aDownloadIdentifier
-                                        remoteURL:(nonnull NSURL *)aRemoteURL;
-	- (BOOL)downloadAtLocalFileURL:(nonnull NSURL *)aLocalFileURL isValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
-	- (BOOL)httpStatusCode:(NSInteger)aHttpStatusCode isValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
-	- (void)customizeBackgroundSessionConfiguration:(NSURLSessionConfiguration * _Nonnull * _Nonnull)aBackgroundSessionConfiguration;
-	- (nullable NSURLRequest *)urlRequestForRemoteURL:(nonnull NSURL *)aRemoteURL;
-	- (nullable NSProgress *)rootProgress;
-
-	@end
-	
 ### Downloader
 
 The app needs to hold an instance of the `HWIFileDownloader` that manages the download process. `HWIFileDownloader` provides methods for starting, querying and controlling individual download processes.
