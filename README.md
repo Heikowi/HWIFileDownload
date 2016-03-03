@@ -8,7 +8,7 @@ Based on `NSURLSession` HWIFileDownload offers system background operation even 
 
 HWIFileDownload is backwards compatible down to iOS 6 (where `NSURLConnection` is used instead of `NSURLSession`).
 
-![Demo Download Screenshot](/Demo/HWIFileDownload/DemoDownloadScreenshot.png?raw=true "Demo Download Screenshot")
+![Demo Download Screenshot](Demo/HWIFileDownload/DemoDownloadScreenshot.png?raw=true "Demo Download Screenshot")
 
 ## Implementation
 
