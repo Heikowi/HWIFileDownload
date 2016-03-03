@@ -333,18 +333,15 @@
         // app client bookkeeping
         [theAppDelegate.demoDownloadStore cancelDownloadWithDownloadIdentifier:aDownloadIdentifier];
         
-        __block BOOL found = NO;
-        NSUInteger aCompletedDownloadItemIndex = [[theAppDelegate demoDownloadStore].downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-            if ([[(DemoDownloadItem *)obj downloadIdentifier] isEqualToString:aDownloadIdentifier]) {
-                *stop = YES;
-                found = YES;
+        NSUInteger aFoundDownloadItemIndex = [[theAppDelegate demoDownloadStore].downloadItemsArray indexOfObjectPassingTest:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSUInteger anIndex, BOOL *aStopFlag) {
+            if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadIdentifier]) {
                 return YES;
             }
             return NO;
         }];
-        if (found)
+        if (aFoundDownloadItemIndex != NSNotFound)
         {
-            NSIndexPath *anIndexPath = [NSIndexPath indexPathForRow:aCompletedDownloadItemIndex inSection:0];
+            NSIndexPath *anIndexPath = [NSIndexPath indexPathForRow:aFoundDownloadItemIndex inSection:0];
             [self.tableView reloadRowsAtIndexPaths:@[anIndexPath] withRowAnimation:UITableViewRowAnimationNone];
         }
     }
@@ -385,22 +382,19 @@
 
 - (void)onDownloadDidComplete:(NSNotification *)aNotification
 {
-    DemoDownloadItem *aDownloadItem = (DemoDownloadItem *)aNotification.object;
+    DemoDownloadItem *aDownloadedDownloadItem = (DemoDownloadItem *)aNotification.object;
     
     DemoAppDelegate *theAppDelegate = (DemoAppDelegate *)[UIApplication sharedApplication].delegate;
     
-    __block BOOL found = NO;
-    NSUInteger aCompletedDownloadItemIndex = [[theAppDelegate demoDownloadStore].downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        if ([[(DemoDownloadItem *)obj downloadIdentifier] isEqualToString:aDownloadItem.downloadIdentifier]) {
-            *stop = YES;
-            found = YES;
+    NSUInteger aFoundDownloadItemIndex = [[theAppDelegate demoDownloadStore].downloadItemsArray indexOfObjectPassingTest:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSUInteger anIndex, BOOL *aStopFlag) {
+        if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadedDownloadItem.downloadIdentifier]) {
             return YES;
         }
         return NO;
     }];
-    if (found)
+    if (aFoundDownloadItemIndex != NSNotFound)
     {
-        NSIndexPath *anIndexPath = [NSIndexPath indexPathForRow:aCompletedDownloadItemIndex inSection:0];
+        NSIndexPath *anIndexPath = [NSIndexPath indexPathForRow:aFoundDownloadItemIndex inSection:0];
         [self.tableView reloadRowsAtIndexPaths:@[anIndexPath] withRowAnimation:UITableViewRowAnimationNone];
     }
     else

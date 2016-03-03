@@ -87,15 +87,14 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     for (NSUInteger aDownloadIdentifierUInteger = 1; aDownloadIdentifierUInteger < 11; aDownloadIdentifierUInteger++)
     {
         NSString *aDownloadIdentifier = [NSString stringWithFormat:@"%@", @(aDownloadIdentifierUInteger)];
-        NSArray *aFoundDownloadItemsArray = [self.downloadItemsArray filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSDictionary *bindings) {
-            BOOL aResult = NO;
+        NSUInteger aFoundDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSUInteger anIndex, BOOL *aStopFlag) {
             if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadIdentifier])
             {
-                aResult = YES;
+                return YES;
             }
-            return aResult;
-        }]];
-        if (aFoundDownloadItemsArray.count == 0)
+            return NO;
+        }];
+        if (aFoundDownloadItemIndex == NSNotFound)
         {
             NSURL *aRemoteURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://www.imagomat.de/testimages/%@.tiff", @(aDownloadIdentifierUInteger)]];
             DemoDownloadItem *aDemoDownloadItem = [[DemoDownloadItem alloc] initWithDownloadIdentifier:aDownloadIdentifier remoteURL:aRemoteURL];
@@ -126,24 +125,21 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 - (void)downloadDidCompleteWithIdentifier:(nonnull NSString *)aDownloadIdentifier
                              localFileURL:(nonnull NSURL *)aLocalFileURL
 {
-    __block BOOL found = NO;
-    NSUInteger aCompletedDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        if ([[(DemoDownloadItem *)obj downloadIdentifier] isEqualToString:aDownloadIdentifier])
+    NSUInteger aFoundDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSUInteger anIndex, BOOL *aStopFlag) {
+        if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadIdentifier])
         {
-            *stop = YES;
-            found = YES;
             return YES;
         }
         return NO;
     }];
     DemoDownloadItem *aCompletedDownloadItem = nil;
-    if (found)
+    if (aFoundDownloadItemIndex != NSNotFound)
     {
         NSLog(@"INFO: Download completed (id: %@) (%s, %d)", aDownloadIdentifier, __FILE__, __LINE__);
         
-        aCompletedDownloadItem = [self.downloadItemsArray objectAtIndex:aCompletedDownloadItemIndex];
+        aCompletedDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
         aCompletedDownloadItem.status = DemoDownloadItemStatusCompleted;
-        [self.downloadItemsArray replaceObjectAtIndex:aCompletedDownloadItemIndex withObject:aCompletedDownloadItem];
+        [self.downloadItemsArray replaceObjectAtIndex:aFoundDownloadItemIndex withObject:aCompletedDownloadItem];
         [self storeDownloadItems];
     }
     else
@@ -161,20 +157,17 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
                   errorMessagesStack:(nullable NSArray *)anErrorMessagesStack
                           resumeData:(nullable NSData *)aResumeData
 {
-    __block BOOL found = NO;
-    NSUInteger aFailedDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        if ([[(DemoDownloadItem *)obj downloadIdentifier] isEqualToString:aDownloadIdentifier])
+    NSUInteger aFoundDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSUInteger anIndex, BOOL *aStopFlag) {
+        if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadIdentifier])
         {
-            *stop = YES;
-            found = YES;
             return YES;
         }
         return NO;
     }];
     DemoDownloadItem *aFailedDownloadItem = nil;
-    if (found)
+    if (aFoundDownloadItemIndex != NSNotFound)
     {
-        aFailedDownloadItem = [self.downloadItemsArray objectAtIndex:aFailedDownloadItemIndex];
+        aFailedDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
         aFailedDownloadItem.lastHttpStatusCode = aHttpStatusCode;
         if (aFailedDownloadItem.status != DemoDownloadItemStatusPaused)
         {
@@ -190,7 +183,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
             }
         }
         aFailedDownloadItem.resumeData = aResumeData;
-        [self.downloadItemsArray replaceObjectAtIndex:aFailedDownloadItemIndex withObject:aFailedDownloadItem];
+        [self.downloadItemsArray replaceObjectAtIndex:aFoundDownloadItemIndex withObject:aFailedDownloadItem];
         [self storeDownloadItems];
     }
     else
@@ -213,24 +206,21 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 - (void)downloadPausedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
                           resumeData:(nullable NSData *)aResumeData
 {
-    __block BOOL found = NO;
-    NSUInteger aPausedDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        if ([[(DemoDownloadItem *)obj downloadIdentifier] isEqualToString:aDownloadIdentifier])
+    NSUInteger aFoundDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSUInteger anIndex, BOOL *aStopFlag) {
+        if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadIdentifier])
         {
-            *stop = YES;
-            found = YES;
             return YES;
         }
         return NO;
     }];
-    if (found)
+    if (aFoundDownloadItemIndex != NSNotFound)
     {
         NSLog(@"INFO: Download paused - id: %@ (%s, %d)", aDownloadIdentifier, __FILE__, __LINE__);
         
-        DemoDownloadItem *aPausedDownloadItem = [self.downloadItemsArray objectAtIndex:aPausedDownloadItemIndex];
+        DemoDownloadItem *aPausedDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
         aPausedDownloadItem.status = DemoDownloadItemStatusPaused;
         aPausedDownloadItem.resumeData = aResumeData;
-        [self.downloadItemsArray replaceObjectAtIndex:aPausedDownloadItemIndex withObject:aPausedDownloadItem];
+        [self.downloadItemsArray replaceObjectAtIndex:aFoundDownloadItemIndex withObject:aPausedDownloadItem];
         [self storeDownloadItems];
     }
     else
@@ -242,20 +232,17 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 
 - (void)downloadProgressChangedForIdentifier:(nonnull NSString *)aDownloadIdentifier
 {
-    __block BOOL found = NO;
-    NSUInteger aDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        if ([[(DemoDownloadItem *)obj downloadIdentifier] isEqualToString:aDownloadIdentifier])
+    NSUInteger aFoundDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSUInteger anIndex, BOOL *aStopFlag) {
+        if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadIdentifier])
         {
-            *stop = YES;
-            found = YES;
             return YES;
         }
         return NO;
     }];
     DemoDownloadItem *aChangedDownloadItem = nil;
-    if (found)
+    if (aFoundDownloadItemIndex != NSNotFound)
     {
-        aChangedDownloadItem = [self.downloadItemsArray objectAtIndex:aDownloadItemIndex];
+        aChangedDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
         DemoAppDelegate *theAppDelegate = (DemoAppDelegate *)[UIApplication sharedApplication].delegate;
         HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
         if (aFileDownloadProgress)
@@ -271,12 +258,6 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     [[NSNotificationCenter defaultCenter] postNotificationName:downloadProgressChangedNotification object:aChangedDownloadItem];
 }
 
-/*
-- (NSTimeInterval)requestTimeoutInterval
-{
-    return 30.0;
-}
-*/
 
 - (void)incrementNetworkActivityIndicatorActivityCount
 {
@@ -298,7 +279,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     // you might want to check by converting into expected data format (like UIImage) or by scanning for expected content
     
     NSError *anError = nil;
-    NSDictionary *aFileAttributesDictionary = [[NSFileManager defaultManager] attributesOfItemAtPath:aLocalFileURL.path error:&anError];
+    NSDictionary <NSString *, id> *aFileAttributesDictionary = [[NSFileManager defaultManager] attributesOfItemAtPath:aLocalFileURL.path error:&anError];
     if (anError)
     {
         NSLog(@"ERR: Error on getting file size for item at %@: %@ (%s, %d)", aLocalFileURL, anError.localizedDescription, __FILE__, __LINE__);
@@ -421,17 +402,16 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
                            context:DemoDownloadStoreProgressObserverContext];
     }
     
-    NSArray *aFoundDownloadItemsArray = [self.downloadItemsArray filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(DemoDownloadItem *object, NSDictionary *bindings) {
-        BOOL aResult = NO;
-        if ([object.downloadIdentifier isEqualToString:aDownloadIdentifier])
+    NSUInteger aFoundDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSUInteger anIndex, BOOL *aStopFlag) {
+        if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadIdentifier])
         {
-            aResult = YES;
+            return YES;
         }
-        return aResult;
-    }]];
-    if (aFoundDownloadItemsArray.count == 1)
+        return NO;
+    }];
+    if (aFoundDownloadItemIndex != NSNotFound)
     {
-        DemoDownloadItem *aDemoDownloadItem = aFoundDownloadItemsArray.firstObject;
+        DemoDownloadItem *aDemoDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
         [self startDownloadWithDownloadItem:aDemoDownloadItem];
     }
 }
@@ -467,21 +447,18 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 
 - (void)cancelDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
 {
-    __block BOOL found = NO;
-    NSUInteger aCompletedDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        if ([[(DemoDownloadItem *)obj downloadIdentifier] isEqualToString:aDownloadIdentifier])
+    NSUInteger aFoundDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSUInteger anIndex, BOOL *aStopFlag) {
+        if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadIdentifier])
         {
-            *stop = YES;
-            found = YES;
             return YES;
         }
         return NO;
     }];
-    if (found)
+    if (aFoundDownloadItemIndex != NSNotFound)
     {
-        DemoDownloadItem *aCancelledDownloadItem = [self.downloadItemsArray objectAtIndex:aCompletedDownloadItemIndex];
+        DemoDownloadItem *aCancelledDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
         aCancelledDownloadItem.status = DemoDownloadItemStatusCancelled;
-        [self.downloadItemsArray replaceObjectAtIndex:aCompletedDownloadItemIndex withObject:aCancelledDownloadItem];
+        [self.downloadItemsArray replaceObjectAtIndex:aFoundDownloadItemIndex withObject:aCancelledDownloadItem];
         [self storeDownloadItems];
     }
     else
@@ -507,7 +484,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 
 - (void)storeDownloadItems
 {
-    NSMutableArray *aDemoDownloadItemsArchiveArray = [NSMutableArray arrayWithCapacity:self.downloadItemsArray.count];
+    NSMutableArray <NSData *> *aDemoDownloadItemsArchiveArray = [NSMutableArray arrayWithCapacity:self.downloadItemsArray.count];
     for (DemoDownloadItem *aDemoDownloadItem in self.downloadItemsArray)
     {
         NSData *aDemoDownloadItemEncoded = [NSKeyedArchiver archivedDataWithRootObject:aDemoDownloadItem];
@@ -519,10 +496,10 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 }
 
 
-- (NSMutableArray *)restoredDownloadItems
+- (nonnull NSMutableArray<DemoDownloadItem *> *)restoredDownloadItems
 {
-    NSMutableArray *aRestoredMutableDownloadItemsArray = [NSMutableArray array];
-    NSMutableArray *aRestoredMutableDataItemsArray = [[[NSUserDefaults standardUserDefaults] objectForKey:@"downloadItems"] mutableCopy];
+    NSMutableArray <DemoDownloadItem *> *aRestoredMutableDownloadItemsArray = [NSMutableArray array];
+    NSMutableArray <NSData  *> *aRestoredMutableDataItemsArray = [[[NSUserDefaults standardUserDefaults] objectForKey:@"downloadItems"] mutableCopy];
     if (aRestoredMutableDataItemsArray == nil)
     {
         aRestoredMutableDataItemsArray = [NSMutableArray array];
