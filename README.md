@@ -31,6 +31,7 @@ The delegate is called on download completion. Additional calls are used to cont
                           resumeData:(nullable NSData *)aResumeData;
 - (void)incrementNetworkActivityIndicatorActivityCount;
 - (void)decrementNetworkActivityIndicatorActivityCount;
+
 @optional
 - (void)downloadProgressChangedForIdentifier:(nonnull NSString *)aDownloadIdentifier;
 - (void)downloadPausedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
