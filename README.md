@@ -14,6 +14,8 @@ HWIFileDownload uses a __download identifier__ for starting a download, retrievi
 
 To start a download, the app client calls the method `startDownloadWithDownloadIdentifier:fromRemoteURL:` of the `HWIFileDownloader`.
 
+### Download Store as Delegate
+
 The app client should maintain a custom __download store__ to manage the downloads and the persistent store. The app __download store__ needs to implement the protocol `HWIFileDownloadDelegate` to be called on important download events.
 
 The delegate is called on download completion. Additional calls are used to control the visibility of the network activity indicator. Optionally the delegate can be called on download progress change for each download item. To control the local name of the downloaded file, the delegate can implement the method `localFileURLForIdentifier:remoteURL:`.
@@ -47,6 +49,8 @@ The delegate is called on download completion. Additional calls are used to cont
 
 	@end
 	
+### Downloader
+
 The app needs to hold an instance of the `HWIFileDownloader` that manages the download process. `HWIFileDownloader` provides methods for starting, querying and controlling individual download processes.
 
 	- (void)startDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
@@ -61,6 +65,8 @@ The app needs to hold an instance of the `HWIFileDownloader` that manages the do
 	- (nullable HWIFileDownloadProgress *)downloadProgressForIdentifier:(nonnull NSString *)aDownloadIdentifier;
 	
 	
+### Progress
+
 `HWIFileDownloadProgress` exposes these properties:
 
 	@property (nonatomic, assign, readonly) float downloadProgress;
