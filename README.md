@@ -8,6 +8,8 @@ Based on `NSURLSession` HWIFileDownload offers system background operation even 
 
 HWIFileDownload is backwards compatible down to iOS 6 (where `NSURLConnection` is used instead of `NSURLSession`).
 
+![Demo Download Screenshot](/Demo/HWIFileDownload/DemoDownloadScreenshot.png.png?raw=true "Demo Download Screenshot")
+
 ## Implementation
 
 HWIFileDownload uses a __download identifier__ for starting a download, retrieving progress information, and for handling download completion. The __download identifier__ is a string that must be unique for each individual file download.
