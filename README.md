@@ -50,31 +50,33 @@ The delegate is called on download completion. Additional calls are used to cont
 
 The app needs to hold an instance of the `HWIFileDownloader` that manages the download process. `HWIFileDownloader` provides methods for starting, querying and controlling individual download processes.
 
-	- (void)startDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                                  fromRemoteURL:(nonnull NSURL *)aRemoteURL;
-	- (void)startDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                                usingResumeData:(nonnull NSData *)aResumeData;
-	- (BOOL)isDownloadingIdentifier:(nonnull NSString *)aDownloadIdentifier;
-	- (BOOL)isWaitingForDownloadOfIdentifier:(nonnull NSString *)aDownloadIdentifier;
-	- (BOOL)hasActiveDownloads;
-	- (void)cancelDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier;
-	- (void)pauseDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier;
-	- (nullable HWIFileDownloadProgress *)downloadProgressForIdentifier:(nonnull NSString *)aDownloadIdentifier;
-	
+```objective-c
+- (void)startDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
+                              fromRemoteURL:(nonnull NSURL *)aRemoteURL;
+- (void)startDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
+                            usingResumeData:(nonnull NSData *)aResumeData;
+- (BOOL)isDownloadingIdentifier:(nonnull NSString *)aDownloadIdentifier;
+- (BOOL)isWaitingForDownloadOfIdentifier:(nonnull NSString *)aDownloadIdentifier;
+- (BOOL)hasActiveDownloads;
+- (void)cancelDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier;
+- (void)pauseDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier;
+- (nullable HWIFileDownloadProgress *)downloadProgressForIdentifier:(nonnull NSString *)aDownloadIdentifier;
+```	
 	
 ### Progress
 
 `HWIFileDownloadProgress` exposes these properties:
 
-	@property (nonatomic, assign, readonly) float downloadProgress;
-	@property (nonatomic, assign, readonly) int64_t expectedFileSize;
-	@property (nonatomic, assign, readonly) int64_t receivedFileSize;
-	@property (nonatomic, assign, readonly) NSTimeInterval estimatedRemainingTime;
-	@property (nonatomic, assign, readonly) NSUInteger bytesPerSecondSpeed;
-	@property (nonatomic, strong, readwrite, nullable) NSString *lastLocalizedDescription;
-	@property (nonatomic, strong, readwrite, nullable) NSString *lastLocalizedAdditionalDescription;
-	@property (nonatomic, strong, readonly, nonnull) NSProgress *nativeProgress;
-	
+```objective-c
+@property (nonatomic, assign, readonly) float downloadProgress;
+@property (nonatomic, assign, readonly) int64_t expectedFileSize;
+@property (nonatomic, assign, readonly) int64_t receivedFileSize;
+@property (nonatomic, assign, readonly) NSTimeInterval estimatedRemainingTime;
+@property (nonatomic, assign, readonly) NSUInteger bytesPerSecondSpeed;
+@property (nonatomic, strong, readwrite, nullable) NSString *lastLocalizedDescription;
+@property (nonatomic, strong, readwrite, nullable) NSString *lastLocalizedAdditionalDescription;
+@property (nonatomic, strong, readonly, nonnull) NSProgress *nativeProgress;
+```	
 
 ## Demo App
 
