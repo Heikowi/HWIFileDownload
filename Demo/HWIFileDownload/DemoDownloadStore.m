@@ -97,7 +97,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
         if (aFoundDownloadItemIndex == NSNotFound)
         {
             NSURL *aRemoteURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://www.imagomat.de/testimages/%@.tiff", @(aDownloadIdentifierUInteger)]];
-            if ([aDownloadIdentifier isEqualToString:@"3"])
+            if ([aDownloadIdentifier isEqualToString:@"5"])
             {
                 aRemoteURL = [NSURL URLWithString:@"http://www.imagomat.de/testimages/900.tiff"];
             }
