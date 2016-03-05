@@ -1092,6 +1092,10 @@
                 }
             }
         }
+        else
+        {
+            aFileDownloadDirectoryURL = [NSURL fileURLWithPath:aFileDownloadDirectory isDirectory:YES];
+        }
         NSString *aLocalFileName = [NSString stringWithFormat:@"%@.%@", [[NSUUID UUID] UUIDString], [[aRemoteURL lastPathComponent] pathExtension]];
         aLocalFileURL = [aFileDownloadDirectoryURL URLByAppendingPathComponent:aLocalFileName];
     }
