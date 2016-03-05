@@ -1,6 +1,6 @@
 # HWIFileDownload
 
-HWIFileDownload simplifies file download with `NSURLSession` on iOS. Parallel file download can be controlled with a complete set of operations: start, cancel, pause, resume. Single file and total download progress is reported with `NSProgress`.
+HWIFileDownload simplifies file download with `NSURLSession` on iOS. Parallel file download can be controlled individually with the complete set of operations: start, cancel, pause, resume. Single file and total download progress is reported with `NSProgress`.
 
 ## Features
 
