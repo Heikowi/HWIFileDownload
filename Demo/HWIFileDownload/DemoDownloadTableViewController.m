@@ -118,7 +118,7 @@
 {
     [super viewDidLoad];
     
-    self.tableView.rowHeight = 120.0;
+    self.tableView.rowHeight = 109.0;
     [self.tableView registerNib:[UINib nibWithNibName:@"DemoDownloadTableViewCell" bundle:[NSBundle mainBundle]] forCellReuseIdentifier:@"DemoDownloadTableViewCell"];
     self.title = @"Download";
     
