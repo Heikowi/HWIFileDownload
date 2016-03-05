@@ -65,7 +65,7 @@
 		ACA04C8A19DEA2E300604BBF = {
 			isa = PBXGroup;
 			children = (
-				ACA04C9519DEA2E300604BBF /* HWIFileDownload */,
+				ACA04C9519DEA2E300604BBF /* DemoDownloadApp */,
 				ACA04C9419DEA2E300604BBF /* Products */,
 			);
 			sourceTree = "<group>";
@@ -78,10 +78,10 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		ACA04C9519DEA2E300604BBF /* HWIFileDownload */ = {
+		ACA04C9519DEA2E300604BBF /* DemoDownloadApp */ = {
 			isa = PBXGroup;
 			children = (
-				ACD1BCB719DEA7BB0066D4A7 /* FileDownload */,
+				ACD1BCB719DEA7BB0066D4A7 /* HWIFileDownload */,
 				ACA04C9A19DEA2E300604BBF /* DemoAppDelegate.h */,
 				ACA04C9B19DEA2E300604BBF /* DemoAppDelegate.m */,
 				ACE9E18719DFFDE60058777C /* DemoDownloadStore.h */,
@@ -96,6 +96,7 @@
 				ACB9143A19DEF660006193A6 /* DemoDownloadTableViewCell.xib */,
 				ACA04C9619DEA2E300604BBF /* Supporting Files */,
 			);
+			name = DemoDownloadApp;
 			path = HWIFileDownload;
 			sourceTree = "<group>";
 		};
@@ -111,7 +112,7 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		ACD1BCB719DEA7BB0066D4A7 /* FileDownload */ = {
+		ACD1BCB719DEA7BB0066D4A7 /* HWIFileDownload */ = {
 			isa = PBXGroup;
 			children = (
 				ACD1BCB819DEA7CD0066D4A7 /* HWIBackgroundSessionCompletionHandlerBlock.h */,
@@ -123,7 +124,7 @@
 				AC32704119EA848000ECCD98 /* HWIFileDownloadProgress.h */,
 				AC32704219EA848000ECCD98 /* HWIFileDownloadProgress.m */,
 			);
-			name = FileDownload;
+			name = HWIFileDownload;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
