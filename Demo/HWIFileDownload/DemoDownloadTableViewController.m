@@ -36,7 +36,7 @@
 
 #import "DemoDownloadTableViewController.h"
 
-#import "DemoAppDelegate.h"
+#import "DemoDownloadAppDelegate.h"
 #import "DemoDownloadStore.h"
 #import "DemoDownloadItem.h"
 #import "DemoDownloadNotifications.h"
@@ -132,7 +132,7 @@
 
 - (NSInteger)tableView:(UITableView *)aTableView numberOfRowsInSection:(NSInteger)aSection
 {
-    DemoAppDelegate *theAppDelegate = (DemoAppDelegate *)[UIApplication sharedApplication].delegate;
+    DemoDownloadAppDelegate *theAppDelegate = (DemoDownloadAppDelegate *)[UIApplication sharedApplication].delegate;
     return [theAppDelegate demoDownloadStore].downloadItemsArray.count;
 }
 
@@ -157,7 +157,7 @@
         [anInfoTextLabel setFont:[UIFont systemFontOfSize:10.0]];
     }
     
-    DemoAppDelegate *theAppDelegate = (DemoAppDelegate *)[UIApplication sharedApplication].delegate;
+    DemoDownloadAppDelegate *theAppDelegate = (DemoDownloadAppDelegate *)[UIApplication sharedApplication].delegate;
     DemoDownloadItem *aDownloadItem = [[theAppDelegate demoDownloadStore].downloadItemsArray objectAtIndex:anIndexPath.row];
     
     [self prepareTableViewCell:aTableViewCell withDownloadItem:aDownloadItem];
@@ -248,7 +248,7 @@
     NSIndexPath *anIndexPath = [self.tableView indexPathForCell:aTableViewCell];
     if (anIndexPath)
     {
-        DemoAppDelegate *theAppDelegate = (DemoAppDelegate *)[UIApplication sharedApplication].delegate;
+        DemoDownloadAppDelegate *theAppDelegate = (DemoDownloadAppDelegate *)[UIApplication sharedApplication].delegate;
         DemoDownloadItem *aDownloadItem = [[theAppDelegate demoDownloadStore].downloadItemsArray objectAtIndex:anIndexPath.row];
         
         [theAppDelegate.demoDownloadStore startDownloadWithDownloadItem:aDownloadItem];
@@ -272,7 +272,7 @@
     NSIndexPath *anIndexPath = [self.tableView indexPathForCell:aTableViewCell];
     if (anIndexPath)
     {
-        DemoAppDelegate *theAppDelegate = (DemoAppDelegate *)[UIApplication sharedApplication].delegate;
+        DemoDownloadAppDelegate *theAppDelegate = (DemoDownloadAppDelegate *)[UIApplication sharedApplication].delegate;
         DemoDownloadItem *aDownloadItem = [[theAppDelegate demoDownloadStore].downloadItemsArray objectAtIndex:anIndexPath.row];
         
         [self cancelDownloadWithIdentifier:aDownloadItem.downloadIdentifier];
@@ -296,7 +296,7 @@
     NSIndexPath *anIndexPath = [self.tableView indexPathForCell:aTableViewCell];
     if (anIndexPath)
     {
-        DemoAppDelegate *theAppDelegate = (DemoAppDelegate *)[UIApplication sharedApplication].delegate;
+        DemoDownloadAppDelegate *theAppDelegate = (DemoDownloadAppDelegate *)[UIApplication sharedApplication].delegate;
         DemoDownloadItem *aDownloadItem = [[theAppDelegate demoDownloadStore].downloadItemsArray objectAtIndex:anIndexPath.row];
         
         UIButton *aButton = (UIButton *)aSender;
@@ -314,7 +314,7 @@
 
 - (void)cancelDownloadWithIdentifier:(NSString *)aDownloadIdentifier
 {
-    DemoAppDelegate *theAppDelegate = (DemoAppDelegate *)[UIApplication sharedApplication].delegate;
+    DemoDownloadAppDelegate *theAppDelegate = (DemoDownloadAppDelegate *)[UIApplication sharedApplication].delegate;
     BOOL isDownloading = [theAppDelegate.fileDownloader isDownloadingIdentifier:aDownloadIdentifier];
     if (isDownloading)
     {
@@ -350,7 +350,7 @@
 
 - (void)pauseDownloadWithIdentifier:(NSString *)aDownloadIdentifier
 {
-    DemoAppDelegate *theAppDelegate = (DemoAppDelegate *)[UIApplication sharedApplication].delegate;
+    DemoDownloadAppDelegate *theAppDelegate = (DemoDownloadAppDelegate *)[UIApplication sharedApplication].delegate;
     BOOL isDownloading = [theAppDelegate.fileDownloader isDownloadingIdentifier:aDownloadIdentifier];
     if (isDownloading)
     {
@@ -372,7 +372,7 @@
 
 - (void)resumeDownloadWithIdentifier:(NSString *)aDownloadIdentifier
 {
-    DemoAppDelegate *theAppDelegate = (DemoAppDelegate *)[UIApplication sharedApplication].delegate;
+    DemoDownloadAppDelegate *theAppDelegate = (DemoDownloadAppDelegate *)[UIApplication sharedApplication].delegate;
     [theAppDelegate.demoDownloadStore restartDownloadWithDownloadIdentifier:aDownloadIdentifier];
 }
 
@@ -384,7 +384,7 @@
 {
     DemoDownloadItem *aDownloadedDownloadItem = (DemoDownloadItem *)aNotification.object;
     
-    DemoAppDelegate *theAppDelegate = (DemoAppDelegate *)[UIApplication sharedApplication].delegate;
+    DemoDownloadAppDelegate *theAppDelegate = (DemoDownloadAppDelegate *)[UIApplication sharedApplication].delegate;
     
     NSUInteger aFoundDownloadItemIndex = [[theAppDelegate demoDownloadStore].downloadItemsArray indexOfObjectPassingTest:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSUInteger anIndex, BOOL *aStopFlag) {
         if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadedDownloadItem.downloadIdentifier]) {
@@ -441,7 +441,7 @@
 - (void)onRefreshTable
 {
     [self.refreshControl endRefreshing];
-    DemoAppDelegate *theAppDelegate = (DemoAppDelegate *)[UIApplication sharedApplication].delegate;
+    DemoDownloadAppDelegate *theAppDelegate = (DemoDownloadAppDelegate *)[UIApplication sharedApplication].delegate;
     [theAppDelegate.demoDownloadStore restartDownload];
     [self.tableView reloadData];
 }
@@ -455,7 +455,7 @@
     UIButton *aPauseOrResumeButton = (UIButton *)[aTableViewCell viewWithTag:self.pauseOrResumeButtonTag];
     UIButton *aDownloadCancelOrStateButton = (UIButton *)[aTableViewCell viewWithTag:self.downloadCancelOrStateButtonTag];
     
-    DemoAppDelegate *theAppDelegate = (DemoAppDelegate *)[UIApplication sharedApplication].delegate;
+    DemoDownloadAppDelegate *theAppDelegate = (DemoDownloadAppDelegate *)[UIApplication sharedApplication].delegate;
     
     UIProgressView *aProgressView = (UIProgressView *)[aTableViewCell viewWithTag:self.progressViewTag];
     [aProgressView setHidden:YES];

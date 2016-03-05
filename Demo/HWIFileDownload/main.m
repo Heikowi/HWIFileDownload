@@ -35,10 +35,10 @@
 
 
 #import <UIKit/UIKit.h>
-#import "DemoAppDelegate.h"
+#import "DemoDownloadAppDelegate.h"
 
 int main(int argc, char * argv[]) {
     @autoreleasepool {
-        return UIApplicationMain(argc, argv, nil, NSStringFromClass([DemoAppDelegate class]));
+        return UIApplicationMain(argc, argv, nil, NSStringFromClass([DemoDownloadAppDelegate class]));
     }
 }
