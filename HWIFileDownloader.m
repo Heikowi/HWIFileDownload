@@ -1068,38 +1068,34 @@
 
 + (nullable NSURL *)localFileURLForRemoteURL:(nonnull NSURL *)aRemoteURL
 {
-    NSURL *aFileDownloadDirectoryURL = [HWIFileDownloader fileDownloadDirectoryURL];
-    NSString *aLocalFileName = [NSString stringWithFormat:@"%@.%@", [[NSUUID UUID] UUIDString], [[aRemoteURL lastPathComponent] pathExtension]];
-    NSURL *aLocalFileURL = [aFileDownloadDirectoryURL URLByAppendingPathComponent:aLocalFileName];
-    return aLocalFileURL;
-}
-
-
-+ (nullable NSURL *)fileDownloadDirectoryURL
-{
+    NSURL *aLocalFileURL = nil;
     NSURL *aFileDownloadDirectoryURL = nil;
     NSError *anError = nil;
     NSString *aFileDownloadDirectory = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject];
-    aFileDownloadDirectory = [aFileDownloadDirectory stringByAppendingPathComponent:@"file-download"];
-    if ([[NSFileManager defaultManager] fileExistsAtPath:aFileDownloadDirectory] == NO)
+    if (aFileDownloadDirectory.length > 0)
     {
-        BOOL aCreateDirectorySuccess = [[NSFileManager defaultManager] createDirectoryAtPath:aFileDownloadDirectory withIntermediateDirectories:YES attributes:nil error:&anError];
-        if (aCreateDirectorySuccess == NO)
+        aFileDownloadDirectory = [aFileDownloadDirectory stringByAppendingPathComponent:@"file-download"];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:aFileDownloadDirectory] == NO)
         {
-            NSLog(@"ERR on create directory: %@ (%@, %d)", anError, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
-        }
-        else
-        {
-            NSURL *aFileDownloadDirectoryURL = [NSURL fileURLWithPath:aFileDownloadDirectory isDirectory:YES];
-            BOOL aSetResourceValueSuccess = [aFileDownloadDirectoryURL setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:&anError];
-            if (aSetResourceValueSuccess == NO)
+            BOOL aCreateDirectorySuccess = [[NSFileManager defaultManager] createDirectoryAtPath:aFileDownloadDirectory withIntermediateDirectories:YES attributes:nil error:&anError];
+            if (aCreateDirectorySuccess == NO)
             {
-                NSLog(@"ERR on set resource value: %@ (%@, %d)", anError, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
+                NSLog(@"ERR on create directory: %@ (%@, %d)", anError, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
+            }
+            else
+            {
+                aFileDownloadDirectoryURL = [NSURL fileURLWithPath:aFileDownloadDirectory isDirectory:YES];
+                BOOL aSetResourceValueSuccess = [aFileDownloadDirectoryURL setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:&anError];
+                if (aSetResourceValueSuccess == NO)
+                {
+                    NSLog(@"ERR on set resource value (NSURLIsExcludedFromBackupKey): %@ (%@, %d)", anError, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
+                }
             }
         }
+        NSString *aLocalFileName = [NSString stringWithFormat:@"%@.%@", [[NSUUID UUID] UUIDString], [[aRemoteURL lastPathComponent] pathExtension]];
+        aLocalFileURL = [aFileDownloadDirectoryURL URLByAppendingPathComponent:aLocalFileName];
     }
-    aFileDownloadDirectoryURL = [NSURL fileURLWithPath:aFileDownloadDirectory isDirectory:NO];
-    return aFileDownloadDirectoryURL;
+    return aLocalFileURL;
 }
 
 
