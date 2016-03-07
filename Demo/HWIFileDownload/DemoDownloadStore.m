@@ -123,7 +123,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 }
 
 
-#pragma mark - HWIFileDownloadDelegate
+#pragma mark - HWIFileDownloadDelegate (mandatory)
 
 
 - (void)downloadDidCompleteWithIdentifier:(nonnull NSString *)aDownloadIdentifier
@@ -207,31 +207,19 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 }
 
 
-- (void)downloadPausedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
-                          resumeData:(nullable NSData *)aResumeData
+- (void)incrementNetworkActivityIndicatorActivityCount
 {
-    NSUInteger aFoundDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSUInteger anIndex, BOOL *aStopFlag) {
-        if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadIdentifier])
-        {
-            return YES;
-        }
-        return NO;
-    }];
-    if (aFoundDownloadItemIndex != NSNotFound)
-    {
-        NSLog(@"INFO: Download paused - id: %@ (%@, %d)", aDownloadIdentifier, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
-        
-        DemoDownloadItem *aPausedDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
-        aPausedDownloadItem.status = DemoDownloadItemStatusPaused;
-        aPausedDownloadItem.resumeData = aResumeData;
-        [self.downloadItemsArray replaceObjectAtIndex:aFoundDownloadItemIndex withObject:aPausedDownloadItem];
-        [self storeDownloadItems];
-    }
-    else
-    {
-        NSLog(@"ERR: Paused download item not found (id: %@) (%@, %d)", aDownloadIdentifier, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
-    }
+    [self toggleNetworkActivityIndicatorVisible:YES];
 }
+
+
+- (void)decrementNetworkActivityIndicatorActivityCount
+{
+    [self toggleNetworkActivityIndicatorVisible:NO];
+}
+
+
+#pragma mark HWIFileDownloadDelegate (optional)
 
 
 - (void)downloadProgressChangedForIdentifier:(nonnull NSString *)aDownloadIdentifier
@@ -263,15 +251,30 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 }
 
 
-- (void)incrementNetworkActivityIndicatorActivityCount
+- (void)downloadPausedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
+                          resumeData:(nullable NSData *)aResumeData
 {
-    [self toggleNetworkActivityIndicatorVisible:YES];
-}
-
-
-- (void)decrementNetworkActivityIndicatorActivityCount
-{
-    [self toggleNetworkActivityIndicatorVisible:NO];
+    NSUInteger aFoundDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSUInteger anIndex, BOOL *aStopFlag) {
+        if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadIdentifier])
+        {
+            return YES;
+        }
+        return NO;
+    }];
+    if (aFoundDownloadItemIndex != NSNotFound)
+    {
+        NSLog(@"INFO: Download paused - id: %@ (%@, %d)", aDownloadIdentifier, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
+        
+        DemoDownloadItem *aPausedDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
+        aPausedDownloadItem.status = DemoDownloadItemStatusPaused;
+        aPausedDownloadItem.resumeData = aResumeData;
+        [self.downloadItemsArray replaceObjectAtIndex:aFoundDownloadItemIndex withObject:aPausedDownloadItem];
+        [self storeDownloadItems];
+    }
+    else
+    {
+        NSLog(@"ERR: Paused download item not found (id: %@) (%@, %d)", aDownloadIdentifier, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
+    }
 }
 
 
