@@ -128,6 +128,8 @@ Two delegate calls provide hooks for adjusting connection parameters:
 - (nullable NSURLRequest *)urlRequestForRemoteURL:(nonnull NSURL *)aRemoteURL; // iOS 6 only
 ```
 
+### Timeout
+
 With the delegate calls, timeout behaviour can be customized. On iOS there are two timeouts: __request timeout__ and __resource timeout__.
 
 The __request timeout__ fires "if no data is transmitted for the given timeout value, and is reset whenever data is transmitted". iOS's system default value is 60 seconds.
