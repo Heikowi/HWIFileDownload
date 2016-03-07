@@ -143,7 +143,6 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
         
         aCompletedDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
         aCompletedDownloadItem.status = DemoDownloadItemStatusCompleted;
-        [self.downloadItemsArray replaceObjectAtIndex:aFoundDownloadItemIndex withObject:aCompletedDownloadItem];
         [self storeDownloadItems];
     }
     else
@@ -187,7 +186,6 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
             }
         }
         aFailedDownloadItem.resumeData = aResumeData;
-        [self.downloadItemsArray replaceObjectAtIndex:aFoundDownloadItemIndex withObject:aFailedDownloadItem];
         [self storeDownloadItems];
     }
     else
@@ -268,7 +266,6 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
         DemoDownloadItem *aPausedDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
         aPausedDownloadItem.status = DemoDownloadItemStatusPaused;
         aPausedDownloadItem.resumeData = aResumeData;
-        [self.downloadItemsArray replaceObjectAtIndex:aFoundDownloadItemIndex withObject:aPausedDownloadItem];
         [self storeDownloadItems];
     }
     else
@@ -389,25 +386,17 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
             [self startDownloadWithDownloadItem:aDemoDownloadItem];
         }
     }
-    
-    [self storeDownloadItems];
 }
 
 
-- (void)restartDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
+- (void)resumeDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
 {
-    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
-    {
-        [self.progress removeObserver:self forKeyPath:NSStringFromSelector(@selector(fractionCompleted))];
-    }
+    [self.progress removeObserver:self forKeyPath:NSStringFromSelector(@selector(fractionCompleted))];
     self.progress = [NSProgress progressWithTotalUnitCount:0];
-    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
-    {
-        [self.progress addObserver:self
-                        forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
-                           options:NSKeyValueObservingOptionInitial
-                           context:DemoDownloadStoreProgressObserverContext];
-    }
+    [self.progress addObserver:self
+                    forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
+                       options:NSKeyValueObservingOptionInitial
+                       context:DemoDownloadStoreProgressObserverContext];
     
     NSUInteger aFoundDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSUInteger anIndex, BOOL *aStopFlag) {
         if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadIdentifier])
@@ -433,6 +422,8 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
         if (isDownloading == NO)
         {
             aDemoDownloadItem.status = DemoDownloadItemStatusStarted;
+            
+            [self storeDownloadItems];
             
             // kick off individual download
             if (aDemoDownloadItem.resumeData.length > 0)
@@ -465,7 +456,6 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     {
         DemoDownloadItem *aCancelledDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
         aCancelledDownloadItem.status = DemoDownloadItemStatusCancelled;
-        [self.downloadItemsArray replaceObjectAtIndex:aFoundDownloadItemIndex withObject:aCancelledDownloadItem];
         [self storeDownloadItems];
     }
     else

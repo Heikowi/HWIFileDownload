@@ -139,7 +139,7 @@
                         [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadTask.taskIdentifier)];
                         NSString *aDownloadToken = [aDownloadItem.downloadToken copy];
                         [aDownloadItem.progress setPausingHandler:^{
-                            [self pauseDownloadAndPostResumeDataWithIdentifier:aDownloadToken];
+                            [self pauseDownloadWithIdentifier:aDownloadToken];
                         }];
                         [aDownloadItem.progress setCancellationHandler:^{
                             [self cancelDownloadWithIdentifier:aDownloadToken];
@@ -274,7 +274,7 @@
             [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadID)];
             NSString *aDownloadToken = [aDownloadItem.downloadToken copy];
             [aDownloadItem.progress setPausingHandler:^{
-                [self pauseDownloadAndPostResumeDataWithIdentifier:aDownloadToken];
+                [self pauseDownloadWithIdentifier:aDownloadToken];
             }];
             [aDownloadItem.progress setCancellationHandler:^{
                 [self cancelDownloadWithIdentifier:aDownloadToken];
@@ -317,7 +317,17 @@
 
 - (void)pauseDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier
 {
-    [self pauseDownloadWithIdentifier:aDownloadIdentifier resumeDataBlock:nil];
+    BOOL isDownloading = [self isDownloadingIdentifier:aDownloadIdentifier];
+    if (isDownloading)
+    {
+        [self pauseDownloadWithIdentifier:aDownloadIdentifier resumeDataBlock:^(NSData *aResumeData) {
+            if ([self.fileDownloadDelegate respondsToSelector:@selector(downloadPausedWithIdentifier:resumeData:)])
+            {
+                [self.fileDownloadDelegate downloadPausedWithIdentifier:aDownloadIdentifier
+                                                             resumeData:aResumeData];
+            }
+        }];
+    }
 }
 
 
@@ -355,61 +365,28 @@
     if (aDownloadItem)
     {
         aDownloadItem.progress.completedUnitCount = aDownloadItem.progress.totalUnitCount;
-        if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+        NSURLSessionDownloadTask *aDownloadTask = aDownloadItem.sessionDownloadTask;
+        if (aDownloadTask)
         {
-            NSURLSessionDownloadTask *aDownloadTask = aDownloadItem.sessionDownloadTask;
-            if (aDownloadTask)
+            if (aResumeDataBlock)
             {
-                if (aResumeDataBlock)
-                {
-                    [aDownloadTask cancelByProducingResumeData:^(NSData *aResumeData) {
-                        aResumeDataBlock(aResumeData);
-                    }];
-                }
-                else
-                {
-                    [aDownloadTask cancel];
-                }
-                // NSURLSessionTaskDelegate method is called
-                // URLSession:task:didCompleteWithError:
+                [aDownloadTask cancelByProducingResumeData:^(NSData *aResumeData) {
+                    aResumeDataBlock(aResumeData);
+                }];
             }
             else
             {
-                NSLog(@"INFO: NSURLSessionDownloadTask cancelled (task not found): %@ (%@, %d)", aDownloadItem.downloadToken, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
-                NSError *aPauseError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
-                [self handleDownloadWithError:aPauseError downloadItem:aDownloadItem downloadID:aDownloadID resumeData:nil];
+                [aDownloadTask cancel];
             }
+            // NSURLSessionTaskDelegate method is called
+            // URLSession:task:didCompleteWithError:
         }
         else
         {
-            NSURLConnection *aDownloadURLConnection = aDownloadItem.urlConnection;
-            if (aDownloadURLConnection)
-            {
-                [self cancelURLConnection:aDownloadURLConnection downloadID:aDownloadID];
-            }
-            else
-            {
-                NSLog(@"INFO: NSURLConnection cancelled (connection not found): %@ (%@, %d)", aDownloadItem.downloadToken, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
-                NSError *aPauseError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
-                [self handleDownloadWithError:aPauseError downloadItem:aDownloadItem downloadID:aDownloadID resumeData:nil];
-            }
+            NSLog(@"INFO: NSURLSessionDownloadTask cancelled (task not found): %@ (%@, %d)", aDownloadItem.downloadToken, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
+            NSError *aPauseError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+            [self handleDownloadWithError:aPauseError downloadItem:aDownloadItem downloadID:aDownloadID resumeData:nil];
         }
-    }
-}
-
-
-- (void)pauseDownloadAndPostResumeDataWithIdentifier:(nonnull NSString *)aDownloadIdentifier
-{
-    BOOL isDownloading = [self isDownloadingIdentifier:aDownloadIdentifier];
-    if (isDownloading)
-    {
-        [self pauseDownloadWithIdentifier:aDownloadIdentifier resumeDataBlock:^(NSData *aResumeData) {
-            if ([self.fileDownloadDelegate respondsToSelector:@selector(downloadPausedWithIdentifier:resumeData:)])
-            {
-                [self.fileDownloadDelegate downloadPausedWithIdentifier:aDownloadIdentifier
-                                                             resumeData:aResumeData];
-            }
-        }];
     }
 }
 

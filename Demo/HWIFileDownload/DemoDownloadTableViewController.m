@@ -123,7 +123,15 @@
     self.title = @"Download";
     
     UIBarButtonItem *aRightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Crash" style:UIBarButtonItemStyleBordered target:self action:@selector(crash)];
-    self.navigationItem.rightBarButtonItem = aRightBarButtonItem;    
+    self.navigationItem.rightBarButtonItem = aRightBarButtonItem;
+}
+
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    [self.tableView reloadData];
 }
 
 
@@ -354,18 +362,8 @@
     BOOL isDownloading = [theAppDelegate.fileDownloader isDownloadingIdentifier:aDownloadIdentifier];
     if (isDownloading)
     {
-        if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
-        {
-            HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
-            [aFileDownloadProgress.nativeProgress pause];
-        }
-        else
-        {
-            [theAppDelegate.fileDownloader pauseDownloadWithIdentifier:aDownloadIdentifier resumeDataBlock:^(NSData *aResumeData) {
-                [theAppDelegate.demoDownloadStore downloadPausedWithIdentifier:aDownloadIdentifier
-                                                                resumeData:aResumeData];
-            }];
-        }
+        HWIFileDownloadProgress *aFileDownloadProgress = [theAppDelegate.fileDownloader downloadProgressForIdentifier:aDownloadIdentifier];
+        [aFileDownloadProgress.nativeProgress pause];
     }
 }
 
@@ -373,7 +371,7 @@
 - (void)resumeDownloadWithIdentifier:(NSString *)aDownloadIdentifier
 {
     DemoDownloadAppDelegate *theAppDelegate = (DemoDownloadAppDelegate *)[UIApplication sharedApplication].delegate;
-    [theAppDelegate.demoDownloadStore restartDownloadWithDownloadIdentifier:aDownloadIdentifier];
+    [theAppDelegate.demoDownloadStore resumeDownloadWithDownloadIdentifier:aDownloadIdentifier];
 }
 
 
@@ -609,45 +607,52 @@
 
 - (void)preparePauseResumeButton:(UIButton *)aButton forDemoDownloadItemStatus:(DemoDownloadItemStatus)aStatus
 {
-    switch (aStatus) {
-            
-        case DemoDownloadItemStatusStarted:
-        {
-            NSString *aButtonTitle = [aButton titleForState:UIControlStateNormal];
-            if ([aButtonTitle isEqualToString:self.pauseChar] == NO)
+    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+    {
+        switch (aStatus) {
+                
+            case DemoDownloadItemStatusStarted:
             {
-                [aButton removeTarget:self action:nil forControlEvents:UIControlEventTouchUpInside];
-                [aButton addTarget:self action:@selector(onPauseResumeIndividualDownload:) forControlEvents:UIControlEventTouchUpInside];
-                [aButton setHidden:NO];
-                [aButton setTitle:self.pauseChar forState:UIControlStateNormal];
+                NSString *aButtonTitle = [aButton titleForState:UIControlStateNormal];
+                if ([aButtonTitle isEqualToString:self.pauseChar] == NO)
+                {
+                    [aButton removeTarget:self action:nil forControlEvents:UIControlEventTouchUpInside];
+                    [aButton addTarget:self action:@selector(onPauseResumeIndividualDownload:) forControlEvents:UIControlEventTouchUpInside];
+                    [aButton setHidden:NO];
+                    [aButton setTitle:self.pauseChar forState:UIControlStateNormal];
+                }
             }
-        }
-            break;
-            
-        case DemoDownloadItemStatusPaused:
-        {
-            NSString *aButtonTitle = [aButton titleForState:UIControlStateNormal];
-            if ([aButtonTitle isEqualToString:self.resumeChar] == NO)
+                break;
+                
+            case DemoDownloadItemStatusPaused:
             {
-                [aButton removeTarget:self action:nil forControlEvents:UIControlEventTouchUpInside];
-                [aButton addTarget:self action:@selector(onPauseResumeIndividualDownload:) forControlEvents:UIControlEventTouchUpInside];
-                [aButton setHidden:NO];
-                [aButton setTitle:self.resumeChar forState:UIControlStateNormal];
+                NSString *aButtonTitle = [aButton titleForState:UIControlStateNormal];
+                if ([aButtonTitle isEqualToString:self.resumeChar] == NO)
+                {
+                    [aButton removeTarget:self action:nil forControlEvents:UIControlEventTouchUpInside];
+                    [aButton addTarget:self action:@selector(onPauseResumeIndividualDownload:) forControlEvents:UIControlEventTouchUpInside];
+                    [aButton setHidden:NO];
+                    [aButton setTitle:self.resumeChar forState:UIControlStateNormal];
+                }
             }
-        }
-            break;
-            
-        default:
-        {
-            NSString *aButtonTitle = [aButton titleForState:UIControlStateNormal];
-            if (aButtonTitle.length > 0)
+                break;
+                
+            default:
             {
-                [aButton setHidden:YES];
-                [aButton setTitle:@"" forState:UIControlStateNormal];
+                NSString *aButtonTitle = [aButton titleForState:UIControlStateNormal];
+                if (aButtonTitle.length > 0)
+                {
+                    [aButton setHidden:YES];
+                    [aButton setTitle:@"" forState:UIControlStateNormal];
+                }
             }
+                
+                break;
         }
-            
-            break;
+    }
+    else
+    {
+        [aButton setHidden:YES];
     }
 }
 
