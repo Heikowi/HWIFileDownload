@@ -361,7 +361,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 }
 
 
-#pragma mark - Restart Download
+#pragma mark - (Re)Start Download
 
 
 - (void)restartDownload
@@ -385,30 +385,6 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
         {
             [self startDownloadWithDownloadItem:aDemoDownloadItem];
         }
-    }
-}
-
-
-- (void)resumeDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-{
-    [self.progress removeObserver:self forKeyPath:NSStringFromSelector(@selector(fractionCompleted))];
-    self.progress = [NSProgress progressWithTotalUnitCount:0];
-    [self.progress addObserver:self
-                    forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
-                       options:NSKeyValueObservingOptionInitial
-                       context:DemoDownloadStoreProgressObserverContext];
-    
-    NSUInteger aFoundDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSUInteger anIndex, BOOL *aStopFlag) {
-        if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadIdentifier])
-        {
-            return YES;
-        }
-        return NO;
-    }];
-    if (aFoundDownloadItemIndex != NSNotFound)
-    {
-        DemoDownloadItem *aDemoDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
-        [self startDownloadWithDownloadItem:aDemoDownloadItem];
     }
 }
 
@@ -438,6 +414,29 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     }
 }
 
+
+- (void)resumeDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
+{
+    [self.progress removeObserver:self forKeyPath:NSStringFromSelector(@selector(fractionCompleted))];
+    self.progress = [NSProgress progressWithTotalUnitCount:0];
+    [self.progress addObserver:self
+                    forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
+                       options:NSKeyValueObservingOptionInitial
+                       context:DemoDownloadStoreProgressObserverContext];
+    
+    NSUInteger aFoundDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSUInteger anIndex, BOOL *aStopFlag) {
+        if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadIdentifier])
+        {
+            return YES;
+        }
+        return NO;
+    }];
+    if (aFoundDownloadItemIndex != NSNotFound)
+    {
+        DemoDownloadItem *aDemoDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
+        [self startDownloadWithDownloadItem:aDemoDownloadItem];
+    }
+}
 
 
 #pragma mark - Cancel Download

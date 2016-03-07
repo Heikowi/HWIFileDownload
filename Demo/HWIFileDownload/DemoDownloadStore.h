@@ -48,12 +48,12 @@
 @property (nonatomic, strong, readonly, nonnull) NSMutableArray<DemoDownloadItem *> *downloadItemsArray;
 
 
-- (void)cancelDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
+- (void)restartDownload;
 
 - (void)startDownloadWithDownloadItem:(nonnull DemoDownloadItem *)aDemoDownloadItem;
 
 
-- (void)restartDownload;
+- (void)cancelDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
 
 - (void)resumeDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
 
