@@ -143,7 +143,7 @@
  @param aBackgroundSessionConfiguration Background session configuration to modify.
  @discussion With the background session configuration parameters can be adjusted (e.g. timeoutIntervalForRequest, timeoutIntervalForResource, HTTPAdditionalHeaders).
  */
-- (void)customizeBackgroundSessionConfiguration:(NSURLSessionConfiguration * _Nonnull * _Nonnull)aBackgroundSessionConfiguration;
+- (void)customizeBackgroundSessionConfiguration:(nonnull NSURLSessionConfiguration *)aBackgroundSessionConfiguration;
 
 
 /**

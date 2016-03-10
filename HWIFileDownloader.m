@@ -97,7 +97,7 @@
             }
             if ([self.fileDownloadDelegate respondsToSelector:@selector(customizeBackgroundSessionConfiguration:)])
             {
-                [self.fileDownloadDelegate customizeBackgroundSessionConfiguration:&aBackgroundSessionConfiguration];
+                [self.fileDownloadDelegate customizeBackgroundSessionConfiguration:aBackgroundSessionConfiguration];
             }
             self.backgroundSession = [NSURLSession sessionWithConfiguration:aBackgroundSessionConfiguration
                                                                    delegate:self
