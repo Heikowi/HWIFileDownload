@@ -100,6 +100,14 @@
 
 
 /**
+ Optionally called on download resume.
+ @param aDownloadIdentifier Download identifier of the download item.
+ @discussion The delegate is responsible for using resume data if available.
+ */
+- (void)resumeDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier;
+
+
+/**
  Optionally called when the HWIFileDownloader needs to store the downloaded data for a download item.
  @param aDownloadIdentifier Download identifier of the download item.
  @param aRemoteURL Remote URL from where the data has been downloaded.

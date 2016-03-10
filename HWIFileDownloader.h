@@ -135,7 +135,6 @@ typedef void (^HWIFileDownloaderPauseResumeDataBlock)(NSData * _Nullable aResume
 /**
  Pauses the download of a download item.
  @param aDownloadIdentifier Download identifier of the download item.
- @remarks Convenience method, calls pauseDownloadWithIdentifier:resumeDataBlock: with nil as resumeDataBlock.
  */
 - (void)pauseDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier;
 
@@ -146,6 +145,13 @@ typedef void (^HWIFileDownloaderPauseResumeDataBlock)(NSData * _Nullable aResume
  @param aResumeDataBlock Asynchronously called block with resume data parameter.
  */
 - (void)pauseDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier resumeDataBlock:(nullable HWIFileDownloaderPauseResumeDataBlock)aResumeDataBlock;
+
+
+/**
+ Resumes the download of a download item.
+ @param aDownloadIdentifier Download identifier of the download item.
+ */
+- (void)resumeDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier;
 
 
 #pragma mark - BackgroundSessionCompletionHandler

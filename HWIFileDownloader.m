@@ -144,6 +144,13 @@
                         [aDownloadItem.progress setCancellationHandler:^{
                             [self cancelDownloadWithIdentifier:aDownloadToken];
                         }];
+                        if ([aDownloadItem.progress respondsToSelector:@selector(setResumingHandler:)])
+                        {
+                            // available with iOS 9
+                            [aDownloadItem.progress setResumingHandler:^{
+                                [self resumeDownloadWithIdentifier:aDownloadToken];
+                            }];
+                        }
                     }
                     [self.fileDownloadDelegate incrementNetworkActivityIndicatorActivityCount];
                 }
@@ -279,6 +286,13 @@
             [aDownloadItem.progress setCancellationHandler:^{
                 [self cancelDownloadWithIdentifier:aDownloadToken];
             }];
+            if ([aDownloadItem.progress respondsToSelector:@selector(setResumingHandler:)])
+            {
+                // available with iOS 9
+                [aDownloadItem.progress setResumingHandler:^{
+                    [self resumeDownloadWithIdentifier:aDownloadToken];
+                }];
+            }
             [self.fileDownloadDelegate incrementNetworkActivityIndicatorActivityCount];
             
             if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
@@ -308,6 +322,23 @@
             [aWaitingDownloadDict setObject:aRemoteURL forKey:@"remoteURL"];
         }
         [self.waitingDownloadsArray addObject:aWaitingDownloadDict];
+    }
+}
+
+
+- (void)resumeDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier
+{
+    BOOL isDownloading = [self isDownloadingIdentifier:aDownloadIdentifier];
+    if (isDownloading == NO)
+    {
+        if ([self.fileDownloadDelegate respondsToSelector:@selector(resumeDownloadWithIdentifier:)])
+        {
+            [self.fileDownloadDelegate resumeDownloadWithIdentifier:aDownloadIdentifier];
+        }
+        else
+        {
+            NSLog(@"ERR: Resume action called without implementation (%@, %d)", [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
+        }
     }
 }
 

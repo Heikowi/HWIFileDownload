@@ -275,6 +275,23 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 }
 
 
+- (void)resumeDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier
+{
+    NSUInteger aFoundDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSUInteger anIndex, BOOL *aStopFlag) {
+        if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadIdentifier])
+        {
+            return YES;
+        }
+        return NO;
+    }];
+    if (aFoundDownloadItemIndex != NSNotFound)
+    {
+        DemoDownloadItem *aDemoDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
+        [self startDownloadWithDownloadItem:aDemoDownloadItem];
+    }
+}
+
+
 - (BOOL)downloadAtLocalFileURL:(nonnull NSURL *)aLocalFileURL isValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
 {
     BOOL anIsValidFlag = YES;
@@ -434,7 +451,15 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     if (aFoundDownloadItemIndex != NSNotFound)
     {
         DemoDownloadItem *aDemoDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
-        [self startDownloadWithDownloadItem:aDemoDownloadItem];
+        if ([aDemoDownloadItem.progress.nativeProgress respondsToSelector:@selector(resume)])
+        {
+            // available with iOS 9
+            [aDemoDownloadItem.progress.nativeProgress resume];
+        }
+        else
+        {
+            [self startDownloadWithDownloadItem:aDemoDownloadItem];
+        }
     }
 }
 
