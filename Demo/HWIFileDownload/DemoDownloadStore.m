@@ -106,7 +106,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
         }
     };
     
-    self.downloadItemsArray = [[self.downloadItemsArray sortedArrayUsingComparator:^NSComparisonResult(DemoDownloadItem*  _Nonnull aDownloadItemA, DemoDownloadItem*  _Nonnull aDownloadItemB) {
+    self.downloadItemsArray = [[self.downloadItemsArray sortedArrayUsingComparator:^NSComparisonResult(DemoDownloadItem*  __nonnull aDownloadItemA, DemoDownloadItem*  __nonnull aDownloadItemB) {
         return [aDownloadItemA.downloadIdentifier compare:aDownloadItemB.downloadIdentifier options:NSNumericSearch];
     }] mutableCopy];
 }
@@ -334,6 +334,22 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     return anIsValidFlag;
 }
 
+/*
+- (void)onAuthenticationChallenge:(nonnull NSURLAuthenticationChallenge *)aChallenge
+               downloadIdentifier:(nonnull NSString *)aDownloadIdentifier
+                completionHandler:(void (^ __nonnull)(NSURLCredential * __nullable aCredential, NSURLSessionAuthChallengeDisposition disposition))aCompletionHandler
+{
+    if (aChallenge.previousFailureCount == 0)
+    {
+        NSURLCredential *aCredential = [NSURLCredential credentialWithUser:@"username" password:@"password" persistence:NSURLCredentialPersistenceNone];
+        aCompletionHandler(aCredential, NSURLSessionAuthChallengeUseCredential);
+    }
+    else
+    {
+        aCompletionHandler(nil, NSURLSessionAuthChallengeRejectProtectionSpace);
+    }
+}
+*/
 
 - (nullable NSProgress *)rootProgress
 {

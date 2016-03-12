@@ -155,6 +155,18 @@
 
 
 /**
+ Optionally called to receive NSURLCredential and NSURLSessionAuthChallengeDisposition for download identifier and authentication challenge.
+ @param aChallenge Authentication challenge.
+ @param aDownloadIdentifier Download identifier of the download item.
+ @param aCompletionHandler Completion handler to call with credential and disposition.
+ @discussion This method is called if the file is protected on the server.
+ */
+- (void)onAuthenticationChallenge:(nonnull NSURLAuthenticationChallenge *)aChallenge
+               downloadIdentifier:(nonnull NSString *)aDownloadIdentifier
+                completionHandler:(void (^ __nonnull)(NSURLCredential * __nullable aCredential, NSURLSessionAuthChallengeDisposition disposition))aCompletionHandler;
+
+
+/**
  Optionally provide a progress object for tracking progress across individual downloads.
  @return Root progress object.
  @discussion NSProgress is set up in a hierarchy. Download progress of HWIFileDownloader items can be tracked individually and in total.

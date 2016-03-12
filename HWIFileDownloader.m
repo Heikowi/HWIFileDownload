@@ -117,7 +117,7 @@
 {
     if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
     {
-        [self.backgroundSession getTasksWithCompletionHandler:^( NSArray * _Nonnull aDataTasksArray, NSArray * _Nonnull anUploadTasksArray, NSArray * _Nonnull aDownloadTasksArray) {
+        [self.backgroundSession getTasksWithCompletionHandler:^(NSArray * __nonnull aDataTasksArray, NSArray * __nonnull anUploadTasksArray, NSArray * __nonnull aDownloadTasksArray) {
             for (NSURLSessionDownloadTask *aDownloadTask in aDownloadTasksArray)
             {
                 NSString *aDownloadToken = [aDownloadTask.taskDescription copy];
@@ -817,6 +817,36 @@
 }
 
 
+- (void)URLSession:(NSURLSession *)aSession
+              task:(NSURLSessionTask *)aTask
+didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
+ completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential * __nullable credential))aCompletionHandler
+{
+    if ([self.fileDownloadDelegate respondsToSelector:@selector(onAuthenticationChallenge:downloadIdentifier:completionHandler:)])
+    {
+        NSString *aDownloadToken = [aTask.taskDescription copy];
+        if (aDownloadToken)
+        {
+            [self.fileDownloadDelegate onAuthenticationChallenge:aChallenge
+                                              downloadIdentifier:aDownloadToken
+                                               completionHandler:^(NSURLCredential * __nullable aCredential, NSURLSessionAuthChallengeDisposition aDisposition) {
+                                                   aCompletionHandler(aDisposition, aCredential);
+                                               }];
+        }
+        else
+        {
+            NSLog(@"ERR: Missing task description (%@, %d)", [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
+            aCompletionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+        }
+    }
+    else
+    {
+        NSLog(@"ERR: Received authentication challenge with no delegate method implemented (%@, %d)", [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
+        aCompletionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+    }
+}
+
+
 #pragma mark - NSURLSessionDelegate
 
 
@@ -828,6 +858,12 @@
         self.bgSessionCompletionHandlerBlock = nil;
         completionHandler();
     }
+}
+
+
+- (void)URLSession:(NSURLSession *)aSession didBecomeInvalidWithError:(nullable NSError *)anError
+{
+    NSLog(@"ERR: URL session did become invalid with error: %@ (%@, %d)", anError, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
 }
 
 
@@ -953,10 +989,18 @@
             }
             else
             {
-                NSString *anErrorString = [NSString stringWithFormat:@"ERR: Missing information: Local file URL (token: %@) (%@, %d)", aDownloadItem.downloadToken, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__];
-                NSLog(@"%@", anErrorString);
+                NSLog(@"ERR: Missing information: Local file URL (token: %@) (%@, %d)", aDownloadItem.downloadToken, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
             }
         }
+        else
+        {
+            NSLog(@"ERR: No download item found on URL connection finish (%@, %d)", [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
+
+        }
+    }
+    else
+    {
+        NSLog(@"ERR: No download id found on URL connection finish (%@, %d)", [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
     }
 }
 
@@ -1067,6 +1111,49 @@
             NSLog(@"ERR: NSURLConnection failed with error: %@ (%@, %d)", anError.localizedDescription, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
             [self handleDownloadWithError:anError downloadItem:aDownloadItem downloadID:[aDownloadID unsignedIntegerValue] resumeData:nil];
         }
+    }
+}
+
+
+- (BOOL)connectionShouldUseCredentialStorage:(NSURLConnection *)aConnection
+{
+    return NO;
+}
+
+
+- (void)connection:(NSURLConnection *)aConnection willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)aChallenge
+{
+    if ([self.fileDownloadDelegate respondsToSelector:@selector(onAuthenticationChallenge:downloadIdentifier:completionHandler:)])
+    {
+        NSNumber *aDownloadID = [self downloadIDForConnection:aConnection];
+        if (aDownloadID)
+        {
+            HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:aDownloadID];
+            
+            if (aDownloadItem)
+            {
+                
+                [self.fileDownloadDelegate onAuthenticationChallenge:aChallenge
+                                                  downloadIdentifier:aDownloadItem.downloadToken
+                                                   completionHandler:^(NSURLCredential * __nullable aCredential, NSURLSessionAuthChallengeDisposition aDisposition) {
+                                                       [aChallenge.sender useCredential:aCredential forAuthenticationChallenge:aChallenge];
+                                                   }];
+            }
+            else
+            {
+                NSLog(@"ERR: Missing download item for download id: %@ (%@, %d)", aDownloadItem, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
+                [aChallenge.sender cancelAuthenticationChallenge:aChallenge];
+            }
+        }
+        else
+        {
+            [aChallenge.sender cancelAuthenticationChallenge:aChallenge];
+        }
+    }
+    else
+    {
+        NSLog(@"ERR: Received authentication challenge with no delegate method implemented (%@, %d)", [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
+        [aChallenge.sender cancelAuthenticationChallenge:aChallenge];
     }
 }
 
