@@ -342,7 +342,8 @@
         [theAppDelegate.demoDownloadStore cancelDownloadWithDownloadIdentifier:aDownloadIdentifier];
         
         NSUInteger aFoundDownloadItemIndex = [[theAppDelegate demoDownloadStore].downloadItemsArray indexOfObjectPassingTest:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSUInteger anIndex, BOOL *aStopFlag) {
-            if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadIdentifier]) {
+            if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadIdentifier])
+            {
                 return YES;
             }
             return NO;
@@ -385,7 +386,8 @@
     DemoDownloadAppDelegate *theAppDelegate = (DemoDownloadAppDelegate *)[UIApplication sharedApplication].delegate;
     
     NSUInteger aFoundDownloadItemIndex = [[theAppDelegate demoDownloadStore].downloadItemsArray indexOfObjectPassingTest:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSUInteger anIndex, BOOL *aStopFlag) {
-        if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadedDownloadItem.downloadIdentifier]) {
+        if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadedDownloadItem.downloadIdentifier])
+        {
             return YES;
         }
         return NO;

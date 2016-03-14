@@ -364,7 +364,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 }
 
 
-#pragma mark - NSProgress KVO
+#pragma mark - NSProgress
 
 
 - (void)observeValueForKeyPath:(nullable NSString *)aKeyPath
@@ -394,23 +394,34 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 }
 
 
+- (void)resetProgressIfNoActiveDownloadsRunning
+{
+    DemoDownloadAppDelegate *theAppDelegate = (DemoDownloadAppDelegate *)[UIApplication sharedApplication].delegate;
+    BOOL aHasActiveDownloadsFlag = [theAppDelegate.fileDownloader hasActiveDownloads];
+    if (aHasActiveDownloadsFlag == NO)
+    {
+        if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+        {
+            [self.progress removeObserver:self forKeyPath:NSStringFromSelector(@selector(fractionCompleted))];
+        }
+        self.progress = [NSProgress progressWithTotalUnitCount:0];
+        if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
+        {
+            [self.progress addObserver:self
+                            forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
+                               options:NSKeyValueObservingOptionInitial
+                               context:DemoDownloadStoreProgressObserverContext];
+        }
+    }
+}
+
+
 #pragma mark - (Re)Start Download
 
 
 - (void)restartDownload
 {
-    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
-    {
-        [self.progress removeObserver:self forKeyPath:NSStringFromSelector(@selector(fractionCompleted))];
-    }
-    self.progress = [NSProgress progressWithTotalUnitCount:0];
-    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
-    {
-        [self.progress addObserver:self
-                        forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
-                           options:NSKeyValueObservingOptionInitial
-                           context:DemoDownloadStoreProgressObserverContext];
-    }
+    [self resetProgressIfNoActiveDownloadsRunning];
     
     for (DemoDownloadItem *aDemoDownloadItem in self.downloadItemsArray)
     {
@@ -424,6 +435,8 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 
 - (void)startDownloadWithDownloadItem:(nonnull DemoDownloadItem *)aDemoDownloadItem
 {
+    [self resetProgressIfNoActiveDownloadsRunning];
+    
     if ((aDemoDownloadItem.status != DemoDownloadItemStatusCancelled) && (aDemoDownloadItem.status != DemoDownloadItemStatusCompleted))
     {
         DemoDownloadAppDelegate *theAppDelegate = (DemoDownloadAppDelegate *)[UIApplication sharedApplication].delegate;
@@ -450,12 +463,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 
 - (void)resumeDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
 {
-    [self.progress removeObserver:self forKeyPath:NSStringFromSelector(@selector(fractionCompleted))];
-    self.progress = [NSProgress progressWithTotalUnitCount:0];
-    [self.progress addObserver:self
-                    forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
-                       options:NSKeyValueObservingOptionInitial
-                       context:DemoDownloadStoreProgressObserverContext];
+    [self resetProgressIfNoActiveDownloadsRunning];
     
     NSUInteger aFoundDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSUInteger anIndex, BOOL *aStopFlag) {
         if ([aDemoDownloadItem.downloadIdentifier isEqualToString:aDownloadIdentifier])

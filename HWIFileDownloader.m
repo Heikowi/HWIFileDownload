@@ -395,7 +395,6 @@
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadID)];
     if (aDownloadItem)
     {
-        aDownloadItem.progress.completedUnitCount = aDownloadItem.progress.totalUnitCount;
         NSURLSessionDownloadTask *aDownloadTask = aDownloadItem.sessionDownloadTask;
         if (aDownloadTask)
         {
@@ -455,7 +454,6 @@
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadID)];
     if (aDownloadItem)
     {
-        aDownloadItem.progress.completedUnitCount = aDownloadItem.progress.totalUnitCount;
         if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
         {
             NSURLSessionDownloadTask *aDownloadTask = aDownloadItem.sessionDownloadTask;
@@ -778,7 +776,9 @@
                 NSURL *aFinalLocalFileURL = aDownloadItem.finalLocalFileURL;
                 if (aFinalLocalFileURL)
                 {
-                    [self handleSuccessfulDownloadToLocalFileURL:aFinalLocalFileURL downloadID:aDownloadTask.taskIdentifier downloadToken:aDownloadItem.downloadToken];
+                    [self handleSuccessfulDownloadToLocalFileURL:aFinalLocalFileURL
+                                                    downloadItem:aDownloadItem
+                                                      downloadID:aDownloadTask.taskIdentifier];
                 }
                 else
                 {
@@ -964,7 +964,9 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
                                                 BOOL anIsValidDownloadFlag = [self.fileDownloadDelegate downloadAtLocalFileURL:aLocalFileURL isValidForDownloadIdentifier:aDownloadItem.downloadToken];
                                                 if (anIsValidDownloadFlag)
                                                 {
-                                                    [anotherStrongSelf handleSuccessfulDownloadToLocalFileURL:aLocalFileURL downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aFoundDownloadItem.downloadToken];
+                                                    [anotherStrongSelf handleSuccessfulDownloadToLocalFileURL:aLocalFileURL
+                                                                                                 downloadItem:aFoundDownloadItem
+                                                                                                   downloadID:[aDownloadID unsignedIntegerValue]];
                                                 }
                                                 else
                                                 {
@@ -975,7 +977,9 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
                                             }
                                             else
                                             {
-                                                [anotherStrongSelf handleSuccessfulDownloadToLocalFileURL:aLocalFileURL downloadID:[aDownloadID unsignedIntegerValue] downloadToken:aFoundDownloadItem.downloadToken];
+                                                [anotherStrongSelf handleSuccessfulDownloadToLocalFileURL:aLocalFileURL
+                                                                                             downloadItem:aFoundDownloadItem
+                                                                                               downloadID:[aDownloadID unsignedIntegerValue]];
                                             }
                                         }
                                     }
@@ -1213,10 +1217,12 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
 
 
 - (void)handleSuccessfulDownloadToLocalFileURL:(nonnull NSURL *)aLocalFileURL
+                                  downloadItem:(nonnull HWIFileDownloadItem *)aDownloadItem
                                     downloadID:(NSUInteger)aDownloadID
-                                 downloadToken:(nonnull NSString *)aDownloadToken
 {
-    [self.fileDownloadDelegate downloadDidCompleteWithIdentifier:aDownloadToken
+    aDownloadItem.progress.completedUnitCount = aDownloadItem.progress.totalUnitCount;
+    
+    [self.fileDownloadDelegate downloadDidCompleteWithIdentifier:aDownloadItem.downloadToken
                                                     localFileURL:aLocalFileURL];
     [self.activeDownloadsDictionary removeObjectForKey:@(aDownloadID)];
     [self.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
@@ -1225,10 +1231,12 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
 
 
 - (void)handleDownloadWithError:(nonnull NSError *)anError
-                   downloadItem:(HWIFileDownloadItem *)aDownloadItem
+                   downloadItem:(nonnull HWIFileDownloadItem *)aDownloadItem
                      downloadID:(NSUInteger)aDownloadID
                      resumeData:(nullable NSData *)aResumeData
 {
+    aDownloadItem.progress.completedUnitCount = aDownloadItem.progress.totalUnitCount;
+    
     [self.fileDownloadDelegate downloadFailedWithIdentifier:aDownloadItem.downloadToken
                                                       error:anError
                                              httpStatusCode:aDownloadItem.lastHttpStatusCode
