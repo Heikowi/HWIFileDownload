@@ -43,7 +43,7 @@
 /**
  HWIFileDownloaderPauseResumeDataBlock is a block optionally called after cancelling a download.
  */
-typedef void (^HWIFileDownloaderPauseResumeDataBlock)(NSData * __nullable aResumeData);
+typedef void (^HWIFileDownloaderPauseResumeDataBlock)(NSData * _Nullable aResumeData);
 
 
 /**

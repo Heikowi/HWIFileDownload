@@ -106,7 +106,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
         }
     };
     
-    self.downloadItemsArray = [[self.downloadItemsArray sortedArrayUsingComparator:^NSComparisonResult(DemoDownloadItem*  __nonnull aDownloadItemA, DemoDownloadItem*  __nonnull aDownloadItemB) {
+    self.downloadItemsArray = [[self.downloadItemsArray sortedArrayUsingComparator:^NSComparisonResult(DemoDownloadItem*  _Nonnull aDownloadItemA, DemoDownloadItem*  _Nonnull aDownloadItemB) {
         return [aDownloadItemA.downloadIdentifier compare:aDownloadItemB.downloadIdentifier options:NSNumericSearch];
     }] mutableCopy];
 }
@@ -337,7 +337,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 /*
 - (void)onAuthenticationChallenge:(nonnull NSURLAuthenticationChallenge *)aChallenge
                downloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                completionHandler:(void (^ __nonnull)(NSURLCredential * __nullable aCredential, NSURLSessionAuthChallengeDisposition disposition))aCompletionHandler
+                completionHandler:(void (^ _Nonnull)(NSURLCredential * _Nullable aCredential, NSURLSessionAuthChallengeDisposition disposition))aCompletionHandler
 {
     if (aChallenge.previousFailureCount == 0)
     {

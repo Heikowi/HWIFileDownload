@@ -37,6 +37,6 @@
 #import <Foundation/Foundation.h>
 
 
-extern NSString* __nonnull const downloadDidCompleteNotification;
-extern NSString* __nonnull const downloadProgressChangedNotification;
-extern NSString* __nonnull const totalDownloadProgressChangedNotification;
+extern NSString* _Nonnull const downloadDidCompleteNotification;
+extern NSString* _Nonnull const downloadProgressChangedNotification;
+extern NSString* _Nonnull const totalDownloadProgressChangedNotification;

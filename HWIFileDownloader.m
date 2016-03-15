@@ -117,7 +117,7 @@
 {
     if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
     {
-        [self.backgroundSession getTasksWithCompletionHandler:^(NSArray * __nonnull aDataTasksArray, NSArray * __nonnull anUploadTasksArray, NSArray * __nonnull aDownloadTasksArray) {
+        [self.backgroundSession getTasksWithCompletionHandler:^(NSArray * _Nonnull aDataTasksArray, NSArray * _Nonnull anUploadTasksArray, NSArray * _Nonnull aDownloadTasksArray) {
             for (NSURLSessionDownloadTask *aDownloadTask in aDownloadTasksArray)
             {
                 NSString *aDownloadToken = [aDownloadTask.taskDescription copy];
@@ -821,7 +821,7 @@
 - (void)URLSession:(NSURLSession *)aSession
               task:(NSURLSessionTask *)aTask
 didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
- completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential * __nullable credential))aCompletionHandler
+ completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential * _Nullable credential))aCompletionHandler
 {
     if ([self.fileDownloadDelegate respondsToSelector:@selector(onAuthenticationChallenge:downloadIdentifier:completionHandler:)])
     {
@@ -830,7 +830,7 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
         {
             [self.fileDownloadDelegate onAuthenticationChallenge:aChallenge
                                               downloadIdentifier:aDownloadToken
-                                               completionHandler:^(NSURLCredential * __nullable aCredential, NSURLSessionAuthChallengeDisposition aDisposition) {
+                                               completionHandler:^(NSURLCredential * _Nullable aCredential, NSURLSessionAuthChallengeDisposition aDisposition) {
                                                    aCompletionHandler(aDisposition, aCredential);
                                                }];
         }
@@ -1179,7 +1179,7 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
                 
                 [self.fileDownloadDelegate onAuthenticationChallenge:aChallenge
                                                   downloadIdentifier:aDownloadItem.downloadToken
-                                                   completionHandler:^(NSURLCredential * __nullable aCredential, NSURLSessionAuthChallengeDisposition aDisposition) {
+                                                   completionHandler:^(NSURLCredential * _Nullable aCredential, NSURLSessionAuthChallengeDisposition aDisposition) {
                                                        [aChallenge.sender useCredential:aCredential forAuthenticationChallenge:aChallenge];
                                                    }];
             }

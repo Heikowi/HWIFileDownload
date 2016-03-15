@@ -163,7 +163,7 @@
  */
 - (void)onAuthenticationChallenge:(nonnull NSURLAuthenticationChallenge *)aChallenge
                downloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                completionHandler:(void (^ __nonnull)(NSURLCredential * __nullable aCredential, NSURLSessionAuthChallengeDisposition disposition))aCompletionHandler;
+                completionHandler:(void (^ _Nonnull)(NSURLCredential * _Nullable aCredential, NSURLSessionAuthChallengeDisposition disposition))aCompletionHandler;
 
 
 /**

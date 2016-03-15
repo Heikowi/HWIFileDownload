@@ -37,6 +37,6 @@
 #import "DemoDownloadNotifications.h"
 
 
-NSString* __nonnull const downloadDidCompleteNotification = @"downloadDidCompleteNotification";
-NSString* __nonnull const downloadProgressChangedNotification = @"downloadProgressChangedNotification";
-NSString* __nonnull const totalDownloadProgressChangedNotification = @"totalDownloadProgressChangedNotification";
+NSString* _Nonnull const downloadDidCompleteNotification = @"downloadDidCompleteNotification";
+NSString* _Nonnull const downloadProgressChangedNotification = @"downloadProgressChangedNotification";
+NSString* _Nonnull const totalDownloadProgressChangedNotification = @"totalDownloadProgressChangedNotification";
