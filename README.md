@@ -127,7 +127,7 @@ When loosing network connection, all running downloads pause after request timeo
 Two delegate calls provide hooks for adjusting connection parameters:
 
 ```objective-c
-- (void)customizeBackgroundSessionConfiguration:(NSURLSessionConfiguration * _Nonnull * _Nonnull)aBackgroundSessionConfiguration;
+- (void)customizeBackgroundSessionConfiguration:(nonnull NSURLSessionConfiguration *)aBackgroundSessionConfiguration;
 - (nullable NSURLRequest *)urlRequestForRemoteURL:(nonnull NSURL *)aRemoteURL; // iOS 6 only
 ```
 
