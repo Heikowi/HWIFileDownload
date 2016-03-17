@@ -42,7 +42,7 @@ The delegate is called on download completion. Additional calls are used to cont
                                     remoteURL:(nonnull NSURL *)aRemoteURL;
 - (BOOL)downloadAtLocalFileURL:(nonnull NSURL *)aLocalFileURL isValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
 - (BOOL)httpStatusCode:(NSInteger)aHttpStatusCode isValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
-- (void)customizeBackgroundSessionConfiguration:(NSURLSessionConfiguration * _Nonnull * _Nonnull)aBackgroundSessionConfiguration;
+- (void)customizeBackgroundSessionConfiguration:(nonnull NSURLSessionConfiguration *)aBackgroundSessionConfiguration;
 - (nullable NSURLRequest *)urlRequestForRemoteURL:(nonnull NSURL *)aRemoteURL;
 - (void)onAuthenticationChallenge:(nonnull NSURLAuthenticationChallenge *)aChallenge
                downloadIdentifier:(nonnull NSString *)aDownloadIdentifier
