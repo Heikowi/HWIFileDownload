@@ -98,11 +98,17 @@ The app delegate of the demo app holds an instance of the `DemoDownloadStore` an
 
 ### Start and Restart
 
-On app start a list of all downloads is collected. All items are downloaded that are not downloaded yet.
+On app start a list of all downloads is collected. All items are downloaded that are not downloaded yet. Paused and failed downloads resume.
+
+### Pause and Resume
+
+On "Pause" the download is stopped. The incompletely downloaded data is preserved as resume data. With "Resume" the download can be continued, starting with the already downloaded data.
+
+On iOS 6 pause and resume is not available. On iOS 7 and iOS 8 resume data needs to be managed by the app client. Since iOS 9 `NSProgress` manages the resume data transparently with the resume method.
 
 ### Cancel
 
-On "Cancel" all running downloads are cancelled. On iOS 7 (and later) incompletely downloaded data is passed asynchronously as resume data.
+On "Cancel" the download is stopped. No resume data is preserved. No re-download is offered.
 
 ### Crash
 
@@ -146,7 +152,7 @@ If the host of the network request is not reachable, `NSURLConnection` checks fo
 
 ### Authentication
 
-To authenticate for a file download, you need to implement the delegate method
+If authentication is required for a file download, you need to implement the delegate method
 
 ```objective-c
 - (void)onAuthenticationChallenge:(nonnull NSURLAuthenticationChallenge *)aChallenge
