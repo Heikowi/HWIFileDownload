@@ -14,7 +14,7 @@ HWIFileDownload is backwards compatible down to iOS 6 (where `NSURLConnection` i
 
 HWIFileDownload uses a __download identifier__ for starting a download, retrieving progress information, and for handling download completion. The __download identifier__ is a string that must be unique for each individual file download.
 
-To start a download, the app client calls the method `startDownloadWithDownloadIdentifier:fromRemoteURL:` of the `HWIFileDownloader`.
+To start a download, the app client calls the method `startDownloadWithIdentifier:fromRemoteURL:` of the `HWIFileDownloader`.
 
 ### Download Store as Delegate
 
@@ -57,10 +57,10 @@ The delegate is called on download completion. Additional mandatory calls contro
 The app needs to hold an instance of the `HWIFileDownloader` that manages the download process. `HWIFileDownloader` provides methods for starting, querying and controlling individual download processes.
 
 ```objective-c
-- (void)startDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                              fromRemoteURL:(nonnull NSURL *)aRemoteURL;
-- (void)startDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                            usingResumeData:(nonnull NSData *)aResumeData;
+- (void)startDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier
+                      fromRemoteURL:(nonnull NSURL *)aRemoteURL;
+- (void)startDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier
+                    usingResumeData:(nonnull NSData *)aResumeData;
 - (BOOL)isDownloadingIdentifier:(nonnull NSString *)aDownloadIdentifier;
 - (BOOL)isWaitingForDownloadOfIdentifier:(nonnull NSString *)aDownloadIdentifier;
 - (BOOL)hasActiveDownloads;

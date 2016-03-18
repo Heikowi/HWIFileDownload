@@ -88,16 +88,16 @@ typedef void (^HWIFileDownloaderPauseResumeDataBlock)(NSData * _Nullable aResume
  @param aDownloadIdentifier Download identifier of a download item.
  @param aRemoteURL Remote URL from where data should be downloaded.
  */
-- (void)startDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                              fromRemoteURL:(nonnull NSURL *)aRemoteURL;
+- (void)startDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier
+                      fromRemoteURL:(nonnull NSURL *)aRemoteURL;
 
 /**
  Starts a download.
  @param aDownloadIdentifier Download identifier of a download item.
  @param aResumeData Incomplete data from previous download with implicit remote source information.
  */
-- (void)startDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                            usingResumeData:(nonnull NSData *)aResumeData;
+- (void)startDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier
+                    usingResumeData:(nonnull NSData *)aResumeData;
 
 
 /**

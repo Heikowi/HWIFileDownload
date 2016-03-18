@@ -184,15 +184,15 @@
 #pragma mark - Download Start
 
 
-- (void)startDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                              fromRemoteURL:(nonnull NSURL *)aRemoteURL
+- (void)startDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier
+                      fromRemoteURL:(nonnull NSURL *)aRemoteURL
 {
     [self startDownloadWithDownloadToken:aDownloadIdentifier fromRemoteURL:aRemoteURL usingResumeData:nil];
 }
 
 
-- (void)startDownloadWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                            usingResumeData:(nonnull NSData *)aResumeData
+- (void)startDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier
+                    usingResumeData:(nonnull NSData *)aResumeData
 {
     [self startDownloadWithDownloadToken:aDownloadIdentifier fromRemoteURL:nil usingResumeData:aResumeData];
 }

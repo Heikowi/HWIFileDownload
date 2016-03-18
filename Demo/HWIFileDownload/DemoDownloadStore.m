@@ -450,11 +450,11 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
             // kick off individual download
             if (aDemoDownloadItem.resumeData.length > 0)
             {
-                [theAppDelegate.fileDownloader startDownloadWithDownloadIdentifier:aDemoDownloadItem.downloadIdentifier usingResumeData:aDemoDownloadItem.resumeData];
+                [theAppDelegate.fileDownloader startDownloadWithIdentifier:aDemoDownloadItem.downloadIdentifier usingResumeData:aDemoDownloadItem.resumeData];
             }
             else
             {
-                [theAppDelegate.fileDownloader startDownloadWithDownloadIdentifier:aDemoDownloadItem.downloadIdentifier fromRemoteURL:aDemoDownloadItem.remoteURL];
+                [theAppDelegate.fileDownloader startDownloadWithIdentifier:aDemoDownloadItem.downloadIdentifier fromRemoteURL:aDemoDownloadItem.remoteURL];
             }
         }
     }
