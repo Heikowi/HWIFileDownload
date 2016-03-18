@@ -144,9 +144,8 @@
                         [aDownloadItem.progress setCancellationHandler:^{
                             [self cancelDownloadWithIdentifier:aDownloadToken];
                         }];
-                        if ([aDownloadItem.progress respondsToSelector:@selector(setResumingHandler:)])
+                        if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_8_4)
                         {
-                            // available with iOS 9
                             [aDownloadItem.progress setResumingHandler:^{
                                 [self resumeDownloadWithIdentifier:aDownloadToken];
                             }];
@@ -287,9 +286,8 @@
             [aDownloadItem.progress setCancellationHandler:^{
                 [self cancelDownloadWithIdentifier:aDownloadToken];
             }];
-            if ([aDownloadItem.progress respondsToSelector:@selector(setResumingHandler:)])
+            if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_8_4)
             {
-                // available with iOS 9
                 [aDownloadItem.progress setResumingHandler:^{
                     [self resumeDownloadWithIdentifier:aDownloadToken];
                 }];
@@ -355,6 +353,11 @@
         [self pauseDownloadWithIdentifier:aDownloadIdentifier resumeDataBlock:^(NSData *aResumeData) {
             if ([self.fileDownloadDelegate respondsToSelector:@selector(downloadPausedWithIdentifier:resumeData:)])
             {
+                if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_8_4)
+                {
+                    // resume data is managed by the system and used when calling resume with NSProgress
+                    aResumeData = nil;
+                }
                 [self.fileDownloadDelegate downloadPausedWithIdentifier:aDownloadIdentifier
                                                              resumeData:aResumeData];
             }

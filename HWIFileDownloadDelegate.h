@@ -94,6 +94,7 @@
  Optionally called on a paused download.
  @param aDownloadIdentifier Download identifier of the download item.
  @param aResumeData Incompletely downloaded data that can be reused later if the download is started again.
+ @discussion Since iOS 9 resume data is managed by the system. For iOS 7 and iOS 8 resume data is passed with the parameter.
  */
 - (void)downloadPausedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
                           resumeData:(nullable NSData *)aResumeData;

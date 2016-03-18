@@ -475,9 +475,8 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     if (aFoundDownloadItemIndex != NSNotFound)
     {
         DemoDownloadItem *aDemoDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
-        if ([aDemoDownloadItem.progress.nativeProgress respondsToSelector:@selector(resume)])
+        if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_8_4)
         {
-            // available with iOS 9
             [aDemoDownloadItem.progress.nativeProgress resume];
         }
         else
