@@ -38,6 +38,7 @@ The delegate is called on download completion. Additional calls are used to cont
 - (void)downloadProgressChangedForIdentifier:(nonnull NSString *)aDownloadIdentifier;
 - (void)downloadPausedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
                           resumeData:(nullable NSData *)aResumeData;
+- (void)resumeDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier;
 - (nullable NSURL *)localFileURLForIdentifier:(nonnull NSString *)aDownloadIdentifier
                                     remoteURL:(nonnull NSURL *)aRemoteURL;
 - (BOOL)downloadAtLocalFileURL:(nonnull NSURL *)aLocalFileURL isValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
@@ -46,7 +47,7 @@ The delegate is called on download completion. Additional calls are used to cont
 - (nullable NSURLRequest *)urlRequestForRemoteURL:(nonnull NSURL *)aRemoteURL;
 - (void)onAuthenticationChallenge:(nonnull NSURLAuthenticationChallenge *)aChallenge
                downloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                completionHandler:(void (^ __nonnull)(NSURLCredential * __nullable aCredential, NSURLSessionAuthChallengeDisposition disposition))aCompletionHandler;
+                completionHandler:(void (^ _Nonnull)(NSURLCredential * _Nullable aCredential, NSURLSessionAuthChallengeDisposition disposition))aCompletionHandler;
 - (nullable NSProgress *)rootProgress;
 @end
 ```
@@ -148,7 +149,7 @@ To authenticate for a file download, you need to implement the delegate method
 ```objective-c
 - (void)onAuthenticationChallenge:(nonnull NSURLAuthenticationChallenge *)aChallenge
                downloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                completionHandler:(void (^ __nonnull)(NSURLCredential * __nullable aCredential, NSURLSessionAuthChallengeDisposition disposition))aCompletionHandler;
+                completionHandler:(void (^ _Nonnull)(NSURLCredential * _Nullable aCredential, NSURLSessionAuthChallengeDisposition disposition))aCompletionHandler;
 ```
 
 The demo app code includes a deactivated sample implementation.
