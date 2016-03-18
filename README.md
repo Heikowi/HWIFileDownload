@@ -20,7 +20,7 @@ To start a download, the app client calls the method `startDownloadWithDownloadI
 
 The app client must maintain a custom __download store__ to manage the downloads and the persistent store. The app __download store__ needs to implement the protocol `HWIFileDownloadDelegate` to be called on important download events.
 
-The delegate is called on download completion. Additional calls are used to control the visibility of the network activity indicator. Optionally the delegate can be called on download progress change for each download item. To control the local name of the downloaded file, the delegate can implement the method `localFileURLForIdentifier:remoteURL:`.
+The delegate is called on download completion. Additional mandatory calls control the visibility of the network activity indicator. Optionally the delegate can be called on download progress change for each download item. To control the local name of the downloaded file, the delegate can implement the method `localFileURLForIdentifier:remoteURL:`.
 
 ```objective-c
 @protocol HWIFileDownloadDelegate
