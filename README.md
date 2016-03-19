@@ -65,9 +65,6 @@ The app needs to hold an instance of the `HWIFileDownloader` that manages the do
 - (BOOL)isWaitingForDownloadOfIdentifier:(nonnull NSString *)aDownloadIdentifier;
 - (BOOL)hasActiveDownloads;
 - (void)cancelDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier;
-- (void)pauseDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier;
-- (void)pauseDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier resumeDataBlock:(nullable HWIFileDownloaderPauseResumeDataBlock)aResumeDataBlock;
-- (void)resumeDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier;
 - (nullable HWIFileDownloadProgress *)downloadProgressForIdentifier:(nonnull NSString *)aDownloadIdentifier;
 ```
 	
