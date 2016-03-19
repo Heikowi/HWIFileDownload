@@ -143,7 +143,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
         
         aCompletedDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
         aCompletedDownloadItem.status = DemoDownloadItemStatusCompleted;
-        [self storeDownloadItems];
+        [self storeDemoDownloadItems];
     }
     else
     {
@@ -172,33 +172,55 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     {
         aFailedDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
         aFailedDownloadItem.lastHttpStatusCode = aHttpStatusCode;
+        aFailedDownloadItem.resumeData = aResumeData;
+        aFailedDownloadItem.downloadError = anError;
+        aFailedDownloadItem.downloadErrorMessagesStack = anErrorMessagesStack;
+        
+        // download status heuristics
         if (aFailedDownloadItem.status != DemoDownloadItemStatusPaused)
         {
-            if ([anError.domain isEqualToString:NSURLErrorDomain] && (anError.code == NSURLErrorCancelled))
+            if (aResumeData.length > 0)
+            {
+                aFailedDownloadItem.status = DemoDownloadItemStatusInterrupted;
+            }
+            else if ([anError.domain isEqualToString:NSURLErrorDomain] && (anError.code == NSURLErrorCancelled))
             {
                 aFailedDownloadItem.status = DemoDownloadItemStatusCancelled;
             }
             else
             {
                 aFailedDownloadItem.status = DemoDownloadItemStatusError;
-                aFailedDownloadItem.downloadError = anError;
-                aFailedDownloadItem.downloadErrorMessagesStack = anErrorMessagesStack;
             }
         }
-        aFailedDownloadItem.resumeData = aResumeData;
-        [self storeDownloadItems];
+        [self storeDemoDownloadItems];
+        
+        switch (aFailedDownloadItem.status) {
+            case DemoDownloadItemStatusError:
+                NSLog(@"ERR: Downoad with error %@ - id: %@ (%@, %d)", anError.localizedDescription, aDownloadIdentifier, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
+                break;
+            case DemoDownloadItemStatusInterrupted:
+                NSLog(@"ERR: Download interrupted with error %@ - id: %@ (%@, %d)", anError, aDownloadIdentifier, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
+                break;
+            case DemoDownloadItemStatusCancelled:
+                NSLog(@"INFO: Download cancelled - id: %@ (%@, %d)", aDownloadIdentifier, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
+                break;
+            case DemoDownloadItemStatusPaused:
+                NSLog(@"INFO: Download paused - id: %@ (%@, %d)", aDownloadIdentifier, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
+                break;
+                
+            default:
+                break;
+        }
+        
+        if (aFailedDownloadItem.status == DemoDownloadItemStatusInterrupted)
+        {
+            [self startDownloadWithDownloadItem:aFailedDownloadItem];
+        }
+        
     }
     else
     {
         NSLog(@"ERR: Failed download item not found (id: %@) (%@, %d)", aDownloadIdentifier, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
-    }
-    if ([anError.domain isEqualToString:NSURLErrorDomain] && (anError.code == NSURLErrorCancelled))
-    {
-        NSLog(@"INFO: Download cancelled - id: %@ (%@, %d)", aDownloadIdentifier, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
-    }
-    else
-    {
-        NSLog(@"ERR: %@ (%@, %d)", anError.localizedDescription, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:downloadDidCompleteNotification object:aFailedDownloadItem];
@@ -266,7 +288,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
         DemoDownloadItem *aPausedDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
         aPausedDownloadItem.status = DemoDownloadItemStatusPaused;
         aPausedDownloadItem.resumeData = aResumeData;
-        [self storeDownloadItems];
+        [self storeDemoDownloadItems];
     }
     else
     {
@@ -425,7 +447,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     
     for (DemoDownloadItem *aDemoDownloadItem in self.downloadItemsArray)
     {
-        if ((aDemoDownloadItem.status == DemoDownloadItemStatusPaused) || (aDemoDownloadItem.status == DemoDownloadItemStatusError))
+        if ((aDemoDownloadItem.status == DemoDownloadItemStatusPaused) || (aDemoDownloadItem.status == DemoDownloadItemStatusError) || (aDemoDownloadItem.status == DemoDownloadItemStatusInterrupted))
         {
             [self startDownloadWithDownloadItem:aDemoDownloadItem];
         }
@@ -445,7 +467,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
         {
             aDemoDownloadItem.status = DemoDownloadItemStatusStarted;
             
-            [self storeDownloadItems];
+            [self storeDemoDownloadItems];
             
             // kick off individual download
             if (aDemoDownloadItem.resumeData.length > 0)
@@ -503,7 +525,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     {
         DemoDownloadItem *aCancelledDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
         aCancelledDownloadItem.status = DemoDownloadItemStatusCancelled;
-        [self storeDownloadItems];
+        [self storeDemoDownloadItems];
     }
     else
     {
@@ -526,7 +548,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 #pragma mark - Persistence
 
 
-- (void)storeDownloadItems
+- (void)storeDemoDownloadItems
 {
     NSMutableArray <NSData *> *aDemoDownloadItemsArchiveArray = [NSMutableArray arrayWithCapacity:self.downloadItemsArray.count];
     for (DemoDownloadItem *aDemoDownloadItem in self.downloadItemsArray)

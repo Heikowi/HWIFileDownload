@@ -1264,10 +1264,10 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
                                     downloadID:(NSUInteger)aDownloadID
 {
     aDownloadItem.progress.completedUnitCount = aDownloadItem.progress.totalUnitCount;
+    [self.activeDownloadsDictionary removeObjectForKey:@(aDownloadID)];
     
     [self.fileDownloadDelegate downloadDidCompleteWithIdentifier:aDownloadItem.downloadToken
                                                     localFileURL:aLocalFileURL];
-    [self.activeDownloadsDictionary removeObjectForKey:@(aDownloadID)];
     [self.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
     [self startNextWaitingDownload];
 }
@@ -1279,13 +1279,13 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
                      resumeData:(nullable NSData *)aResumeData
 {
     aDownloadItem.progress.completedUnitCount = aDownloadItem.progress.totalUnitCount;
+    [self.activeDownloadsDictionary removeObjectForKey:@(aDownloadID)];
     
     [self.fileDownloadDelegate downloadFailedWithIdentifier:aDownloadItem.downloadToken
                                                       error:anError
                                              httpStatusCode:aDownloadItem.lastHttpStatusCode
                                          errorMessagesStack:aDownloadItem.errorMessagesStack
                                                  resumeData:aResumeData];
-    [self.activeDownloadsDictionary removeObjectForKey:@(aDownloadID)];
     [self.fileDownloadDelegate decrementNetworkActivityIndicatorActivityCount];
     [self startNextWaitingDownload];
 }

@@ -502,6 +502,10 @@
                     anInfoTextLabel.text = [DemoDownloadTableViewController displayStringForRemainingTime:aFileDownloadProgress.estimatedRemainingTime];
                 }
             }
+            else
+            {
+                anInfoTextLabel.text = @"Started with no progress";
+            }
         }
     }
     else if (aDownloadItem.status == DemoDownloadItemStatusCompleted)
@@ -526,7 +530,7 @@
     {
         anInfoTextLabel.text = @"Cancelled";
     }
-    else if (aDownloadItem.status == DemoDownloadItemStatusError)
+    else if ((aDownloadItem.status == DemoDownloadItemStatusError) || (aDownloadItem.status == DemoDownloadItemStatusInterrupted))
     {
         if (aDownloadItem.downloadError)
         {
@@ -545,6 +549,10 @@
         {
             anInfoTextLabel.text = [NSString stringWithFormat:@"Error (http status: %@)", @(aDownloadItem.lastHttpStatusCode)];
         }
+    }
+    else
+    {
+        NSLog(@"ERR: Unhandled download status %@ (%@, %d)", @(aDownloadItem.status), [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
     }
 }
 
@@ -593,6 +601,7 @@
             break;
             
         case DemoDownloadItemStatusError:
+        case DemoDownloadItemStatusInterrupted:
             if ([aButtonTitle isEqualToString:self.errorChar] == NO)
             {
                 [aButton setEnabled:NO];

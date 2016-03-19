@@ -43,5 +43,6 @@ typedef NS_ENUM(NSUInteger, DemoDownloadItemStatus) {
     DemoDownloadItemStatusCompleted,
     DemoDownloadItemStatusPaused,
     DemoDownloadItemStatusCancelled,
+    DemoDownloadItemStatusInterrupted,
     DemoDownloadItemStatusError
 };

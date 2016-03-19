@@ -96,7 +96,10 @@
     [aDescriptionDict setObject:self.downloadIdentifier forKey:@"downloadIdentifier"];
     [aDescriptionDict setObject:self.remoteURL forKey:@"remoteURL"];
     [aDescriptionDict setObject:@(self.status) forKey:@"status"];
-    [aDescriptionDict setObject:self.progress forKey:@"progress"];
+    if (self.progress)
+    {
+        [aDescriptionDict setObject:self.progress forKey:@"progress"];
+    }
     if (self.resumeData.length > 0)
     {
         [aDescriptionDict setObject:@"hasData" forKey:@"resumeData"];
