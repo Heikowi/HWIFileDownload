@@ -99,7 +99,7 @@ On app start a list of all downloads is collected. All items are downloaded that
 
 ### Pause and Resume
 
-On "Pause" the download is stopped. The incompletely downloaded data is preserved as resume data. With "Resume" the download can be continued, starting with the already downloaded data.
+On "Pause" the download is stopped. The incomplete download data is preserved as resume data. With "Resume" the download can be continued, starting with the already downloaded data.
 
 On iOS 6 pause and resume is not available. On iOS 7 and iOS 8 resume data needs to be managed by the app client. Since iOS 9 `NSProgress` manages the resume data transparently with the resume method.
 
