@@ -1213,20 +1213,20 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
     NSURL *aLocalFileURL = nil;
     NSURL *aFileDownloadDirectoryURL = nil;
     NSError *anError = nil;
-    NSString *aFileDownloadDirectory = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject];
-    if (aFileDownloadDirectory.length > 0)
+    NSArray *aDocumentDirectoryURLsArray = [[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask];
+    NSURL *aDocumentsDirectoryURL = [aDocumentDirectoryURLsArray firstObject];
+    if (aDocumentsDirectoryURL)
     {
-        aFileDownloadDirectory = [aFileDownloadDirectory stringByAppendingPathComponent:@"file-download"];
-        if ([[NSFileManager defaultManager] fileExistsAtPath:aFileDownloadDirectory] == NO)
+        aFileDownloadDirectoryURL = [aDocumentsDirectoryURL URLByAppendingPathComponent:@"file-download" isDirectory:YES];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:aFileDownloadDirectoryURL.path] == NO)
         {
-            BOOL aCreateDirectorySuccess = [[NSFileManager defaultManager] createDirectoryAtPath:aFileDownloadDirectory withIntermediateDirectories:YES attributes:nil error:&anError];
+            BOOL aCreateDirectorySuccess = [[NSFileManager defaultManager] createDirectoryAtPath:aFileDownloadDirectoryURL.path withIntermediateDirectories:YES attributes:nil error:&anError];
             if (aCreateDirectorySuccess == NO)
             {
                 NSLog(@"ERR on create directory: %@ (%@, %d)", anError, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
             }
             else
             {
-                aFileDownloadDirectoryURL = [NSURL fileURLWithPath:aFileDownloadDirectory isDirectory:YES];
                 BOOL aSetResourceValueSuccess = [aFileDownloadDirectoryURL setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:&anError];
                 if (aSetResourceValueSuccess == NO)
                 {
@@ -1234,12 +1234,8 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
                 }
             }
         }
-        else
-        {
-            aFileDownloadDirectoryURL = [NSURL fileURLWithPath:aFileDownloadDirectory isDirectory:YES];
-        }
         NSString *aLocalFileName = [NSString stringWithFormat:@"%@.%@", [[NSUUID UUID] UUIDString], [[aRemoteURL lastPathComponent] pathExtension]];
-        aLocalFileURL = [aFileDownloadDirectoryURL URLByAppendingPathComponent:aLocalFileName];
+        aLocalFileURL = [aFileDownloadDirectoryURL URLByAppendingPathComponent:aLocalFileName isDirectory:NO];
     }
     return aLocalFileURL;
 }
