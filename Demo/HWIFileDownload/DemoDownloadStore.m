@@ -212,11 +212,6 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
                 break;
         }
         
-        if (aFailedDownloadItem.status == DemoDownloadItemStatusInterrupted)
-        {
-            [self startDownloadWithDownloadItem:aFailedDownloadItem];
-        }
-        
     }
     else
     {
@@ -438,21 +433,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 }
 
 
-#pragma mark - (Re)Start Download
-
-
-- (void)restartDownload
-{
-    [self resetProgressIfNoActiveDownloadsRunning];
-    
-    for (DemoDownloadItem *aDemoDownloadItem in self.downloadItemsArray)
-    {
-        if ((aDemoDownloadItem.status == DemoDownloadItemStatusPaused) || (aDemoDownloadItem.status == DemoDownloadItemStatusError) || (aDemoDownloadItem.status == DemoDownloadItemStatusInterrupted))
-        {
-            [self startDownloadWithDownloadItem:aDemoDownloadItem];
-        }
-    }
-}
+#pragma mark - Start Download
 
 
 - (void)startDownloadWithDownloadItem:(nonnull DemoDownloadItem *)aDemoDownloadItem
@@ -499,7 +480,14 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
         DemoDownloadItem *aDemoDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
         if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_8_4)
         {
-            [aDemoDownloadItem.progress.nativeProgress resume];
+            if (aDemoDownloadItem.progress.nativeProgress)
+            {
+                [aDemoDownloadItem.progress.nativeProgress resume];
+            }
+            else
+            {
+                [self startDownloadWithDownloadItem:aDemoDownloadItem];
+            }
         }
         else
         {

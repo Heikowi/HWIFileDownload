@@ -70,6 +70,19 @@
     {
         [aCoder encodeObject:self.resumeData forKey:@"resumeData"];
     }
+    if (self.progress)
+    {
+        [aCoder encodeObject:self.progress forKey:@"progress"];
+    }
+    if (self.downloadError)
+    {
+        [aCoder encodeObject:self.downloadError forKey:@"downloadError"];
+    }
+    if (self.downloadErrorMessagesStack)
+    {
+        [aCoder encodeObject:self.downloadErrorMessagesStack forKey:@"downloadErrorMessagesStack"];
+    }
+    [aCoder encodeObject:@(self.lastHttpStatusCode) forKey:@"lastHttpStatusCode"];
 }
 
 
@@ -82,6 +95,10 @@
         self.remoteURL = [aCoder decodeObjectForKey:@"remoteURL"];
         self.status = [[aCoder decodeObjectForKey:@"status"] unsignedIntegerValue];
         self.resumeData = [aCoder decodeObjectForKey:@"resumeData"];
+        self.progress = [aCoder decodeObjectForKey:@"progress"];
+        self.downloadError = [aCoder decodeObjectForKey:@"downloadError"];
+        self.downloadErrorMessagesStack = [aCoder decodeObjectForKey:@"downloadErrorMessagesStack"];
+        self.lastHttpStatusCode = [[aCoder decodeObjectForKey:@"lastHttpStatusCode"] integerValue];
     }
     return self;
 }

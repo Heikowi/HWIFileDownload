@@ -88,10 +88,6 @@
         self.errorChar = @"\uf0e7"; // fa-bolt (Aliases: fa-flash)
         self.cancelledChar = @"\uf05e"; // fa-ban
         
-        UIRefreshControl *aRefreshControl = [[UIRefreshControl alloc] init];
-        [aRefreshControl addTarget:self action:@selector(onRefreshTable) forControlEvents:UIControlEventValueChanged];
-        self.refreshControl = aRefreshControl;
-        
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDownloadDidComplete:) name:downloadDidCompleteNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onProgressDidChange:) name:downloadProgressChangedNotification object:nil];
         if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
@@ -438,15 +434,6 @@
 #pragma mark - Table View
 
 
-- (void)onRefreshTable
-{
-    [self.refreshControl endRefreshing];
-    DemoDownloadAppDelegate *theAppDelegate = (DemoDownloadAppDelegate *)[UIApplication sharedApplication].delegate;
-    [theAppDelegate.demoDownloadStore restartDownload];
-    [self.tableView reloadData];
-}
-
-
 - (void)prepareTableViewCell:(UITableViewCell *)aTableViewCell withDownloadItem:(DemoDownloadItem *)aDownloadItem
 {
     UILabel *aFileNameLabel = (UILabel *)[aTableViewCell viewWithTag:self.fileNameLabelTag];
@@ -636,6 +623,8 @@
                 break;
                 
             case DemoDownloadItemStatusPaused:
+            case DemoDownloadItemStatusError:
+            case DemoDownloadItemStatusInterrupted:
             {
                 NSString *aButtonTitle = [aButton titleForState:UIControlStateNormal];
                 if ([aButtonTitle isEqualToString:self.resumeChar] == NO)

@@ -95,7 +95,7 @@ The app delegate of the demo app holds an instance of the `DemoDownloadStore` an
 
 ### Start and Restart
 
-On app start a list of all downloads is collected. All items are downloaded that are not downloaded yet. Paused and failed downloads resume.
+On app start a list of all downloads is collected.
 
 ### Pause and Resume
 
@@ -114,11 +114,6 @@ On "Crash" the app crashes. On iOS 7 (and later) started downloads continue in t
 ### Force Quit
 
 After the app has been killed by the user, downloads do not continue in the background. On iOS 7 (and later) resume data is passed back after the app launched again.
-
-### Refresh
-
-By pulling down the table view, the content is refreshed. All items with incomplete data resume download.
-
 
 ### Background
 

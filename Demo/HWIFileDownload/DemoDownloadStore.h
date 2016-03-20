@@ -48,8 +48,6 @@
 @property (nonatomic, strong, readonly, nonnull) NSMutableArray<DemoDownloadItem *> *downloadItemsArray;
 
 
-- (void)restartDownload;
-
 - (void)startDownloadWithDownloadItem:(nonnull DemoDownloadItem *)aDemoDownloadItem;
 
 

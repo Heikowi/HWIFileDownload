@@ -36,7 +36,7 @@
 #import "HWIFileDownloadProgress.h"
 
 
-@interface HWIFileDownloadProgress()
+@interface HWIFileDownloadProgress()<NSCoding>
 @property (nonatomic, assign, readwrite) float downloadProgress;
 @property (nonatomic, assign, readwrite) int64_t expectedFileSize;
 @property (nonatomic, assign, readwrite) int64_t receivedFileSize;
@@ -67,6 +67,44 @@
         self.estimatedRemainingTime = anEstimatedRemainingTime;
         self.bytesPerSecondSpeed = aBytesPerSecondSpeed;
         self.nativeProgress = aProgress;
+    }
+    return self;
+}
+
+
+#pragma mark - NSCoding
+
+
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+    [aCoder encodeObject:@(self.downloadProgress) forKey:@"downloadProgress"];
+    [aCoder encodeObject:@(self.expectedFileSize) forKey:@"expectedFileSize"];
+    [aCoder encodeObject:@(self.receivedFileSize) forKey:@"receivedFileSize"];
+    [aCoder encodeObject:@(self.estimatedRemainingTime) forKey:@"estimatedRemainingTime"];
+    [aCoder encodeObject:@(self.bytesPerSecondSpeed) forKey:@"bytesPerSecondSpeed"];
+    if (self.lastLocalizedDescription)
+    {
+        [aCoder encodeObject:self.lastLocalizedDescription forKey:@"lastLocalizedDescription"];
+    }
+    if (self.lastLocalizedAdditionalDescription)
+    {
+        [aCoder encodeObject:self.lastLocalizedAdditionalDescription forKey:@"lastLocalizedAdditionalDescription"];
+    }
+}
+
+
+- (id)initWithCoder:(NSCoder *)aCoder
+{
+    self = [super init];
+    if (self)
+    {
+        self.downloadProgress = [[aCoder decodeObjectForKey:@"downloadProgress"] floatValue];
+        self.expectedFileSize = (int64_t)[[aCoder decodeObjectForKey:@"expectedFileSize"] intValue];
+        self.receivedFileSize = (int64_t)[[aCoder decodeObjectForKey:@"receivedFileSize"] intValue];
+        self.estimatedRemainingTime = (NSTimeInterval)[[aCoder decodeObjectForKey:@"estimatedRemainingTime"] doubleValue];
+        self.bytesPerSecondSpeed = (NSTimeInterval)[[aCoder decodeObjectForKey:@"bytesPerSecondSpeed"] unsignedIntegerValue];
+        self.lastLocalizedDescription = [aCoder decodeObjectForKey:@"lastLocalizedDescription"];
+        self.lastLocalizedAdditionalDescription = [aCoder decodeObjectForKey:@"lastLocalizedAdditionalDescription"];
     }
     return self;
 }
