@@ -86,8 +86,6 @@
 
 - (void)setExpectedFileSizeInBytes:(int64_t)anExpectedFileSizeInBytes
 {
-    NSString *idString = [self.progress.userInfo objectForKey:@"downloadToken"];
-    NSLog(@"%@: expected: %@", idString, @(anExpectedFileSizeInBytes));
     _expectedFileSizeInBytes = anExpectedFileSizeInBytes;
     if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
     {
@@ -101,8 +99,6 @@
 
 - (void)setReceivedFileSizeInBytes:(int64_t)aReceivedFileSizeInBytes
 {
-    NSString *idString = [self.progress.userInfo objectForKey:@"downloadToken"];
-    NSLog(@"%@: received: %@", idString, @(aReceivedFileSizeInBytes));
     _receivedFileSizeInBytes = aReceivedFileSizeInBytes;
     if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
     {
