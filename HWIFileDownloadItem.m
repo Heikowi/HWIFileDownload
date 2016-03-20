@@ -57,7 +57,6 @@
     self = [super init];
     if (self)
     {
-        NSLog(@"HWIFileDownloadItem init (%@)", aDownloadToken);
         self.downloadToken = aDownloadToken;
         self.sessionDownloadTask = aSessionDownloadTask;
         self.urlConnection = aURLConnection;
