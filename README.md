@@ -113,7 +113,7 @@ On "Crash" the app crashes. On iOS 7 (and later) started downloads continue in t
 
 ### Force Quit
 
-After the app has been killed by the user, downloads do not continue in the background. On iOS 7 (and later) resume data is passed back after the app launched again.
+After the app has been killed by the user, downloads do not continue in the background. On iOS 7 (and later) resume data is passed back after the app launched again. Interrupted downloads can be resumed.
 
 ### Background
 
