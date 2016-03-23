@@ -261,7 +261,10 @@
                 }
                 if (aURLRequest)
                 {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
                     aURLConnection = [[NSURLConnection alloc] initWithRequest:aURLRequest delegate:self startImmediately:NO];
+#pragma GCC diagnostic pop
                     
                     aRootProgress.totalUnitCount++;
                     [aRootProgress becomeCurrentWithPendingUnitCount:1];
