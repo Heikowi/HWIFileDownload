@@ -196,7 +196,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
         
         switch (aFailedDownloadItem.status) {
             case DemoDownloadItemStatusError:
-                NSLog(@"ERR: Download with error %@ - id: %@ (%@, %d)", @(anError.code), aDownloadIdentifier, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
+                NSLog(@"ERR: Download with error %@ (http status: %@) - id: %@ (%@, %d)", @(anError.code), @(aHttpStatusCode), aDownloadIdentifier, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
                 break;
             case DemoDownloadItemStatusInterrupted:
                 NSLog(@"ERR: Download interrupted with error %@ - id: %@ (%@, %d)", @(anError.code), aDownloadIdentifier, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
