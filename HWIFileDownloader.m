@@ -451,6 +451,14 @@
         if (aFoundIndex > -1)
         {
             [self.waitingDownloadsArray removeObjectAtIndex:aFoundIndex];
+            
+            NSError *aCancelledError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+            [self.fileDownloadDelegate downloadFailedWithIdentifier:aDownloadIdentifier
+                                                              error:aCancelledError
+                                                     httpStatusCode:0
+                                                 errorMessagesStack:nil
+                                                         resumeData:nil];
+            [self startNextWaitingDownload];
         }
     }
 }
