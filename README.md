@@ -4,7 +4,7 @@ HWIFileDownload simplifies file download with `NSURLSession` on iOS. Parallel fi
 
 ## Features
 
-Based on `NSURLSession` HWIFileDownload offers system background operation even when the app is not running. Downloads can be started individually, cancelled, paused and resumed. All possible states are supported: not started, waiting for download, started (downloading), completed, paused, cancelled, disrupted, error. When resuming cancelled downloads, previously downloaded data is reused. `NSProgress` is used for progress reporting and cancel/pause/resume event propagation.
+Based on `NSURLSession` HWIFileDownload offers system background operation even when the app is not running. Downloads can be started individually, cancelled, paused and resumed. All possible states are supported: not started, waiting for download, started (downloading), completed, paused, cancelled, interrupted, error. When resuming cancelled downloads, previously downloaded data is reused. `NSProgress` is used for progress reporting and cancel/pause/resume event propagation.
 
 HWIFileDownload is backwards compatible down to iOS 6 (where `NSURLConnection` is used instead of `NSURLSession`).
 
@@ -20,7 +20,7 @@ To start a download, the app client calls the method `startDownloadWithIdentifie
 
 The app client must maintain a custom __download store__ to manage the downloads and the persistent store. The app __download store__ needs to implement the protocol `HWIFileDownloadDelegate` to be called on important download events.
 
-The delegate is called on download completion. Additional mandatory calls control the visibility of the network activity indicator. Optionally the delegate can be called on download progress change for each download item. To control the local name of the downloaded file, the delegate can implement the method `localFileURLForIdentifier:remoteURL:`.
+The delegate is called on download completion. Additional mandatory calls control the visibility of the network activity indicator. Optionally the delegate can be called on download progress change for each download item. To control the local name and location of the downloaded file, the delegate can implement the method `localFileURLForIdentifier:remoteURL:`.
 
 ```objective-c
 @protocol HWIFileDownloadDelegate
@@ -29,7 +29,7 @@ The delegate is called on download completion. Additional mandatory calls contro
 - (void)downloadFailedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
                                error:(nonnull NSError *)anError
                       httpStatusCode:(NSInteger)aHttpStatusCode
-                  errorMessagesStack:(nullable NSArray *)anErrorMessagesStack
+                  errorMessagesStack:(nullable NSArray<NSString *> *)anErrorMessagesStack
                           resumeData:(nullable NSData *)aResumeData;
 - (void)incrementNetworkActivityIndicatorActivityCount;
 - (void)decrementNetworkActivityIndicatorActivityCount;
