@@ -58,7 +58,7 @@
 
 @property (nonatomic, strong, readonly, nullable) NSURLConnection *urlConnection;
 
-@property (nonatomic, strong, nullable) NSArray *errorMessagesStack;
+@property (nonatomic, strong, nullable) NSArray<NSString *> *errorMessagesStack;
 @property (nonatomic, assign) NSInteger lastHttpStatusCode;
 @property (nonatomic, strong, nullable) NSURL *finalLocalFileURL;
 

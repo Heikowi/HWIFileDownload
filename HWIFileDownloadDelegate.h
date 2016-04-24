@@ -57,13 +57,13 @@
  @param aDownloadIdentifier Download identifier of the download item.
  @param anError Download error.
  @param aHttpStatusCode HTTP status code of the http response.
- @param anErrorMessagesStack Array with error strings (latest error messages added on top of stack).
+ @param anErrorMessagesStack Array with error strings (error messages inserted at first position of array).
  @param aResumeData Incompletely downloaded data that can be reused later if the download is started again.
  */
 - (void)downloadFailedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
                                error:(nonnull NSError *)anError
                       httpStatusCode:(NSInteger)aHttpStatusCode
-                  errorMessagesStack:(nullable NSArray *)anErrorMessagesStack
+                  errorMessagesStack:(nullable NSArray<NSString *> *)anErrorMessagesStack
                           resumeData:(nullable NSData *)aResumeData;
 
 /**

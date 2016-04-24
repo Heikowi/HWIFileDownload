@@ -718,12 +718,12 @@
         }
         if (anErrorString)
         {
-            NSMutableArray *anErrorMessagesStackArray = [aDownloadItem.errorMessagesStack mutableCopy];
+            NSMutableArray<NSString *> *anErrorMessagesStackArray = [aDownloadItem.errorMessagesStack mutableCopy];
             if (anErrorMessagesStackArray == nil)
             {
                 anErrorMessagesStackArray = [NSMutableArray array];
             }
-            [anErrorMessagesStackArray addObject:anErrorString];
+            [anErrorMessagesStackArray insertObject:anErrorString atIndex:0];
             [aDownloadItem setErrorMessagesStack:anErrorMessagesStackArray];
         }
         else
@@ -814,12 +814,12 @@
             else
             {
                 NSString *anErrorString = [NSString stringWithFormat:@"Invalid http status code: %@", @(aHttpStatusCode)];
-                NSMutableArray *anErrorMessagesStackArray = [aDownloadItem.errorMessagesStack mutableCopy];
+                NSMutableArray<NSString *> *anErrorMessagesStackArray = [aDownloadItem.errorMessagesStack mutableCopy];
                 if (anErrorMessagesStackArray == nil)
                 {
                     anErrorMessagesStackArray = [NSMutableArray array];
                 }
-                [anErrorMessagesStackArray addObject:anErrorString];
+                [anErrorMessagesStackArray insertObject:anErrorString atIndex:0];
                 [aDownloadItem setErrorMessagesStack:anErrorMessagesStackArray];
                 
                 NSError *aFinalError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorBadServerResponse userInfo:nil];
@@ -931,12 +931,12 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
                     {
                         NSString *anUnableToMoveErrorString = [NSString stringWithFormat:@"ERR: Unable to move file from %@ to %@ (%@) (%@, %d)", aTempFileURL, aLocalFileURL, aMoveError.localizedDescription, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__];
                         NSLog(@"%@", anUnableToMoveErrorString);
-                        NSMutableArray *anErrorMessagesStackArray = [aDownloadItem.errorMessagesStack mutableCopy];
+                        NSMutableArray<NSString *> *anErrorMessagesStackArray = [aDownloadItem.errorMessagesStack mutableCopy];
                         if (anErrorMessagesStackArray == nil)
                         {
                             anErrorMessagesStackArray = [NSMutableArray array];
                         }
-                        [anErrorMessagesStackArray addObject:anUnableToMoveErrorString];
+                        [anErrorMessagesStackArray insertObject:anUnableToMoveErrorString atIndex:0];
                         [aDownloadItem setErrorMessagesStack:anErrorMessagesStackArray];
                         
                         __weak HWIFileDownloader *anotherWeakSelf = strongSelf;
@@ -975,12 +975,12 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
                                 {
                                     NSString *FileAttributesErrorString = [NSString stringWithFormat:@"ERR: Error on getting file size for item at %@: %@ (%@, %d)", aLocalFileURL, aFileAttributesError.localizedDescription, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__];
                                     NSLog(@"%@", FileAttributesErrorString);
-                                    NSMutableArray *anErrorMessagesStackArray = [aDownloadItem.errorMessagesStack mutableCopy];
+                                    NSMutableArray<NSString *> *anErrorMessagesStackArray = [aDownloadItem.errorMessagesStack mutableCopy];
                                     if (anErrorMessagesStackArray == nil)
                                     {
                                         anErrorMessagesStackArray = [NSMutableArray array];
                                     }
-                                    [anErrorMessagesStackArray addObject:FileAttributesErrorString];
+                                    [anErrorMessagesStackArray insertObject:FileAttributesErrorString atIndex:0];
                                     [aDownloadItem setErrorMessagesStack:anErrorMessagesStackArray];
                                     
                                     [anotherStrongSelf handleDownloadWithError:aFileAttributesError downloadItem:aDownloadItem downloadID:[aDownloadID unsignedIntegerValue] resumeData:nil];
@@ -993,12 +993,12 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
                                         NSError *aFileSizeZeroError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorZeroByteResource userInfo:nil];
                                         NSString *aFileSizeZeroErrorString = [NSString stringWithFormat:@"ERR: Zero file size for item at %@: %@ (%@, %d)", aLocalFileURL, aFileSizeZeroError.localizedDescription, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__];
                                         NSLog(@"%@", aFileSizeZeroErrorString);
-                                        NSMutableArray *anErrorMessagesStackArray = [aDownloadItem.errorMessagesStack mutableCopy];
+                                        NSMutableArray<NSString *> *anErrorMessagesStackArray = [aDownloadItem.errorMessagesStack mutableCopy];
                                         if (anErrorMessagesStackArray == nil)
                                         {
                                             anErrorMessagesStackArray = [NSMutableArray array];
                                         }
-                                        [anErrorMessagesStackArray addObject:aFileSizeZeroErrorString];
+                                        [anErrorMessagesStackArray insertObject:aFileSizeZeroErrorString atIndex:0];
                                         [aDownloadItem setErrorMessagesStack:anErrorMessagesStackArray];
                                         
                                         [anotherStrongSelf handleDownloadWithError:aFileSizeZeroError downloadItem:aDownloadItem downloadID:[aDownloadID unsignedIntegerValue] resumeData:nil];
@@ -1020,12 +1020,12 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
                                                 NSError *aValidationError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCannotDecodeRawData userInfo:nil];
                                                 NSString *aValidationErrorString = [NSString stringWithFormat:@"WARN: Download check failed for item at %@: %@ (%@, %d)", aLocalFileURL, aValidationError, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__];
                                                 NSLog(@"%@", aValidationErrorString);
-                                                NSMutableArray *anErrorMessagesStackArray = [aDownloadItem.errorMessagesStack mutableCopy];
+                                                NSMutableArray<NSString *> *anErrorMessagesStackArray = [aDownloadItem.errorMessagesStack mutableCopy];
                                                 if (anErrorMessagesStackArray == nil)
                                                 {
                                                     anErrorMessagesStackArray = [NSMutableArray array];
                                                 }
-                                                [anErrorMessagesStackArray addObject:aValidationErrorString];
+                                                [anErrorMessagesStackArray insertObject:aValidationErrorString atIndex:0];
                                                 [aDownloadItem setErrorMessagesStack:anErrorMessagesStackArray];
                                                 [anotherStrongSelf handleDownloadWithError:aValidationError downloadItem:aDownloadItem downloadID:[aDownloadID unsignedIntegerValue] resumeData:nil];
                                             }
@@ -1049,12 +1049,12 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
             {
                 NSString *aMissingURLErrorString = [NSString stringWithFormat:@"ERR: Missing information: Local file URL (token: %@) (%@, %d)", aDownloadItem.downloadToken, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__];
                 NSLog(@"%@", aMissingURLErrorString);
-                NSMutableArray *anErrorMessagesStackArray = [aDownloadItem.errorMessagesStack mutableCopy];
+                NSMutableArray<NSString *> *anErrorMessagesStackArray = [aDownloadItem.errorMessagesStack mutableCopy];
                 if (anErrorMessagesStackArray == nil)
                 {
                     anErrorMessagesStackArray = [NSMutableArray array];
                 }
-                [anErrorMessagesStackArray addObject:aMissingURLErrorString];
+                [anErrorMessagesStackArray insertObject:aMissingURLErrorString atIndex:0];
                 [aDownloadItem setErrorMessagesStack:anErrorMessagesStackArray];
                 NSError *aMissingURLError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil];
                 [self handleDownloadWithError:aMissingURLError downloadItem:aDownloadItem downloadID:[aDownloadID unsignedIntegerValue] resumeData:nil];

@@ -172,7 +172,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 - (void)downloadFailedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
                                error:(nonnull NSError *)anError
                       httpStatusCode:(NSInteger)aHttpStatusCode
-                  errorMessagesStack:(nullable NSArray *)anErrorMessagesStack
+                  errorMessagesStack:(nullable NSArray<NSString *> *)anErrorMessagesStack
                           resumeData:(nullable NSData *)aResumeData
 {
     NSUInteger aFoundDownloadItemIndex = [self.downloadItemsArray indexOfObjectPassingTest:^BOOL(DemoDownloadItem *aDemoDownloadItem, NSUInteger anIndex, BOOL *aStopFlag) {
