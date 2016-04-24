@@ -628,7 +628,7 @@
 #pragma mark - NSURLSessionDownloadDelegate
 
 
-- (void)URLSession:(nonnull NSURLSession *)aSession downloadTask:(nonnull NSURLSessionDownloadTask *)aDownloadTask didFinishDownloadingToURL:(nonnull NSURL *)aLocation
+- (void)URLSession:(nonnull NSURLSession *)aSession downloadTask:(nonnull NSURLSessionDownloadTask *)aDownloadTask didFinishDownloadingToURL:(nonnull NSURL *)aDownloadURL
 {
     NSString *anErrorString = nil;
     HWIFileDownloadItem *aDownloadItem = [self.activeDownloadsDictionary objectForKey:@(aDownloadTask.taskIdentifier)];
@@ -636,13 +636,13 @@
     {
         // move download item to final local location
         
-        NSURL *aLocalFileURL = nil;
+        NSURL *aLocalDestinationFileURL = nil;
         if ([self.fileDownloadDelegate respondsToSelector:@selector(localFileURLForIdentifier:remoteURL:)])
         {
             NSURL *aRemoteURL = [[aDownloadTask.originalRequest URL] copy];
             if (aRemoteURL)
             {
-                aLocalFileURL = [self.fileDownloadDelegate localFileURLForIdentifier:aDownloadItem.downloadToken remoteURL:aRemoteURL];
+                aLocalDestinationFileURL = [self.fileDownloadDelegate localFileURLForIdentifier:aDownloadItem.downloadToken remoteURL:aRemoteURL];
             }
             else
             {
@@ -652,12 +652,22 @@
         }
         else
         {
-            aLocalFileURL = [HWIFileDownloader localFileURLForRemoteURL:aDownloadTask.originalRequest.URL];
+            aLocalDestinationFileURL = [HWIFileDownloader localFileURLForRemoteURL:aDownloadTask.originalRequest.URL];
         }
-        if (aLocalFileURL)
+        if (aLocalDestinationFileURL)
         {
+            if ([[NSFileManager defaultManager] fileExistsAtPath:aLocalDestinationFileURL.path] == YES)
+            {
+                NSError *aRemoveError = nil;
+                [[NSFileManager defaultManager] removeItemAtURL:aLocalDestinationFileURL error:&aRemoveError];
+                if (aRemoveError)
+                {
+                    anErrorString = [NSString stringWithFormat:@"ERR: Error on removing file at %@: %@ (%@, %d)", aLocalDestinationFileURL, aRemoveError, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__];
+                    NSLog(@"%@", anErrorString);
+                }
+            }
             NSError *anError = nil;
-            BOOL aSuccessFlag = [[NSFileManager defaultManager] moveItemAtURL:aLocation toURL:aLocalFileURL error:&anError];
+            BOOL aSuccessFlag = [[NSFileManager defaultManager] moveItemAtURL:aDownloadURL toURL:aLocalDestinationFileURL error:&anError];
             if (aSuccessFlag == NO)
             {
                 NSError *aMoveError = anError;
@@ -665,16 +675,16 @@
                 {
                     aMoveError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCannotMoveFile userInfo:nil];
                 }
-                anErrorString = [NSString stringWithFormat:@"ERR: Unable to move file from %@ to %@ (%@) (%@, %d)", aLocation, aLocalFileURL, aMoveError.localizedDescription, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__];
+                anErrorString = [NSString stringWithFormat:@"ERR: Unable to move file from %@ to %@ (%@) (%@, %d)", aDownloadURL, aLocalDestinationFileURL, aMoveError.localizedDescription, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__];
                 NSLog(@"%@", anErrorString);
             }
             else
             {
                 NSError *anError = nil;
-                NSDictionary *aFileAttributesDictionary = [[NSFileManager defaultManager] attributesOfItemAtPath:aLocalFileURL.path error:&anError];
+                NSDictionary *aFileAttributesDictionary = [[NSFileManager defaultManager] attributesOfItemAtPath:aLocalDestinationFileURL.path error:&anError];
                 if (anError)
                 {
-                    anErrorString = [NSString stringWithFormat:@"ERR: Error on getting file size for item at %@: %@ (%@, %d)", aLocalFileURL, anError.localizedDescription, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__];
+                    anErrorString = [NSString stringWithFormat:@"ERR: Error on getting file size for item at %@: %@ (%@, %d)", aLocalDestinationFileURL, anError.localizedDescription, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__];
                     NSLog(@"%@", anErrorString);
                 }
                 else
@@ -683,17 +693,17 @@
                     if (aFileSize == 0)
                     {
                         NSError *aFileSizeZeroError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorZeroByteResource userInfo:nil];
-                        anErrorString = [NSString stringWithFormat:@"ERR: Zero file size for item at %@: %@ (%@, %d)", aLocalFileURL, aFileSizeZeroError.localizedDescription, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__];
+                        anErrorString = [NSString stringWithFormat:@"ERR: Zero file size for item at %@: %@ (%@, %d)", aLocalDestinationFileURL, aFileSizeZeroError.localizedDescription, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__];
                         NSLog(@"%@", anErrorString);
                     }
                     else
                     {
                         if ([self.fileDownloadDelegate respondsToSelector:@selector(downloadAtLocalFileURL:isValidForDownloadIdentifier:)])
                         {
-                            BOOL anIsValidDownloadFlag = [self.fileDownloadDelegate downloadAtLocalFileURL:aLocalFileURL isValidForDownloadIdentifier:aDownloadItem.downloadToken];
+                            BOOL anIsValidDownloadFlag = [self.fileDownloadDelegate downloadAtLocalFileURL:aLocalDestinationFileURL isValidForDownloadIdentifier:aDownloadItem.downloadToken];
                             if (anIsValidDownloadFlag == NO)
                             {
-                                anErrorString = [NSString stringWithFormat:@"ERR: Download check failed for item at %@", aLocalFileURL];
+                                anErrorString = [NSString stringWithFormat:@"ERR: Download check failed for item at %@", aLocalDestinationFileURL];
                                 NSLog(@"%@", anErrorString);
                             }
                         }
@@ -718,7 +728,7 @@
         }
         else
         {
-            aDownloadItem.finalLocalFileURL = aLocalFileURL;
+            aDownloadItem.finalLocalFileURL = aLocalDestinationFileURL;
         }
     }
     else
@@ -1093,7 +1103,7 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
     if (aFoundDownloadID)
     {
         NSURL *aTempFileURL = [self tempLocalFileURLForDownloadFromURL:aConnection.originalRequest.URL];
-        if ([[NSFileManager defaultManager] fileExistsAtPath:[aTempFileURL path]] == NO)
+        if ([[NSFileManager defaultManager] fileExistsAtPath:aTempFileURL.path] == NO)
         {
             dispatch_async(self.downloadFileSerialWriterDispatchQueue, ^{
                 [[NSFileManager defaultManager] createFileAtPath:aTempFileURL.path contents:nil attributes:nil];
