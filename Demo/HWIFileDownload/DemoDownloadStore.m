@@ -104,7 +104,22 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
             DemoDownloadItem *aDemoDownloadItem = [[DemoDownloadItem alloc] initWithDownloadIdentifier:aDownloadIdentifier remoteURL:aRemoteURL];
             [self.downloadItemsArray addObject:aDemoDownloadItem];
         }
+        else
+        {
+            DemoDownloadItem *aDemoDownloadItem = [self.downloadItemsArray objectAtIndex:aFoundDownloadItemIndex];
+            if (aDemoDownloadItem.status == DemoDownloadItemStatusStarted)
+            {
+                DemoDownloadAppDelegate *theAppDelegate = (DemoDownloadAppDelegate *)[UIApplication sharedApplication].delegate;
+                BOOL isDownloading = [theAppDelegate.fileDownloader isDownloadingIdentifier:aDemoDownloadItem.downloadIdentifier];
+                if (isDownloading == NO)
+                {
+                    aDemoDownloadItem.status = DemoDownloadItemStatusInterrupted;
+                }
+            }
+        }
     };
+    
+    [self storeDemoDownloadItems];
     
     self.downloadItemsArray = [[self.downloadItemsArray sortedArrayUsingComparator:^NSComparisonResult(DemoDownloadItem*  _Nonnull aDownloadItemA, DemoDownloadItem*  _Nonnull aDownloadItemB) {
         return [aDownloadItemA.downloadIdentifier compare:aDownloadItemB.downloadIdentifier options:NSNumericSearch];

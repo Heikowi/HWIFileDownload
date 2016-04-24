@@ -652,7 +652,34 @@
     }
     else
     {
-        [aButton setHidden:YES];
+        switch (aStatus) {
+                
+            case DemoDownloadItemStatusError:
+            case DemoDownloadItemStatusInterrupted:
+            {
+                NSString *aButtonTitle = [aButton titleForState:UIControlStateNormal];
+                if ([aButtonTitle isEqualToString:self.resumeChar] == NO)
+                {
+                    [aButton removeTarget:self action:nil forControlEvents:UIControlEventTouchUpInside];
+                    [aButton addTarget:self action:@selector(onPauseResumeIndividualDownload:) forControlEvents:UIControlEventTouchUpInside];
+                    [aButton setHidden:NO];
+                    [aButton setTitle:self.resumeChar forState:UIControlStateNormal];
+                }
+            }
+                break;
+                
+            default:
+            {
+                NSString *aButtonTitle = [aButton titleForState:UIControlStateNormal];
+                if (aButtonTitle.length > 0)
+                {
+                    [aButton setHidden:YES];
+                    [aButton setTitle:@"" forState:UIControlStateNormal];
+                }
+            }
+                
+                break;
+        }
     }
 }
 
