@@ -183,3 +183,7 @@ HWIFileDownload has no third-party dependencies.
 
 The demo app uses [Font Awesome](http://fontawesome.io "Font Awesome") for the download, cancel, pause, resume, completed, error, and cancelled icons.
 
+
+## Notes
+
+Please note that a system bug with iOS 10 broke correct progress reporting after resuming download until iOS 10.2. With the release of iOS 10.2 the bug was fixed by Apple (https://github.com/Heikowi/HWIFileDownload/issues/23).
