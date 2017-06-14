@@ -51,6 +51,10 @@ typedef void (^HWIFileDownloaderPauseResumeDataBlock)(NSData * _Nullable aResume
  */
 @interface HWIFileDownloader : NSObject
 
+/**
+ NSURLSession's configuration identifier
+ */
+@property (readonly, nonatomic, copy, nonnull) NSString *backgroundSessionIdentifier;
 
 #pragma mark - Initialization
 
@@ -63,12 +67,21 @@ typedef void (^HWIFileDownloaderPauseResumeDataBlock)(NSData * _Nullable aResume
 - (nullable instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate;
 
 /**
- Designated initializer.
+ Secondary initializer.
  @param aDelegate Delegate for salient download events.
  @param aMaxConcurrentFileDownloadsCount Maximum number of concurrent downloads. Default: no limit.
  @return HWIFileDownloader.
  */
-- (nullable HWIFileDownloader*)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate maxConcurrentDownloads:(NSInteger)aMaxConcurrentFileDownloadsCount;
+- (nullable instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate maxConcurrentDownloads:(NSInteger)aMaxConcurrentFileDownloadsCount;
+
+/**
+ Designated initializer.
+ @param aDelegate Delegate for salient download events.
+ @param aMaxConcurrentFileDownloadsCount Maximum number of concurrent downloads. Default: no limit.
+ @param aBackgroundSessionIdentifier NSURLSession's configuration identifier
+ @return HWIFileDownloader.
+ */
+- (nullable instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate maxConcurrentDownloads:(NSInteger)aMaxConcurrentFileDownloadsCount backgroundSessionIdentifier:(nonnull NSString *)aBackgroundSessionIdentifier;
 - (nullable HWIFileDownloader*)init __attribute__((unavailable("use initWithDelegate:maxConcurrentDownloads: or initWithDelegate:")));
 + (nullable HWIFileDownloader*)new __attribute__((unavailable("use initWithDelegate:maxConcurrentDownloads: or initWithDelegate:")));
 

@@ -39,6 +39,7 @@
 
 @interface HWIFileDownloader()<NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDataDelegate, NSURLSessionDownloadDelegate, NSURLConnectionDelegate>
 
+@property (nonatomic, copy, nonnull) NSString *backgroundSessionIdentifier;
 @property (nonatomic, strong, nullable) NSURLSession *backgroundSession;
 @property (nonatomic, strong, nonnull) NSMutableDictionary<NSNumber *, HWIFileDownloadItem *> *activeDownloadsDictionary;
 @property (nonatomic, strong, nonnull) NSMutableArray<NSDictionary <NSString *, NSObject *> *> *waitingDownloadsArray;
@@ -63,12 +64,18 @@
     return [self initWithDelegate:aDelegate maxConcurrentDownloads:-1];
 }
 
-
 - (nullable instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate maxConcurrentDownloads:(NSInteger)aMaxConcurrentFileDownloadsCount
+{
+    NSString *aBackgroundDownloadSessionIdentifier = [NSString stringWithFormat:@"%@.HWIFileDownload", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"]];
+    return [self initWithDelegate:aDelegate maxConcurrentDownloads:aMaxConcurrentFileDownloadsCount backgroundSessionIdentifier:aBackgroundDownloadSessionIdentifier];
+}
+
+- (nullable instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate maxConcurrentDownloads:(NSInteger)aMaxConcurrentFileDownloadsCount backgroundSessionIdentifier:(nonnull NSString *)aBackgroundSessionIdentifier
 {
     self = [super init];
     if (self)
     {
+        self.backgroundSessionIdentifier = aBackgroundSessionIdentifier;
         self.maxConcurrentFileDownloadsCount = -1;
         if (aMaxConcurrentFileDownloadsCount > 0)
         {
@@ -82,17 +89,16 @@
         
         if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
         {
-            NSString *aBackgroundDownloadSessionIdentifier = [NSString stringWithFormat:@"%@.HWIFileDownload", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"]];
             NSURLSessionConfiguration *aBackgroundSessionConfiguration = nil;
             if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_7_1)
             {
-                aBackgroundSessionConfiguration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:aBackgroundDownloadSessionIdentifier];
+                aBackgroundSessionConfiguration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:self.backgroundSessionIdentifier];
             }
             else
             {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-                aBackgroundSessionConfiguration = [NSURLSessionConfiguration backgroundSessionConfiguration:aBackgroundDownloadSessionIdentifier];
+                aBackgroundSessionConfiguration = [NSURLSessionConfiguration backgroundSessionConfiguration:self.backgroundSessionIdentifier];
 #pragma GCC diagnostic pop
             }
             if ([self.fileDownloadDelegate respondsToSelector:@selector(customizeBackgroundSessionConfiguration:)])
