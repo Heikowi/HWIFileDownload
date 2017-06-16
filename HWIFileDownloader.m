@@ -139,15 +139,21 @@
                         [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadTask.taskIdentifier)];
                         NSString *aDownloadToken = [aDownloadItem.downloadToken copy];
                         [aDownloadItem.progress setPausingHandler:^{
-                            [self pauseDownloadWithIdentifier:aDownloadToken];
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                [self pauseDownloadWithIdentifier:aDownloadToken];
+                            });
                         }];
                         [aDownloadItem.progress setCancellationHandler:^{
-                            [self cancelDownloadWithIdentifier:aDownloadToken];
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                [self cancelDownloadWithIdentifier:aDownloadToken];
+                            });
                         }];
                         if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_8_4)
                         {
                             [aDownloadItem.progress setResumingHandler:^{
-                                [self resumeDownloadWithIdentifier:aDownloadToken];
+                                dispatch_async(dispatch_get_main_queue(), ^{
+                                    [self resumeDownloadWithIdentifier:aDownloadToken];
+                                });
                             }];
                         }
                     }
@@ -284,15 +290,21 @@
             [self.activeDownloadsDictionary setObject:aDownloadItem forKey:@(aDownloadID)];
             NSString *aDownloadToken = [aDownloadItem.downloadToken copy];
             [aDownloadItem.progress setPausingHandler:^{
-                [self pauseDownloadWithIdentifier:aDownloadToken];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self pauseDownloadWithIdentifier:aDownloadToken];
+                });
             }];
             [aDownloadItem.progress setCancellationHandler:^{
-                [self cancelDownloadWithIdentifier:aDownloadToken];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self cancelDownloadWithIdentifier:aDownloadToken];
+                });
             }];
             if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_8_4)
             {
                 [aDownloadItem.progress setResumingHandler:^{
-                    [self resumeDownloadWithIdentifier:aDownloadToken];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self resumeDownloadWithIdentifier:aDownloadToken];
+                    });
                 }];
             }
             [self.fileDownloadDelegate incrementNetworkActivityIndicatorActivityCount];
