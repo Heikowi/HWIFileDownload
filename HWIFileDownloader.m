@@ -234,7 +234,14 @@
             }
             else if (aRemoteURL)
             {
-                aDownloadTask = [self.backgroundSession downloadTaskWithURL:aRemoteURL];
+                
+                NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:aRemoteURL];
+                
+                if ([self.fileDownloadDelegate respondsToSelector:@selector(configureUrlRequestInSession:)]) {
+                    [self.fileDownloadDelegate configureUrlRequestInSession:urlRequest];
+                }
+                
+                aDownloadTask = [self.backgroundSession downloadTaskWithRequest:urlRequest];
             }
             aDownloadID = aDownloadTask.taskIdentifier;
             aDownloadTask.taskDescription = aDownloadToken;

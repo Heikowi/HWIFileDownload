@@ -156,6 +156,13 @@
 
 
 /**
+ Optionally customize the url request.
+ @param aUrlRequest Mutable URL request to modify.
+ */
+- (void)configureUrlRequestInSession:(nonnull NSMutableURLRequest *)aUrlRequest;
+
+
+/**
  Optionally called to receive NSURLCredential and NSURLSessionAuthChallengeDisposition for download identifier and authentication challenge.
  @param aChallenge Authentication challenge.
  @param aDownloadIdentifier Download identifier of the download item.
