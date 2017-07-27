@@ -234,7 +234,24 @@
             }
             else if (aRemoteURL)
             {
-                aDownloadTask = [self.backgroundSession downloadTaskWithURL:aRemoteURL];
+                NSURLRequest *aURLRequest = nil;
+                if ([self.fileDownloadDelegate respondsToSelector:@selector(urlRequestForRemoteURL:)])
+                {
+                    aURLRequest = [self.fileDownloadDelegate urlRequestForRemoteURL:aRemoteURL];
+                }
+                else
+                {
+                    NSTimeInterval aRequestTimeoutInterval = 60.0; // iOS default value
+                    aURLRequest = [[NSURLRequest alloc] initWithURL:aRemoteURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:aRequestTimeoutInterval];
+                }
+                if (aURLRequest)
+                {
+                    aDownloadTask = [self.backgroundSession downloadTaskWithRequest:aURLRequest];
+                }
+                else
+                {
+                    NSLog(@"ERR: No url request (%@, %d)", [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
+                }
             }
             aDownloadID = aDownloadTask.taskIdentifier;
             aDownloadTask.taskDescription = aDownloadToken;
