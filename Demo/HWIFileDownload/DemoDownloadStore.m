@@ -123,7 +123,7 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     
     self.downloadItemsArray = [[self.downloadItemsArray sortedArrayUsingComparator:^NSComparisonResult(DemoDownloadItem*  _Nonnull aDownloadItemA, DemoDownloadItem*  _Nonnull aDownloadItemB) {
         return [aDownloadItemA.downloadIdentifier compare:aDownloadItemB.downloadIdentifier options:NSNumericSearch];
-    }] mutableCopy];
+    }] copy];
 }
 
 
