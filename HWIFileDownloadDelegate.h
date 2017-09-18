@@ -131,7 +131,7 @@
 
 /**
  Optionally called to validate http status code.
- @param httpStatusCode Http status code of the http response.
+ @param aHttpStatusCode Http status code of the http response.
  @param aDownloadIdentifier Download identifier of the download item.
  @return True if http status code is valued as correct.
  @discussion Default implementation values http status code from 200 to 299 as correct.
