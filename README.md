@@ -12,37 +12,46 @@ HWIFileDownload is backwards compatible down to iOS 6 (where `NSURLConnection` i
 
 ## Installation
 
-There are 2 ways you can add HWIFileDownload to your project:
+You can add HWIFileDownload to your project manually or with CocoaPods.
 
 ### Manual installation
 
-Simply add the 'HWI' prefixed files into your project then import the following in the class you want to use it:
+HWIFileDownload consists of these files:
 
-```objective-c
-#import "HWIFileDownloader.h"
-````
+* HWIBackgroundSessionCompletionHandlerBlock.h
+* HWIFileDownloadDelegate.h
+* HWIFileDownloader.h
+* HWIFileDownloader.m
+* HWIFileDownloadItem.h
+* HWIFileDownloadItem.m
+* HWIFileDownloadProgress.h
+* HWIFileDownloadProgress.m
+
+All files need to be added to your app project.
 
 ### Installation with CocoaPods
 
-[CocoaPods](http://cocoapods.org) is a dependency manager for Objective-C, which automates and simplifies the process of using 3rd-party libraries in your projects. See the ["Getting Started" guide for more information](http://guides.cocoapods.org/syntax/podfile.html). You can install it with the following command:
 
-```bash
-$ gem install cocoapods
-```
-
-#### Podfile
-
-To integrate HWIFileDownload into your Xcode project using CocoaPods, specify it in your `Podfile`:
+To integrate HWIFileDownload into your Xcode project with [CocoaPods](http://cocoapods.org), specify it in your `Podfile`:
 
 ```ruby
 pod 'HWIFileDownload'
 ```
 
-Then, run the following command:
+Then run
 
 ```bash
 $ pod install
 ```
+
+### Using HWIFileDownload
+
+To use HWIFileDownload after integration, import the header file ``HWIFileDownloader.h`` in the class files where you want to use it:
+
+```objective-c
+#import "HWIFileDownloader.h"
+```
+
 
 ## Implementation
 
@@ -189,21 +198,6 @@ If authentication is required for a file download, you need to implement the del
 The demo app code includes a deactivated sample implementation.
 
 ## Integration
-
-### Source Code Files
-
-HWIFileDownload consists of these files:
-
-* HWIBackgroundSessionCompletionHandlerBlock.h
-* HWIFileDownloadDelegate.h
-* HWIFileDownloader.h
-* HWIFileDownloader.m
-* HWIFileDownloadItem.h
-* HWIFileDownloadItem.m
-* HWIFileDownloadProgress.h
-* HWIFileDownloadProgress.m
-
-All files need to be added to the app project.
 
 ### App Delegate
 
