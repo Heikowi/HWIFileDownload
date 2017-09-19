@@ -10,6 +10,40 @@ HWIFileDownload is backwards compatible down to iOS 6 (where `NSURLConnection` i
 
 ![Demo Download Screenshot](Demo/HWIFileDownload/DemoDownloadScreenshot.png?raw=true "Demo Download Screenshot")
 
+## Installation
+
+There are 2 ways you can add HWIFileDownload to your project:
+
+### Manual installation
+
+Simply add the 'HWI' prefixed files into your project then import the following in the class you want to use it:
+
+```objective-c
+#import "HWIFileDownloader.h"
+````
+
+### Installation with CocoaPods
+
+[CocoaPods](http://cocoapods.org) is a dependency manager for Objective-C, which automates and simplifies the process of using 3rd-party libraries in your projects. See the ["Getting Started" guide for more information](http://guides.cocoapods.org/syntax/podfile.html). You can install it with the following command:
+
+```bash
+$ gem install cocoapods
+```
+
+#### Podfile
+
+To integrate HWIFileDownload into your Xcode project using CocoaPods, specify it in your `Podfile`:
+
+```ruby
+pod 'HWIFileDownload'
+```
+
+Then, run the following command:
+
+```bash
+$ pod install
+```
+
 ## Implementation
 
 HWIFileDownload uses a __download identifier__ for starting a download, retrieving progress information, and for handling download completion. The __download identifier__ is a string that must be unique for each individual file download.
