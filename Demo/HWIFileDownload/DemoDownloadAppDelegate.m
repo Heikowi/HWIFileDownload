@@ -86,7 +86,7 @@
 
 
 // iOS 7
-- (void)application:(UIApplication *)anApplication handleEventsForBackgroundURLSession:(NSString *)aBackgroundURLSessionIdentifier completionHandler:(void (^)())aCompletionHandler
+- (void)application:(UIApplication *)anApplication handleEventsForBackgroundURLSession:(NSString *)aBackgroundURLSessionIdentifier completionHandler:(void (^)(void))aCompletionHandler
 {
     [self.fileDownloader setBackgroundSessionCompletionHandlerBlock:aCompletionHandler];
 }

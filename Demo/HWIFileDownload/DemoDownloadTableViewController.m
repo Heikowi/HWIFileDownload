@@ -118,7 +118,7 @@
     [self.tableView registerNib:[UINib nibWithNibName:@"DemoDownloadTableViewCell" bundle:[NSBundle mainBundle]] forCellReuseIdentifier:@"DemoDownloadTableViewCell"];
     self.title = @"Download";
     
-    UIBarButtonItem *aRightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Crash" style:UIBarButtonItemStyleBordered target:self action:@selector(crash)];
+    UIBarButtonItem *aRightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Crash" style:UIBarButtonItemStylePlain target:self action:@selector(crash)];
     self.navigationItem.rightBarButtonItem = aRightBarButtonItem;
 }
 

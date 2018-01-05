@@ -914,7 +914,7 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
 {
     if (self.bgSessionCompletionHandlerBlock)
     {
-        void (^completionHandler)() = self.bgSessionCompletionHandlerBlock;
+        void (^completionHandler)(void) = self.bgSessionCompletionHandlerBlock;
         self.bgSessionCompletionHandlerBlock = nil;
         completionHandler();
     }
