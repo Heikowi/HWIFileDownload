@@ -59,18 +59,18 @@
 #pragma mark - Initialization
 
 
-- (nullable instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate
+- (nonnull instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate
 {
     return [self initWithDelegate:aDelegate maxConcurrentDownloads:-1];
 }
 
-- (nullable instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate maxConcurrentDownloads:(NSInteger)aMaxConcurrentFileDownloadsCount
+- (nonnull instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate maxConcurrentDownloads:(NSInteger)aMaxConcurrentFileDownloadsCount
 {
     NSString *aBackgroundDownloadSessionIdentifier = [NSString stringWithFormat:@"%@.HWIFileDownload", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"]];
     return [self initWithDelegate:aDelegate maxConcurrentDownloads:aMaxConcurrentFileDownloadsCount backgroundSessionIdentifier:aBackgroundDownloadSessionIdentifier];
 }
 
-- (nullable instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate maxConcurrentDownloads:(NSInteger)aMaxConcurrentFileDownloadsCount backgroundSessionIdentifier:(nonnull NSString *)aBackgroundSessionIdentifier
+- (nonnull instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate maxConcurrentDownloads:(NSInteger)aMaxConcurrentFileDownloadsCount backgroundSessionIdentifier:(nonnull NSString *)aBackgroundSessionIdentifier
 {
     self = [super init];
     if (self)

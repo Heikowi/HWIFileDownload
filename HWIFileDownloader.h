@@ -64,7 +64,7 @@ typedef void (^HWIFileDownloaderPauseResumeDataBlock)(NSData * _Nullable aResume
  @param aDelegate Delegate for salient download events.
  @return HWIFileDownloader.
  */
-- (nullable instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate;
+- (nonnull instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate;
 
 /**
  Secondary initializer.
@@ -72,7 +72,7 @@ typedef void (^HWIFileDownloaderPauseResumeDataBlock)(NSData * _Nullable aResume
  @param aMaxConcurrentFileDownloadsCount Maximum number of concurrent downloads. Default: no limit.
  @return HWIFileDownloader.
  */
-- (nullable instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate maxConcurrentDownloads:(NSInteger)aMaxConcurrentFileDownloadsCount;
+- (nonnull instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate maxConcurrentDownloads:(NSInteger)aMaxConcurrentFileDownloadsCount;
 
 /**
  Designated initializer.
@@ -81,9 +81,9 @@ typedef void (^HWIFileDownloaderPauseResumeDataBlock)(NSData * _Nullable aResume
  @param aBackgroundSessionIdentifier NSURLSession's configuration identifier
  @return HWIFileDownloader.
  */
-- (nullable instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate maxConcurrentDownloads:(NSInteger)aMaxConcurrentFileDownloadsCount backgroundSessionIdentifier:(nonnull NSString *)aBackgroundSessionIdentifier;
-- (nullable HWIFileDownloader*)init __attribute__((unavailable("use initWithDelegate:maxConcurrentDownloads: or initWithDelegate:")));
-+ (nullable HWIFileDownloader*)new __attribute__((unavailable("use initWithDelegate:maxConcurrentDownloads: or initWithDelegate:")));
+- (nonnull instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate maxConcurrentDownloads:(NSInteger)aMaxConcurrentFileDownloadsCount backgroundSessionIdentifier:(nonnull NSString *)aBackgroundSessionIdentifier;
+- (nonnull HWIFileDownloader*)init __attribute__((unavailable("use initWithDelegate:maxConcurrentDownloads: or initWithDelegate:")));
++ (nonnull HWIFileDownloader*)new __attribute__((unavailable("use initWithDelegate:maxConcurrentDownloads: or initWithDelegate:")));
 
 
 /**

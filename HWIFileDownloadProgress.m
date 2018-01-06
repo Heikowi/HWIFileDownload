@@ -51,12 +51,12 @@
 
 #pragma mark - Initialization
 
-- (nullable instancetype)initWithDownloadProgress:(float)aDownloadProgress
-                                 expectedFileSize:(int64_t)anExpectedFileSize
-                                 receivedFileSize:(int64_t)aReceivedFileSize
-                           estimatedRemainingTime:(NSTimeInterval)anEstimatedRemainingTime
-                              bytesPerSecondSpeed:(NSUInteger)aBytesPerSecondSpeed
-                                         progress:(nonnull NSProgress *)aProgress
+- (nonnull instancetype)initWithDownloadProgress:(float)aDownloadProgress
+                                expectedFileSize:(int64_t)anExpectedFileSize
+                                receivedFileSize:(int64_t)aReceivedFileSize
+                          estimatedRemainingTime:(NSTimeInterval)anEstimatedRemainingTime
+                             bytesPerSecondSpeed:(NSUInteger)aBytesPerSecondSpeed
+                                        progress:(nonnull NSProgress *)aProgress
 {
     self = [super init];
     if (self)

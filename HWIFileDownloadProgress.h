@@ -51,14 +51,14 @@
  @param aProgress Download progress (NSProgress).
  @return Download progress item.
  */
-- (nullable instancetype)initWithDownloadProgress:(float)aDownloadProgress
-                                 expectedFileSize:(int64_t)anExpectedFileSize
-                                 receivedFileSize:(int64_t)aReceivedFileSize
-                           estimatedRemainingTime:(NSTimeInterval)anEstimatedRemainingTime
-                              bytesPerSecondSpeed:(NSUInteger)aBytesPerSecondSpeed
-                                         progress:(nonnull NSProgress *)aProgress;
-- (nullable instancetype)init __attribute__((unavailable("use initWithDownloadProgress:expectedFileSize:receivedFileSize:estimatedRemainingTime:bytesPerSecondSpeed:progress:")));
-+ (nullable instancetype)new __attribute__((unavailable("use initWithDownloadProgress:expectedFileSize:receivedFileSize:estimatedRemainingTime:bytesPerSecondSpeed:progress:")));
+- (nonnull instancetype)initWithDownloadProgress:(float)aDownloadProgress
+                                expectedFileSize:(int64_t)anExpectedFileSize
+                                receivedFileSize:(int64_t)aReceivedFileSize
+                          estimatedRemainingTime:(NSTimeInterval)anEstimatedRemainingTime
+                             bytesPerSecondSpeed:(NSUInteger)aBytesPerSecondSpeed
+                                        progress:(nonnull NSProgress *)aProgress;
+- (nonnull instancetype)init __attribute__((unavailable("use initWithDownloadProgress:expectedFileSize:receivedFileSize:estimatedRemainingTime:bytesPerSecondSpeed:progress:")));
++ (nonnull instancetype)new __attribute__((unavailable("use initWithDownloadProgress:expectedFileSize:receivedFileSize:estimatedRemainingTime:bytesPerSecondSpeed:progress:")));
 
 /**
  Download progress with a range of 0.0 to 1.0.

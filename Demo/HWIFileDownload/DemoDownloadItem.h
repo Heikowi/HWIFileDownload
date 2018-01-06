@@ -45,8 +45,8 @@
 @interface DemoDownloadItem : NSObject
 
 
-- (nullable instancetype)initWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                                          remoteURL:(nonnull NSURL *)aRemoteURL;
+- (nonnull instancetype)initWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
+                                         remoteURL:(nonnull NSURL *)aRemoteURL;
 
 
 @property (nonatomic, strong, readonly, nonnull) NSString *downloadIdentifier;
@@ -61,8 +61,8 @@
 @property (nonatomic, strong, nullable) NSArray<NSString *> *downloadErrorMessagesStack;
 @property (nonatomic, assign) NSInteger lastHttpStatusCode;
 
-- (nullable DemoDownloadItem *)init __attribute__((unavailable("use initWithDownloadIdentifier:remoteURL:")));
-+ (nullable DemoDownloadItem *)new __attribute__((unavailable("use initWithDownloadIdentifier:remoteURL:")));
+- (nonnull DemoDownloadItem *)init __attribute__((unavailable("use initWithDownloadIdentifier:remoteURL:")));
++ (nonnull DemoDownloadItem *)new __attribute__((unavailable("use initWithDownloadIdentifier:remoteURL:")));
 
 
 @end

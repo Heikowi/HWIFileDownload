@@ -47,8 +47,8 @@
 @implementation DemoDownloadItem
 
 
-- (nullable instancetype)initWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                                          remoteURL:(nonnull NSURL *)aRemoteURL
+- (nonnull instancetype)initWithDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier
+                                         remoteURL:(nonnull NSURL *)aRemoteURL
 {
     self = [super init];
     if (self)
