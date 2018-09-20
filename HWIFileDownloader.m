@@ -456,7 +456,7 @@
         else
         {
             NSLog(@"INFO: NSURLSessionDownloadTask cancelled (task not found): %@ (%@, %d)", aDownloadItem.downloadToken, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
-            NSError *aPauseError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+            NSError *aPauseError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:@{NSURLErrorFailingURLStringErrorKey: aDownloadTask.currentRequest.URL.absoluteString, NSURLErrorFailingURLErrorKey: aDownloadTask.currentRequest.URL}];
             [self handleDownloadWithError:aPauseError downloadItem:aDownloadItem downloadID:aDownloadID resumeData:nil];
         }
     }
@@ -516,7 +516,7 @@
             else
             {
                 NSLog(@"INFO: NSURLSessionDownloadTask cancelled (task not found): %@ (%@, %d)", aDownloadItem.downloadToken, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
-                NSError *aCancelError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+                NSError *aCancelError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:@{NSURLErrorFailingURLStringErrorKey: aDownloadTask.currentRequest.URL.absoluteString, NSURLErrorFailingURLErrorKey: aDownloadTask.currentRequest.URL}];
                 [self handleDownloadWithError:aCancelError downloadItem:aDownloadItem downloadID:aDownloadID resumeData:nil];
             }
         }
@@ -857,7 +857,7 @@
                 [anErrorMessagesStackArray insertObject:anErrorString atIndex:0];
                 [aDownloadItem setErrorMessagesStack:anErrorMessagesStackArray];
                 
-                NSError *aFinalError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorBadServerResponse userInfo:nil];
+                NSError *aFinalError = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorBadServerResponse userInfo:@{NSURLErrorFailingURLStringErrorKey: aHttpResponse.URL.absoluteString, NSURLErrorFailingURLErrorKey: aHttpResponse.URL}];
                 [self handleDownloadWithError:aFinalError downloadItem:aDownloadItem downloadID:aDownloadTask.taskIdentifier resumeData:nil];
             }
         }
