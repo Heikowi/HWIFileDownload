@@ -100,6 +100,7 @@ The delegate is called on download completion. Additional mandatory calls contro
 The app needs to hold an instance of the `HWIFileDownloader` that manages the download process. `HWIFileDownloader` provides methods for starting, querying and controlling individual download processes.
 
 ```objective-c
+- (nonnull instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate;
 - (void)startDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier
                       fromRemoteURL:(nonnull NSURL *)aRemoteURL;
 - (void)startDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier
