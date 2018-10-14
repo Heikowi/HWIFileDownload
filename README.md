@@ -54,7 +54,7 @@ To use HWIFileDownload after integration, import the header file ``HWIFileDownlo
 
 For use with Swift you need to add the imports to your Bridging-Header file:
 
-```swift
+```
 #import "HWIFileDownloadDelegate.h"
 #import "HWIFileDownloader.h"
 #import "HWIFileDownloadItem.h"
