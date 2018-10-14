@@ -14,14 +14,15 @@
     "tag": "3.3"
   },
   "source_files": [
-    "HWIBackgroundSessionCompletionHandlerBlock.h", 
-    "HWIFileDownloadDelegate.h", 
+    "HWIBackgroundSessionCompletionHandlerBlock.h",
+    "HWIFileDownloadDelegate.h",
     "HWIFileDownloader.{h,m}",
-    "HWIFileDownloadItem.{h,m}", 
+    "HWIFileDownloadItem.{h,m}",
     "HWIFileDownloadProgress.{h,m}"
   ],
   "requires_arc": true,
   "platforms": {
-    "ios": "6.0"
+    "ios": "6.0",
+    "tvos": "9.0"
   }
 }
