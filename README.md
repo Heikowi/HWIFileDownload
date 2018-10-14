@@ -106,7 +106,7 @@ Objective-C:
 @end
 ```
 
-Swift class implementing the protocol:
+Swift sample class implementing the protocol:
 
 ```swift
 class DownloadStore: NSObject, HWIFileDownloadDelegate {
