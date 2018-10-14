@@ -78,7 +78,7 @@
     {
         self.fileDownloader = [[HWIFileDownloader alloc] initWithDelegate:self.demoDownloadStore maxConcurrentDownloads:1];
     }
-    [self.fileDownloader setupWithCompletion:nil];
+    [self.fileDownloader setupWithCompletionBlock:nil];
     
     
     return YES;
