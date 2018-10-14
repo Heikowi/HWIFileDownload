@@ -7,7 +7,7 @@
 
 /***************************************************************************
  
- Copyright (c) 2014-2016 Heiko Wichmann
+ Copyright (c) 2014-2018 Heiko Wichmann
  
  https://github.com/Heikowi/HWIFileDownload
  
