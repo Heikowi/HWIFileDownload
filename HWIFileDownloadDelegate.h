@@ -46,25 +46,25 @@
 
 /**
  Called on successful download of a download item.
- @param aDownloadIdentifier Download identifier of the download item.
- @param aLocalFileURL Local file URL of the downloaded item.
+ @param identifier Download identifier of the download item.
+ @param localFileURL Local file URL of the downloaded item.
  */
-- (void)downloadDidCompleteWithIdentifier:(nonnull NSString *)aDownloadIdentifier
-                             localFileURL:(nonnull NSURL *)aLocalFileURL;
+- (void)downloadDidCompleteWithIdentifier:(nonnull NSString *)identifier
+                             localFileURL:(nonnull NSURL *)localFileURL;
 
 /**
  Called on a failed download.
- @param aDownloadIdentifier Download identifier of the download item.
- @param anError Download error.
- @param aHttpStatusCode HTTP status code of the http response.
- @param anErrorMessagesStack Array with error strings (error messages inserted at first position of array).
- @param aResumeData Incompletely downloaded data that can be reused later if the download is started again.
+ @param identifier Download identifier of the download item.
+ @param error Download error.
+ @param httpStatusCode HTTP status code of the http response.
+ @param errorMessagesStack Array with error strings (error messages inserted at first position of array).
+ @param resumeData Incompletely downloaded data that can be reused later if the download is started again.
  */
-- (void)downloadFailedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
-                               error:(nonnull NSError *)anError
-                      httpStatusCode:(NSInteger)aHttpStatusCode
-                  errorMessagesStack:(nullable NSArray<NSString *> *)anErrorMessagesStack
-                          resumeData:(nullable NSData *)aResumeData;
+- (void)downloadFailedWithIdentifier:(nonnull NSString *)identifier
+                               error:(nonnull NSError *)error
+                      httpStatusCode:(NSInteger)httpStatusCode
+                  errorMessagesStack:(nullable NSArray<NSString *> *)errorMessagesStack
+                          resumeData:(nullable NSData *)resumeData;
 
 /**
  Called when the network activity indicator should be displayed because a download started.
@@ -84,87 +84,87 @@
 
 /**
  Optionally called when the progress changed for a download item.
- @param aDownloadIdentifier Download identifier of the download item.
+ @param identifier Download identifier of the download item.
  @discussion Use HWIFileDownloader's downloadProgressForIdentifier: to access the current download progress of a download item at any time.
  */
-- (void)downloadProgressChangedForIdentifier:(nonnull NSString *)aDownloadIdentifier;
+- (void)downloadProgressChangedForIdentifier:(nonnull NSString *)identifier;
 
 
 /**
  Optionally called on a paused download.
- @param aDownloadIdentifier Download identifier of the download item.
- @param aResumeData Incompletely downloaded data that can be reused later if the download is started again.
+ @param identifier Download identifier of the download item.
+ @param resumeData Incompletely downloaded data that can be reused later if the download is started again.
  @discussion Since iOS 9 resume data is managed by the system. For iOS 7 and iOS 8 resume data is passed with the parameter.
  */
-- (void)downloadPausedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
-                          resumeData:(nullable NSData *)aResumeData;
+- (void)downloadPausedWithIdentifier:(nonnull NSString *)identifier
+                          resumeData:(nullable NSData *)resumeData;
 
 
 /**
  Optionally called on download resume.
- @param aDownloadIdentifier Download identifier of the download item.
+ @param identifier Download identifier of the download item.
  @discussion The delegate is responsible for using resume data if available.
  */
-- (void)resumeDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier;
+- (void)resumeDownloadWithIdentifier:(nonnull NSString *)identifier;
 
 
 /**
  Optionally called when the HWIFileDownloader needs to store the downloaded data for a download item.
- @param aDownloadIdentifier Download identifier of the download item.
- @param aRemoteURL Remote URL from where the data has been downloaded.
+ @param identifier Download identifier of the download item.
+ @param remoteURL Remote URL from where the data has been downloaded.
  @return The local file URL where the downloaded data should be persistently stored in the file system.
  @discussion Although the download identifier is enough to identify a singular download item, the remote URL is passed here too for convenience as it might convey useful information for determining a local file URL.
  */
-- (nullable NSURL *)localFileURLForIdentifier:(nonnull NSString *)aDownloadIdentifier
-                                    remoteURL:(nonnull NSURL *)aRemoteURL;
+- (nullable NSURL *)localFileURLForIdentifier:(nonnull NSString *)identifier
+                                    remoteURL:(nonnull NSURL *)remoteURL;
 
 
 /**
  Optionally called to validate downloaded data.
- @param aLocalFileURL Local file URL of the downloaded item.
- @param aDownloadIdentifier Download identifier of the download item.
+ @param localFileURL Local file URL of the downloaded item.
+ @param downloadIdentifier Download identifier of the download item.
  @return True if downloaded data in local file passed validation test.
  @discussion The download might finish successfully with an error explanation string as downloaded data. This method can be used to check whether the downloaded data is the expected content and data type. If not implemented, every download is valid.
  */
-- (BOOL)downloadAtLocalFileURL:(nonnull NSURL *)aLocalFileURL isValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
+- (BOOL)downloadAtLocalFileURL:(nonnull NSURL *)localFileURL isValidForDownloadIdentifier:(nonnull NSString *)downloadIdentifier;
 
 
 /**
  Optionally called to validate http status code.
- @param aHttpStatusCode Http status code of the http response.
- @param aDownloadIdentifier Download identifier of the download item.
+ @param httpStatusCode Http status code of the http response.
+ @param downloadIdentifier Download identifier of the download item.
  @return True if http status code is valued as correct.
  @discussion Default implementation values http status code from 200 to 299 as correct.
  */
-- (BOOL)httpStatusCode:(NSInteger)aHttpStatusCode isValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
+- (BOOL)httpStatusCode:(NSInteger)httpStatusCode isValidForDownloadIdentifier:(nonnull NSString *)downloadIdentifier;
 
 
 /**
  Optionally customize the background session configuration.
- @param aBackgroundSessionConfiguration Background session configuration to modify.
+ @param backgroundSessionConfiguration Background session configuration to modify.
  @discussion With the background session configuration parameters can be adjusted (e.g. timeoutIntervalForRequest, timeoutIntervalForResource, HTTPAdditionalHeaders).
  */
-- (void)customizeBackgroundSessionConfiguration:(nonnull NSURLSessionConfiguration *)aBackgroundSessionConfiguration;
+- (void)customizeBackgroundSessionConfiguration:(nonnull NSURLSessionConfiguration *)backgroundSessionConfiguration;
 
 
 /**
  Optionally create a custom url request for a remote url.
- @param aRemoteURL Remote URL from where the data should be downloaded.
+ @param remoteURL Remote URL from where the data should be downloaded.
  @discussion Create a custom url request if you want to customize cachePolicy or timeoutInterval. Used with NSURLConnection on iOS 6 only.
  */
-- (nullable NSURLRequest *)urlRequestForRemoteURL:(nonnull NSURL *)aRemoteURL;
+- (nullable NSURLRequest *)urlRequestForRemoteURL:(nonnull NSURL *)remoteURL;
 
 
 /**
  Optionally called to receive NSURLCredential and NSURLSessionAuthChallengeDisposition for download identifier and authentication challenge.
- @param aChallenge Authentication challenge.
- @param aDownloadIdentifier Download identifier of the download item.
- @param aCompletionHandler Completion handler to call with credential and disposition.
+ @param challenge Authentication challenge.
+ @param downloadIdentifier Download identifier of the download item.
+ @param completionHandler Completion handler to call with credential and disposition.
  @discussion This method is called if the file is protected on the server.
  */
-- (void)onAuthenticationChallenge:(nonnull NSURLAuthenticationChallenge *)aChallenge
-               downloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                completionHandler:(void (^ _Nonnull)(NSURLCredential * _Nullable aCredential, NSURLSessionAuthChallengeDisposition disposition))aCompletionHandler;
+- (void)onAuthenticationChallenge:(nonnull NSURLAuthenticationChallenge *)challenge
+               downloadIdentifier:(nonnull NSString *)downloadIdentifier
+                completionHandler:(void (^ _Nonnull)(NSURLCredential * _Nullable credential, NSURLSessionAuthChallengeDisposition disposition))completionHandler;
 
 
 /**

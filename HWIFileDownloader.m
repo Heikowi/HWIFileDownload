@@ -119,7 +119,7 @@
 }
 
 
-- (void)setupWithCompletion:(nullable void (^)(void))aSetupCompletionBlock
+- (void)setupWithCompletionBlock:(nullable void (^)(void))aSetupCompletionBlock
 {
     if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
     {
