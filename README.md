@@ -46,12 +46,20 @@ $ pod install
 
 ### Using HWIFileDownload
 
-To use HWIFileDownload after integration, import the header file ``HWIFileDownloader.h`` in the class files where you want to use it:
+To use HWIFileDownload after integration, import the header file ``HWIFileDownloader.h`` in the Objective-C class files where you want to use it:
 
 ```objective-c
 #import "HWIFileDownloader.h"
 ```
 
+For use with Swift you need to add the imports to your Bridging-Header file:
+
+```swift
+#import "HWIFileDownloadDelegate.h"
+#import "HWIFileDownloader.h"
+#import "HWIFileDownloadItem.h"
+#import "HWIFileDownloadProgress.h"
+```
 
 ## Implementation
 
@@ -65,51 +73,121 @@ The app client must maintain a custom __download store__ to manage the downloads
 
 The delegate is called on download completion. Additional mandatory calls control the visibility of the network activity indicator. Optionally the delegate can be called on download progress change for each download item. To control the local name and location of the downloaded file, the delegate can implement the method `localFileURLForIdentifier:remoteURL:`.
 
+Objective-C:
+
 ```objective-c
 @protocol HWIFileDownloadDelegate
-- (void)downloadDidCompleteWithIdentifier:(nonnull NSString *)aDownloadIdentifier
-                             localFileURL:(nonnull NSURL *)aLocalFileURL;
-- (void)downloadFailedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
-                               error:(nonnull NSError *)anError
-                      httpStatusCode:(NSInteger)aHttpStatusCode
-                  errorMessagesStack:(nullable NSArray<NSString *> *)anErrorMessagesStack
-                          resumeData:(nullable NSData *)aResumeData;
+- (void)downloadDidCompleteWithIdentifier:(nonnull NSString *)identifier
+                             localFileURL:(nonnull NSURL *)localFileURL;
+- (void)downloadFailedWithIdentifier:(nonnull NSString *)identifier
+                               error:(nonnull NSError *)error
+                      httpStatusCode:(NSInteger)httpStatusCode
+                  errorMessagesStack:(nullable NSArray<NSString *> *)errorMessagesStack
+                          resumeData:(nullable NSData *)resumeData;
 - (void)incrementNetworkActivityIndicatorActivityCount;
 - (void)decrementNetworkActivityIndicatorActivityCount;
 
 @optional
-- (void)downloadProgressChangedForIdentifier:(nonnull NSString *)aDownloadIdentifier;
-- (void)downloadPausedWithIdentifier:(nonnull NSString *)aDownloadIdentifier
-                          resumeData:(nullable NSData *)aResumeData;
-- (void)resumeDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier;
-- (nullable NSURL *)localFileURLForIdentifier:(nonnull NSString *)aDownloadIdentifier
-                                    remoteURL:(nonnull NSURL *)aRemoteURL;
-- (BOOL)downloadAtLocalFileURL:(nonnull NSURL *)aLocalFileURL isValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
-- (BOOL)httpStatusCode:(NSInteger)aHttpStatusCode isValidForDownloadIdentifier:(nonnull NSString *)aDownloadIdentifier;
-- (void)customizeBackgroundSessionConfiguration:(nonnull NSURLSessionConfiguration *)aBackgroundSessionConfiguration;
-- (nullable NSURLRequest *)urlRequestForRemoteURL:(nonnull NSURL *)aRemoteURL;
-- (void)onAuthenticationChallenge:(nonnull NSURLAuthenticationChallenge *)aChallenge
-               downloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                completionHandler:(void (^ _Nonnull)(NSURLCredential * _Nullable aCredential, NSURLSessionAuthChallengeDisposition disposition))aCompletionHandler;
+- (void)downloadProgressChangedForIdentifier:(nonnull NSString *)identifier;
+- (void)downloadPausedWithIdentifier:(nonnull NSString *)identifier
+                          resumeData:(nullable NSData *)resumeData;
+- (void)resumeDownloadWithIdentifier:(nonnull NSString *)identifier;
+- (nullable NSURL *)localFileURLForIdentifier:(nonnull NSString *)identifier
+                                    remoteURL:(nonnull NSURL *)remoteURL;
+- (BOOL)downloadAtLocalFileURL:(nonnull NSURL *)localFileURL isValidForDownloadIdentifier:(nonnull NSString *)downloadIdentifier;
+- (BOOL)httpStatusCode:(NSInteger)httpStatusCode isValidForDownloadIdentifier:(nonnull NSString *)downloadIdentifier;
+- (void)customizeBackgroundSessionConfiguration:(nonnull NSURLSessionConfiguration *)backgroundSessionConfiguration;
+- (nullable NSURLRequest *)urlRequestForRemoteURL:(nonnull NSURL *)remoteURL;
+- (void)onAuthenticationChallenge:(nonnull NSURLAuthenticationChallenge *)challenge
+               downloadIdentifier:(nonnull NSString *)downloadIdentifier
+                completionHandler:(void (^ _Nonnull)(NSURLCredential * _Nullable credential, NSURLSessionAuthChallengeDisposition disposition))completionHandler;
 - (nullable NSProgress *)rootProgress;
 @end
 ```
+
+Swift class implementing the protocol:
+
+```swift
+class DownloadStore: NSObject, HWIFileDownloadDelegate {
+
+    // HWIFileDownloadDelegate (mandatory)
+    
+    @objc public func downloadDidComplete(withIdentifier identifier: String, localFileURL: URL) {
+        print("yes")
+    }
+    
+    @objc public func downloadFailed(withIdentifier identifier: String, error: Error, httpStatusCode: Int, errorMessagesStack: [String]?, resumeData: Data?) {
+        print("no")
+    }
+    
+    @objc public func incrementNetworkActivityIndicatorActivityCount() {
+        //
+    }
+    
+    @objc public func decrementNetworkActivityIndicatorActivityCount() {
+        //
+    }
+    
+    // HWIFileDownloadDelegate (optional)
+/*
+    @objc public func downloadProgressChanged(forIdentifier identifier: String) {
+        //
+    }
+    
+    @objc public func downloadPaused(withIdentifier identifier: String, resumeData: Data?) {
+        //
+    }
+    
+    @objc public func resumeDownload(withIdentifier identifier: String) {
+        //
+    }
+    
+    @objc public func localFileURL(forIdentifier identifier: String, remoteURL: URL) -> URL? {
+        return nil
+    }
+    
+    @objc public func download(atLocalFileURL localFileURL: URL, isValidForDownloadIdentifier downloadIdentifier: String) -> Bool {
+        return true
+    }
+    
+    @objc public func httpStatusCode(_ httpStatusCode: Int, isValidForDownloadIdentifier downloadIdentifier: String) -> Bool {
+        return true
+    }
+    
+    @objc public func customizeBackgroundSessionConfiguration(_ backgroundSessionConfiguration: URLSessionConfiguration) {
+        //
+    }
+    
+    @objc public func urlRequest(forRemoteURL remoteURL: URL) -> URLRequest? {
+        return nil
+    }
+    
+    @objc public func onAuthenticationChallenge(_ challenge: URLAuthenticationChallenge, downloadIdentifier: String, completionHandler: @escaping (URLCredential?, URLSession.AuthChallengeDisposition) -> Void) {
+        //
+    }
+    
+    @objc public func rootProgress() -> Progress? {
+        return nil
+    }
+*/
+```
+
 
 ### Downloader
 
 The app needs to hold an instance of the `HWIFileDownloader` that manages the download process. `HWIFileDownloader` provides methods for starting, querying and controlling individual download processes.
 
 ```objective-c
-- (nonnull instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate;
-- (void)startDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier
-                      fromRemoteURL:(nonnull NSURL *)aRemoteURL;
-- (void)startDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier
-                    usingResumeData:(nonnull NSData *)aResumeData;
-- (BOOL)isDownloadingIdentifier:(nonnull NSString *)aDownloadIdentifier;
-- (BOOL)isWaitingForDownloadOfIdentifier:(nonnull NSString *)aDownloadIdentifier;
+- (nonnull instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)delegate;
+- (void)startDownloadWithIdentifier:(nonnull NSString *)identifier
+                      fromRemoteURL:(nonnull NSURL *)remoteURL;
+- (void)startDownloadWithIdentifier:(nonnull NSString *)identifier
+                    usingResumeData:(nonnull NSData *)resumeData;
+- (BOOL)isDownloadingIdentifier:(nonnull NSString *)identifier;
+- (BOOL)isWaitingForDownloadOfIdentifier:(nonnull NSString *)identifier;
 - (BOOL)hasActiveDownloads;
-- (void)cancelDownloadWithIdentifier:(nonnull NSString *)aDownloadIdentifier;
-- (nullable HWIFileDownloadProgress *)downloadProgressForIdentifier:(nonnull NSString *)aDownloadIdentifier;
+- (void)cancelDownloadWithIdentifier:(nonnull NSString *)identifier;
+- (nullable HWIFileDownloadProgress *)downloadProgressForIdentifier:(nonnull NSString *)identifier;
 ```
 	
 ### Progress
@@ -129,7 +207,7 @@ The app needs to hold an instance of the `HWIFileDownloader` that manages the do
 
 ## Demo App
 
-The demo app shows a sample setup and integration of HWIFileDownload.
+The demo app shows a sample setup and integration of HWIFileDownload with an Objective-C application.
 
 The app __download store__ is implemented with the custom class `DemoDownloadStore`.
 
@@ -172,8 +250,8 @@ When loosing network connection, all running downloads pause after request timeo
 Two delegate calls provide hooks for adjusting connection parameters:
 
 ```objective-c
-- (void)customizeBackgroundSessionConfiguration:(nonnull NSURLSessionConfiguration *)aBackgroundSessionConfiguration;
-- (nullable NSURLRequest *)urlRequestForRemoteURL:(nonnull NSURL *)aRemoteURL; // iOS 6 only
+- (void)customizeBackgroundSessionConfiguration:(nonnull NSURLSessionConfiguration *)backgroundSessionConfiguration;
+- (nullable NSURLRequest *)urlRequestForRemoteURL:(nonnull NSURL *)remoteURL; // iOS 6 only
 ```
 
 ### Timeout
@@ -191,9 +269,9 @@ If the host of the network request is not reachable, `NSURLConnection` checks fo
 If authentication is required for a file download, you need to implement the delegate method
 
 ```objective-c
-- (void)onAuthenticationChallenge:(nonnull NSURLAuthenticationChallenge *)aChallenge
-               downloadIdentifier:(nonnull NSString *)aDownloadIdentifier
-                completionHandler:(void (^ _Nonnull)(NSURLCredential * _Nullable aCredential, NSURLSessionAuthChallengeDisposition disposition))aCompletionHandler;
+- (void)onAuthenticationChallenge:(nonnull NSURLAuthenticationChallenge *)challenge
+               downloadIdentifier:(nonnull NSString *)downloadIdentifier
+                completionHandler:(void (^ _Nonnull)(NSURLCredential * _Nullable credential, NSURLSessionAuthChallengeDisposition disposition))completionHandler;
 ```
 
 The demo app code includes a deactivated sample implementation.
