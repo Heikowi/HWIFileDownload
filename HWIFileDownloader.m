@@ -1482,7 +1482,6 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
 
 - (void)invalidateSessionConfigurationAndCancelTasks:(BOOL)cancelTasks {
     NSURLSession *oldBackgroundSession = self.backgroundSession;
-    NSString *oldSessionIdentifier = self.backgroundSessionIdentifier;
     self.backgroundSessionIdentifier = [NSString stringWithFormat:@"%@.%@", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"], [NSUUID new].UUIDString];
 
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:self.backgroundSessionIdentifier];
