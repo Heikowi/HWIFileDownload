@@ -66,7 +66,7 @@
 
 - (nonnull instancetype)initWithDelegate:(nonnull NSObject<HWIFileDownloadDelegate>*)aDelegate maxConcurrentDownloads:(NSInteger)aMaxConcurrentFileDownloadsCount
 {
-    NSString *aBackgroundDownloadSessionIdentifier = [NSString stringWithFormat:@"%@.HWIFileDownload", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"]];
+    NSString *aBackgroundDownloadSessionIdentifier = [NSString stringWithFormat:@"%@.HWIFileDownload.%@", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"], [NSUUID new].UUIDString];
     return [self initWithDelegate:aDelegate maxConcurrentDownloads:aMaxConcurrentFileDownloadsCount backgroundSessionIdentifier:aBackgroundDownloadSessionIdentifier];
 }
 
@@ -923,7 +923,12 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
 
 - (void)URLSession:(NSURLSession *)aSession didBecomeInvalidWithError:(nullable NSError *)anError
 {
-    NSLog(@"ERR: URL session did become invalid with error: %@ (%@, %d)", anError, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
+    if (anError) {
+        NSLog(@"ERR: Session did become invalid with error: %@ (%@, %d)", anError, [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
+    }
+    else {
+        NSLog(@"INFO: Session has been intentionally invalidated (%@, %d)", [NSString stringWithUTF8String:__FILE__].lastPathComponent, __LINE__);
+    }
 }
 
 
@@ -1471,5 +1476,29 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)aChallenge
     return aDescriptionString;
 }
 
-@end
+- (NSURLSessionConfiguration *)backgroundSessionConfiguration {
+    return self.backgroundSession.configuration;
+}
 
+- (void)invalidateSessionConfigurationAndCancelTasks:(BOOL)cancelTasks {
+    NSURLSession *oldBackgroundSession = self.backgroundSession;
+    NSString *oldSessionIdentifier = self.backgroundSessionIdentifier;
+    self.backgroundSessionIdentifier = [NSString stringWithFormat:@"%@.%@", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"], [NSUUID new].UUIDString];
+
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:self.backgroundSessionIdentifier];
+    [self.fileDownloadDelegate customizeBackgroundSessionConfiguration:configuration];
+
+    self.backgroundSession = [NSURLSession sessionWithConfiguration:configuration
+                                                           delegate:self
+                                                      delegateQueue:[NSOperationQueue mainQueue]];
+
+    if (cancelTasks) {
+        [oldBackgroundSession invalidateAndCancel];
+    }
+    else {
+        // This will keep the session around long enough to finish any existing requests, after which it will go away.
+        [oldBackgroundSession finishTasksAndInvalidate];
+    }
+}
+
+@end
