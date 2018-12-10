@@ -395,17 +395,10 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
     }
 }
 
-/*
 - (void)customizeBackgroundSessionConfiguration:(nonnull NSURLSessionConfiguration *)aBackgroundSessionConfiguration
 {
-    NSMutableDictionary *aHTTPAdditionalHeadersDict = [aBackgroundSessionConfiguration.HTTPAdditionalHeaders mutableCopy];
-    if (aHTTPAdditionalHeadersDict == nil) {
-        aHTTPAdditionalHeadersDict = [[NSMutableDictionary alloc] init];
-    }
-    [aHTTPAdditionalHeadersDict setObject:@"identity" forKey:@"Accept-Encoding"];
-    aBackgroundSessionConfiguration.HTTPAdditionalHeaders = aHTTPAdditionalHeadersDict;
+    aBackgroundSessionConfiguration.allowsCellularAccess = self.allowsCellularAccess;
 }
-*/
 
 #pragma mark - NSProgress
 

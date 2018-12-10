@@ -46,6 +46,7 @@
 
 
 @property (nonatomic, strong, readonly, nonnull) NSMutableArray<DemoDownloadItem *> *downloadItemsArray;
+@property (nonatomic, assign) BOOL allowsCellularAccess;
 
 
 - (void)startDownloadWithDownloadItem:(nonnull DemoDownloadItem *)aDemoDownloadItem;

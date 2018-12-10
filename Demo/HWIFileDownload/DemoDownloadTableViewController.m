@@ -117,6 +117,11 @@
     self.tableView.rowHeight = 109.0;
     [self.tableView registerNib:[UINib nibWithNibName:@"DemoDownloadTableViewCell" bundle:[NSBundle mainBundle]] forCellReuseIdentifier:@"DemoDownloadTableViewCell"];
     self.title = @"Download";
+
+    UISwitch *useMobileDataSwitch = [[UISwitch alloc] init];
+    [useMobileDataSwitch addTarget:self action:@selector(useMobileDataSwitched:) forControlEvents:UIControlEventValueChanged];
+    UIBarButtonItem *useMobileDataBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:useMobileDataSwitch];
+    self.navigationItem.leftBarButtonItem = useMobileDataBarButtonItem;
     
     UIBarButtonItem *aRightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Crash" style:UIBarButtonItemStylePlain target:self action:@selector(crash)];
     self.navigationItem.rightBarButtonItem = aRightBarButtonItem;
@@ -233,6 +238,26 @@
     NSArray *anArray = [NSArray array];
     id test = [anArray objectAtIndex:123456789];
     NSLog(@"%@", test);
+}
+
+
+- (void)useMobileDataSwitched:(UISwitch *)useMobileDataSwitch {
+    DemoDownloadAppDelegate *theAppDelegate = (DemoDownloadAppDelegate *)[UIApplication sharedApplication].delegate;
+    theAppDelegate.demoDownloadStore.allowsCellularAccess = useMobileDataSwitch.isOn;
+
+    // SCNetworkReachability should be integrated
+    BOOL isReachableViaWiFi = NO;
+
+    if (isReachableViaWiFi) {
+        // If the user is on Wi-Fi, tasks should NOT be canceled on the old session.
+        [theAppDelegate.fileDownloader invalidateSessionConfigurationAndCancelTasks:NO];
+    }
+    else {
+        // If the user is on Cellular and the user disallows mobile data then all tasks should be canceled
+        [theAppDelegate.fileDownloader invalidateSessionConfigurationAndCancelTasks:YES];
+    }
+
+    //If the use of mobile data is allowed then restart all downloads...
 }
 
 
