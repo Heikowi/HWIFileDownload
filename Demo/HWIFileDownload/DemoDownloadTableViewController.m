@@ -245,19 +245,13 @@
     DemoDownloadAppDelegate *theAppDelegate = (DemoDownloadAppDelegate *)[UIApplication sharedApplication].delegate;
     theAppDelegate.demoDownloadStore.allowsCellularAccess = useMobileDataSwitch.isOn;
 
-    // SCNetworkReachability should be integrated
-    BOOL isReachableViaWiFi = NO;
+    BOOL isReachableViaWiFi = NO; // SCNetworkReachability
 
-    if (isReachableViaWiFi) {
-        // If the user is on Wi-Fi, tasks should NOT be canceled on the old session.
-        [theAppDelegate.fileDownloader invalidateSessionConfigurationAndCancelTasks:NO];
-    }
-    else {
-        // If the user is on Cellular and the user disallows mobile data then all tasks should be canceled
-        [theAppDelegate.fileDownloader invalidateSessionConfigurationAndCancelTasks:YES];
-    }
+    BOOL cancelDownloadTasks = theAppDelegate.demoDownloadStore.allowsCellularAccess ? NO : !isReachableViaWiFi;
 
-    //If the use of mobile data is allowed then restart all downloads...
+    [theAppDelegate.fileDownloader invalidateSessionConfigurationAndCancelTasks:cancelDownloadTasks];
+
+    // after cancelDownloadTasks -> restart all downloads
 }
 
 
