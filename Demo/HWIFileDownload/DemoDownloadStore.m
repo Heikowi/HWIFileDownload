@@ -407,6 +407,11 @@ static void *DemoDownloadStoreProgressObserverContext = &DemoDownloadStoreProgre
 }
 */
 
+- (void)customizeBackgroundSessionConfiguration:(nonnull NSURLSessionConfiguration *)aBackgroundSessionConfiguration
+{
+    aBackgroundSessionConfiguration.allowsCellularAccess = self.allowsCellularAccess;
+}
+
 #pragma mark - NSProgress
 
 

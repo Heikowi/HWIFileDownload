@@ -52,9 +52,15 @@ typedef void (^HWIFileDownloaderPauseResumeDataBlock)(NSData * _Nullable resumeD
 @interface HWIFileDownloader : NSObject
 
 /**
- NSURLSession's configuration identifier
+ NSURLSession's configuration identifier.
  */
 @property (readonly, nonatomic, copy, nonnull) NSString *backgroundSessionIdentifier;
+
+/**
+ NSURLSession's configuration.
+ */
+@property (readonly, nonatomic, nonnull) NSURLSessionConfiguration *backgroundSessionConfiguration;
+
 
 #pragma mark - Initialization
 
@@ -91,6 +97,14 @@ typedef void (^HWIFileDownloaderPauseResumeDataBlock)(NSData * _Nullable resumeD
  @param completionBlock Completion block to be called asynchronously after setup is finished.
  */
 - (void)setupWithCompletionBlock:(nullable void (^)(void))completionBlock;
+
+
+/**
+ Invalidate the shared NSURLSession configuration.
+ @param cancelTasks Tasks can be canceled or let them finish.
+ @discussion A new background session configuration is immediately created. The delegate  `customizeBackgroundSessionConfiguration:backgroundSessionConfiguration` method is called right after the instantiation of the new configuration.
+ */
+- (void)invalidateSessionConfigurationAndCancelTasks:(BOOL)cancelTasks NS_SWIFT_NAME(invalidateSessionConfiguration(cancelTasks:));
 
 
 #pragma mark - Download
