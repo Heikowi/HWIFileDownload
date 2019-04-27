@@ -1,6 +1,6 @@
 {
   "name": "HWIFileDownload",
-  "version": "3.4",
+  "version": "3.5",
   "license": {
     "type": "zlib",
     "file": "LICENCE.md"
@@ -11,7 +11,7 @@
   "social_media_url": "https://twitter.com/heikowi",
   "source": {
     "git": "https://github.com/Heikowi/HWIFileDownload.git",
-    "tag": "3.4"
+    "tag": "3.5"
   },
   "source_files": [
     "HWIBackgroundSessionCompletionHandlerBlock.h",
